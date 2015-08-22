@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Sat Aug 22 02:40:38 2015
+# Created: Sat Aug 22 14:50:18 2015
 #      by: pyside-uic 0.2.15 running on PySide 1.2.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -20,6 +20,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2 = QtGui.QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.url_le = QtGui.QLineEdit(self.centralwidget)
+        self.url_le.setReadOnly(True)
         self.url_le.setObjectName("url_le")
         self.horizontalLayout_2.addWidget(self.url_le)
         self.horizontalLayout = QtGui.QHBoxLayout()
@@ -38,7 +39,12 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2.addLayout(self.horizontalLayout)
         self.verticalLayout.addLayout(self.horizontalLayout_2)
         self.view = QtWebKit.QWebView(self.centralwidget)
-        self.view.setUrl(QtCore.QUrl("about:blank"))
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.view.sizePolicy().hasHeightForWidth())
+        self.view.setSizePolicy(sizePolicy)
+        self.view.setProperty("url", QtCore.QUrl("about:blank"))
         self.view.setObjectName("view")
         self.verticalLayout.addWidget(self.view)
         MainWindow.setCentralWidget(self.centralwidget)

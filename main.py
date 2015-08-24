@@ -4,20 +4,19 @@
 __author__ = 'ipetrash'
 
 
-import logging
+# import logging
 import sys
 
 from PySide.QtGui import *
-from PySide.QtCore import *
-from PySide.QtWebKit import *
+# from PySide.QtCore import *
+# from PySide.QtWebKit import *
 
 from mainwindow import MainWindow
 
 
-# URL = 'http://www.moswar.ru/player/'
-URL = 'http://www.moswar.ru/'
-LOGIN = 'ilya.petrash@inbox.ru'
-PASSWORD = '0JHQu9GPRnVjazop'
+# URL = 'http://www.moswar.ru/'
+# LOGIN = 'ilya.petrash@inbox.ru'
+# PASSWORD = '0JHQu9GPRnVjazop'
 TITLE = "Бот moswar'а"
 
 

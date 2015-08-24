@@ -47,6 +47,7 @@ class MainWindow(QMainWindow, QObject):
         # Список действий бота
         self.name_action_dict = {
             'Авторизация': self.auth,
+
             'Закоулки': self.alley,
             'Площадь': self.square,
             'Задания': self.jobs,
@@ -88,123 +89,68 @@ class MainWindow(QMainWindow, QObject):
 
         submit.evaluateJavaScript("this.click()")
 
-    def alley(self):
-        """Функция нажимает на кнопку Закоулки."""
+    def click_a(self, class_name, title_action):
+        """Функция, которая ищет тег a с class_name и эмулирует клик."""
 
         doc = self.ui.view.page().mainFrame().documentElement()
 
-        a = doc.findFirst("a[class=alley]")
+        a = doc.findFirst("a[class={}]".format(class_name))
         if a.isNull():
-            raise MoswarButtonIsMissError('Закоулки')
+            raise MoswarButtonIsMissError(title_action)
 
         a.evaluateJavaScript("window.location.href = this.href;")
+
+    def alley(self):
+        """Функция нажимает на кнопку Закоулки."""
+
+        self.click_a('alley', 'Закоулки')
 
     def square(self):
         """Функция нажимает на кнопку Площадь."""
 
-        doc = self.ui.view.page().mainFrame().documentElement()
-
-        a = doc.findFirst("a[class=square]")
-        if a.isNull():
-            raise MoswarButtonIsMissError('Площадь')
-
-        a.evaluateJavaScript("window.location.href = this.href;")
+        self.click_a('square', 'Площадь')
 
     def jobs(self):
         """Функция нажимает на кнопку Задания."""
 
-        doc = self.ui.view.page().mainFrame().documentElement()
-
-        a = doc.findFirst("a[class=jobs]")
-        if a.isNull():
-            raise MoswarButtonIsMissError('Задания')
-
-        a.evaluateJavaScript("window.location.href = this.href;")
+        self.click_a('jobs', 'Задания')
 
     def pers(self):
         """Функция нажимает на кнопку Персонаж."""
 
-        doc = self.ui.view.page().mainFrame().documentElement()
-
-        a = doc.findFirst("a[class=pers]")
-        if a.isNull():
-            raise MoswarButtonIsMissError('Персонаж')
-
-        a.evaluateJavaScript("window.location.href = this.href;")
+        self.click_a('pers', 'Персонаж')
 
     def rating(self):
         """Функция нажимает на кнопку Рейтинг."""
 
-        doc = self.ui.view.page().mainFrame().documentElement()
-
-        a = doc.findFirst("a[class=rating]")
-        if a.isNull():
-            raise MoswarButtonIsMissError('Рейтинг')
-
-        a.evaluateJavaScript("window.location.href = this.href;")
+        self.click_a('rating', 'Рейтинг')
 
     def home(self):
         """Функция нажимает на кнопку Хата."""
 
-        doc = self.ui.view.page().mainFrame().documentElement()
-
-        a = doc.findFirst("a[class=home]")
-        if a.isNull():
-            raise MoswarButtonIsMissError('Хата')
-
-        a.evaluateJavaScript("window.location.href = this.href;")
+        self.click_a('home', 'Хата')
 
     def clan(self):
         """Функция нажимает на кнопку Клан."""
 
-        doc = self.ui.view.page().mainFrame().documentElement()
-
-        a = doc.findFirst("a[class=clan]")
-        if a.isNull():
-            raise MoswarButtonIsMissError('Клан')
-
-        a.evaluateJavaScript("window.location.href = this.href;")
+        self.click_a('clan', 'Клан')
 
     def stash(self):
         """Функция нажимает на кнопку Заначка."""
 
-        doc = self.ui.view.page().mainFrame().documentElement()
-
-        a = doc.findFirst("a[class=stash]")
-        if a.isNull():
-            raise MoswarButtonIsMissError('Заначка')
-
-        a.evaluateJavaScript("window.location.href = this.href;")
+        self.click_a('stash', 'Заначка')
 
     def tverskaya(self):
         """Функция нажимает на кнопку Тверская."""
 
-        doc = self.ui.view.page().mainFrame().documentElement()
-
-        a = doc.findFirst("a[class=square-leftstreet]")
-        if a.isNull():
-            raise MoswarButtonIsMissError('Тверская')
-
-        a.evaluateJavaScript("window.location.href = this.href;")
+        self.click_a('square-leftstreet', 'Тверская')
 
     def arbat(self):
         """Функция нажимает на кнопку Арбат."""
 
-        doc = self.ui.view.page().mainFrame().documentElement()
-
-        a = doc.findFirst("a[class=square-rightstreet]")
-        if a.isNull():
-            raise MoswarButtonIsMissError('Арбат')
-
-        a.evaluateJavaScript("window.location.href = this.href;")
+        self.click_a('square-rightstreet', 'Арбат')
 
     def butovo(self):
         """Функция нажимает на кнопку Бутово."""
 
-        doc = self.ui.view.page().mainFrame().documentElement()
-
-        a = doc.findFirst("a[class=square-middlestreet]")
-        if a.isNull():
-            raise MoswarButtonIsMissError('Бутово')
-
-        a.evaluateJavaScript("window.location.href = this.href;")
+        self.click_a('square-middlestreet', 'Бутово')

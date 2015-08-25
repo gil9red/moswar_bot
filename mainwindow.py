@@ -28,6 +28,12 @@ PASSWORD = '0JHQu9GPRnVjazop'
 TITLE = "Бот moswar'а"
 
 
+# TODO: level up:
+# <div id="content" class="levelup">
+# После левел апа нужно кликнуть на: <button class="button" type="submit">
+
+
+
 class MainWindow(QMainWindow, QObject):
     def __init__(self, parent=None):
         super().__init__(parent)

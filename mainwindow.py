@@ -295,6 +295,8 @@ class MainWindow(QMainWindow, QObject):
         if self.current_url() == 'http://www.moswar.ru/thimble/':
             return
 
+        # TODO: замерить сколько времени длилась игра
+
         # Эмулируем клик на кнопку "Начать играть"
         self.go('thimble/start')
 

@@ -4,27 +4,19 @@
 __author__ = 'ipetrash'
 
 
-# import logging
 import sys
-
-from PySide.QtGui import *
-# from PySide.QtCore import *
-# from PySide.QtWebKit import *
-
+from PySide.QtGui import QApplication
 from mainwindow import MainWindow
 
 
-# URL = 'http://www.moswar.ru/'
-# LOGIN = 'ilya.petrash@inbox.ru'
-# PASSWORD = '0JHQu9GPRnVjazop'
-TITLE = "Бот moswar'а"
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
 
+    mw = MainWindow()
+    mw.resize(1000, 800)
+    mw.show()
 
-app = QApplication(sys.argv)
+    # Загрузка страницы мосвара и авторизация
+    mw.auth()
 
-mw = MainWindow()
-mw.setWindowTitle(TITLE)
-mw.resize(1000, 800)
-mw.show()
-
-sys.exit(app.exec_())
+    sys.exit(app.exec_())

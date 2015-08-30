@@ -25,10 +25,11 @@ class MoswarAuthError(MoswarBotError):
     pass
 
 
-# URL = 'http://www.moswar.ru/'
 LOGIN = 'ilya.petrash@inbox.ru'
 PASSWORD = '0JHQu9GPRnVjazop'
-TITLE = "Бот moswar'а"
+
+
+# TODO: import logging
 
 
 # TODO: level up:
@@ -61,6 +62,12 @@ TITLE = "Бот moswar'а"
 # <button id="push" class="button" type="button">
 
 
+
+# TODO: удалить всех из http://www.moswar.ru/phone/contacts/victims/2/
+# у которых награда меньше 15к
+
+
+
 class MainWindow(QMainWindow, QObject):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -73,9 +80,9 @@ class MainWindow(QMainWindow, QObject):
         QWebSettings.globalSettings().setAttribute(QWebSettings.DeveloperExtrasEnabled, True)
 
         # view.loadFinished.connect(auth)
-        self.ui.view.load(self.moswar_url)
+        # self.ui.view.load(self.moswar_url)
 
-        self.ui.view.loadFinished.connect(lambda x=None: print('finished'))
+        # self.ui.view.loadFinished.connect(lambda x=None: print('finished'))
         # self.ui.view.page().mainFrame().pageChanged.connect(lambda x=None: print('pageChanged'))
         # self.ui.view.page().networkAccessManager().finished.connect(lambda x=None: print('finished', x.isFinished()))
 
@@ -100,7 +107,7 @@ class MainWindow(QMainWindow, QObject):
 
         # Список действий бота
         self.name_action_dict = {
-            'Авторизация': self.auth,
+            # 'Авторизация': self.auth,
 
             'Закоулки': self.alley,
             'Площадь': self.square,
@@ -136,12 +143,15 @@ class MainWindow(QMainWindow, QObject):
         self.ui.view.load(url)
 
     def auth(self):
-        """Функция заполняет поля логина и пароля и нажимает на кнопку Войти."""
+        """Функция загружает страницу мосвара, заполняет поля логина и пароля и нажимает на кнопку Войти."""
 
-        if self.current_url() != self.moswar_url:
-            print('Авторизация используется для страницы "{}", '
-                  'Текущая страница: "{}"'.format(self.moswar_url, self.current_url()))
-            return
+        # Открываем страницу мосвара
+        self.ui.view.load(self.moswar_url)
+
+        # Ждем окончания загрузки страницы
+        loop = QEventLoop()
+        self.ui.view.loadFinished.connect(loop.quit)
+        loop.exec_()
 
         doc = self.ui.view.page().mainFrame().documentElement()
         login = doc.findFirst('input[id=login-email]')
@@ -304,7 +314,7 @@ class MainWindow(QMainWindow, QObject):
         loop.exec_()
 
         print('Игра в наперстки закончилась за {} раундов'.format(self.thimble_round_count))
-        print('Угадано {} руды'.format(self.ruda_count))
+        print('Угадано {} руды. Потрачено {} тугриков.'.format(self.ruda_count, self.thimble_round_count * 1500))
         print('Удача {:.2f}%'.format(self.ruda_count / (self.thimble_round_count * 3) * 100))
 
         # Эмулируем клик на кнопку "Я наигрался, хватит"
@@ -321,7 +331,7 @@ class MainWindow(QMainWindow, QObject):
 
         if self.money() < 3000:
             self.timer_thimble.stop()
-            print("Заканчиваю игру. Осталось мало денег: {}".format(self.money()))
+            print("Заканчиваю игру.")
             self.finished_thimble_game.emit()
             return
 

@@ -9,6 +9,9 @@ from PySide.QtGui import QApplication
 from mainwindow import MainWindow
 
 
+# TODO: бесплатный спортлото: http://www.moswar.ru/casino/sportloto/
+
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
 

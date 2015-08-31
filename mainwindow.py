@@ -4,12 +4,18 @@
 __author__ = 'ipetrash'
 
 from urllib.parse import urljoin
+import sys
+import logging
+
+
 
 from PySide.QtGui import *
 from PySide.QtCore import *
 from PySide.QtWebKit import *
 
 from mainwindow_ui import Ui_MainWindow
+
+from thimblerig import Thimblerig
 
 
 class MoswarBotError(Exception):
@@ -28,8 +34,6 @@ class MoswarAuthError(MoswarBotError):
 LOGIN = 'ilya.petrash@inbox.ru'
 PASSWORD = '0JHQu9GPRnVjazop'
 
-
-# TODO: import logging
 
 
 # TODO: level up:
@@ -67,6 +71,30 @@ PASSWORD = '0JHQu9GPRnVjazop'
 # у которых награда меньше 15к
 
 
+def get_logger(name, file='log.txt', encoding='utf8'):
+    log = logging.getLogger(name)
+    log.setLevel(logging.DEBUG)
+
+    formatter = logging.Formatter('%(filename)s[LINE:%(lineno)d]# %(levelname)-8s [%(asctime)s]  %(message)s')
+
+    fh = logging.FileHandler(file, encoding=encoding)
+    fh.setLevel(logging.DEBUG)
+
+    ch = logging.StreamHandler(stream=sys.stdout)
+    # ch = logging.StreamHandler()
+    ch.setLevel(logging.DEBUG)
+
+    fh.setFormatter(formatter)
+    ch.setFormatter(formatter)
+
+    log.addHandler(fh)
+    log.addHandler(ch)
+
+    return log
+
+
+logger = get_logger('moswar_bot')
+
 
 class MainWindow(QMainWindow, QObject):
     def __init__(self, parent=None):
@@ -92,18 +120,20 @@ class MainWindow(QMainWindow, QObject):
         # При клике на кнопку, мы получаем значение data текущего элемента и вызываем функцию, хранящуюся там
         self.ui.run_pb.clicked.connect(lambda: self.ui.commands_cb.itemData(self.ui.commands_cb.currentIndex())())
 
-        self.timer_thimble = QTimer()
-        self.timer_thimble.setInterval(1000)
-        self.timer_thimble.timeout.connect(self.select_thimble)
+        # self.timer_thimble = QTimer()
+        # self.timer_thimble.setInterval(1000)
+        # self.timer_thimble.timeout.connect(self.select_thimble)
+        #
+        # self.timer_round_thimble = QTimer()
+        # self.timer_round_thimble.setInterval(1000)
+        # self.timer_round_thimble.setSingleShot(True)
+        # self.timer_round_thimble.timeout.connect(self.nine_thimble)
+        #
+        # # TODO: добавить игре в наперстки немного рандома
+        # self.ruda_count = 0
+        # self.thimble_round_count = 0
 
-        self.timer_round_thimble = QTimer()
-        self.timer_round_thimble.setInterval(1000)
-        self.timer_round_thimble.setSingleShot(True)
-        self.timer_round_thimble.timeout.connect(self.nine_thimble)
-
-        # TODO: добавить игре в наперстки немного рандома
-        self.ruda_count = 0
-        self.thimble_round_count = 0
+        self.thimblerig = Thimblerig(self)
 
         # Список действий бота
         self.name_action_dict = {
@@ -122,7 +152,8 @@ class MainWindow(QMainWindow, QObject):
             # 'Арбат': self.arbat,
             # 'Бутово': self.butovo,
 
-            'Игра в наперстки': self.thimble,
+            # 'Игра в наперстки': self.thimble,
+            'Игра в наперстки': self.thimblerig.run(),
             # '9': self.nine_thimble,
             # 'select_thimbles': self.select_thimbles,
         }
@@ -130,6 +161,10 @@ class MainWindow(QMainWindow, QObject):
         # Добавляем команды
         for command in sorted(self.name_action_dict):
             self.ui.commands_cb.addItem(command, self.name_action_dict[command])
+
+    def _get_doc(self):
+        return self.ui.view.page().mainFrame().documentElement()
+    doc = property(_get_doc)
 
     def current_url(self):
         """Функция возвращает текущий адрес страницы."""
@@ -153,9 +188,8 @@ class MainWindow(QMainWindow, QObject):
         self.ui.view.loadFinished.connect(loop.quit)
         loop.exec_()
 
-        doc = self.ui.view.page().mainFrame().documentElement()
-        login = doc.findFirst('input[id=login-email]')
-        password = doc.findFirst('input[id=login-password]')
+        login = self.doc.findFirst('input[id=login-email]')
+        password = self.doc.findFirst('input[id=login-password]')
 
         if login.isNull() or password.isNull():
             raise MoswarAuthError('Не найдены поля логина и пароля.')
@@ -163,7 +197,7 @@ class MainWindow(QMainWindow, QObject):
         login.setAttribute("value", LOGIN)
         password.setAttribute("value", PASSWORD)
 
-        submit = doc.findFirst("input[type=submit]")
+        submit = self.doc.findFirst("input[type=submit]")
         if submit.isNull():
             raise MoswarButtonIsMissError('Войти')
 
@@ -172,9 +206,7 @@ class MainWindow(QMainWindow, QObject):
     def base_click_a(self, css_path, title_action):
         """Базовая функция для эмуляции клика по a тегам."""
 
-        doc = self.ui.view.page().mainFrame().documentElement()
-
-        a = doc.findFirst(css_path)
+        a = self.doc.findFirst(css_path)
         if a.isNull():
             raise MoswarButtonIsMissError(title_action)
 
@@ -205,8 +237,8 @@ class MainWindow(QMainWindow, QObject):
     def metro(self):
         # """Функция нажимает на кнопку Метро."""
         #
-        # doc = self.ui.view.page().mainFrame().documentElement()
-        # a = doc.findFirst('div[id="square-metro-button"] a')
+        # self.doc = self.ui.view.page().mainFrame().documentElement()
+        # a = self.doc.findFirst('div[id="square-metro-button"] a')
         # if a.isNull():
         #     raise MoswarButtonIsMissError('Метро')
         #
@@ -268,8 +300,7 @@ class MainWindow(QMainWindow, QObject):
     def money(self):
         """Функция возвращает количество денег персонажа."""
 
-        doc = self.ui.view.page().mainFrame().documentElement()
-        money = doc.findFirst('li[class="tugriki-block"]')
+        money = self.doc.findFirst('li[class="tugriki-block"]')
         money = money.attribute('title')
         money = money.split(': ')[-1]
         return int(money)
@@ -280,171 +311,167 @@ class MainWindow(QMainWindow, QObject):
         tag.click()
         """.format(css_path)
 
-        doc = self.ui.view.page().mainFrame().documentElement()
-        ok = doc.evaluateJavaScript(code)
+        ok = self.doc.evaluateJavaScript(code)
         if ok is None:
-            print('Выполнение js скрипта неудачно. Code:\n' + code)
+            logger.warn('Выполнение js скрипта неудачно. Code:\n' + code)
 
         # self.finish_tag_click.emit()
 
-    finished_thimble_game = Signal()
-
-    def thimble(self):
-        """Игра в наперстки."""
-
-        if self.current_url() == 'http://www.moswar.ru/thimble/':
-            return
-
-        # TODO: замерить сколько времени длилась игра
-
-        # Эмулируем клик на кнопку "Начать играть"
-        self.go('thimble/start')
-
-        # Ждем пока прогрузится страница
-        loop = QEventLoop()
-        self.ui.view.loadFinished.connect(loop.quit)
-        loop.exec_()
-
-        self.ruda_count = 0
-        self.thimble_round_count = 0
-
-        self.timer_round_thimble.start()
-
-        # Ждем пока закончится игра
-        loop = QEventLoop()
-        self.finished_thimble_game.connect(loop.quit)
-        loop.exec_()
-
-        print('Игра в наперстки закончилась за {} раундов'.format(self.thimble_round_count))
-        print('Угадано {} руды. Потрачено {} тугриков.'.format(self.ruda_count, self.thimble_round_count * 1500))
-        print('Удача {:.2f}%'.format(self.ruda_count / (self.thimble_round_count * 3) * 100))
-
-        # Эмулируем клик на кнопку "Я наигрался, хватит"
-        self.go('thimble/leave')
-
-    def nine_thimble(self):
-        # doc = self.ui.view.page().mainFrame().documentElement()
-        # a = doc.findFirst('div[id="thimble-controls-buttons"] div[data-count="9"] a div')
-        # print(a)
-        # if a.isNull():
-        #     raise MoswarButtonIsMissError('Метро')
-        #
-        # a.evaluateJavaScript("this.click()")
-
-        if self.money() < 3000:
-            self.timer_thimble.stop()
-            print("Заканчиваю игру.")
-            self.finished_thimble_game.emit()
-            return
-
-        self.thimble_round_count += 1
-
-        css_path = "div[id='thimble-controls-buttons'] div[data-count='9']"
-        self.click_tag(css_path)
-
-        # self.select_thimbles()
-        self.timer_thimble.start()
-
-    # finish_tag_click = Signal()
-
-    # def select_thimbles(self):
+    # finished_thimble_game = Signal()
+    #
+    # def thimble(self):
+    #     """Игра в наперстки."""
+    #
+    #     if self.current_url() == 'http://www.moswar.ru/thimble/':
+    #         return
+    #
+    #     t = time.clock()
+    #
+    #     # Эмулируем клик на кнопку "Начать играть"
+    #     self.go('thimble/start')
+    #
+    #     # Ждем пока прогрузится страница
+    #     loop = QEventLoop()
+    #     self.ui.view.loadFinished.connect(loop.quit)
+    #     loop.exec_()
+    #
+    #     self.ruda_count = 0
+    #     self.thimble_round_count = 0
+    #
+    #     self.timer_round_thimble.start()
+    #
+    #     # Ждем пока закончится игра
+    #     loop = QEventLoop()
+    #     self.finished_thimble_game.connect(loop.quit)
+    #     loop.exec_()
+    #
+    #     logger.debug('Длительность игры {:.1f} секунд'.format(time.clock() - t))
+    #     logger.debug('Игра в наперстки закончилась за {} раундов'.format(self.thimble_round_count))
+    #     logger.debug('Угадано {} руды. Потрачено {} тугриков.'.format(self.ruda_count, self.thimble_round_count * 1500))
+    #     logger.debug('Удача {:.2f}%'.format(self.ruda_count / (self.thimble_round_count * 3) * 100))
+    #
+    #     # Эмулируем клик на кнопку "Я наигрался, хватит"
+    #     self.go('thimble/leave')
+    #
+    # def nine_thimble(self):
+    #     # a = self.doc.findFirst('div[id="thimble-controls-buttons"] div[data-count="9"] a div')
+    #     # print(a)
+    #     # if a.isNull():
+    #     #     raise MoswarButtonIsMissError('Метро')
+    #     #
+    #     # a.evaluateJavaScript("this.click()")
+    #
+    #     if self.money() < 3000:
+    #         self.timer_thimble.stop()
+    #         logger.debug("Заканчиваю игру.")
+    #         self.finished_thimble_game.emit()
+    #         return
+    #
+    #     self.thimble_round_count += 1
+    #
+    #     css_path = "div[id='thimble-controls-buttons'] div[data-count='9']"
+    #     self.click_tag(css_path)
+    #
+    #     # self.select_thimbles()
     #     self.timer_thimble.start()
-
-    def select_thimble(self):
-        # TODO: сделать get свойством
-        doc = self.ui.view.page().mainFrame().documentElement()
-        left = doc.findFirst('span[id="naperstki-left"]').toInnerXml()
-        # Если количество попыток равно 0, то останавливаем таймер
-        if left == '0':
-            self.timer_thimble.stop()
-
-            ruda = doc.findFirst('span[id="naperstki-ruda"]')
-            ruda = ruda.toPlainText()
-            ruda = int(ruda)
-            self.ruda_count += ruda
-            print("Раунд {}. Угадано {} руды.".format(self.thimble_round_count, ruda))
-
-            # Запускаем следующий раунд
-            self.timer_round_thimble.start()
-            return
-
-        css_path = "i[id='thimble3']"
-        i = doc.findFirst(css_path)
-        attr = i.attribute('class')
-        if 'guessed' not in attr and 'empty' not in attr:
-            self.click_tag(css_path)
-        #     print(css_path)
-        # else:
-        #     print('посещено 1')
-
-        css_path = "i[id='thimble4']"
-        i = doc.findFirst(css_path)
-        attr = i.attribute('class')
-        if 'guessed' not in attr and 'empty' not in attr:
-            self.click_tag(css_path)
-        #     print(css_path)
-        # else:
-        #     print('посещено 2')
-
-        css_path = "i[id='thimble5']"
-        i = doc.findFirst(css_path)
-        attr = i.attribute('class')
-        if 'guessed' not in attr and 'empty' not in attr:
-            self.click_tag(css_path)
-        #     print(css_path)
-        # else:
-        #     print('посещено 3')
-
-        # # Запускаем следующий раунд
-        # self.timer_round_thimble.start()
-
-    # def select_thimbles(self):
-    #     import time
     #
-    #     # loop = QEventLoop()
-    #     # self.finish_tag_click.connect(loop.quit)
-    #     # self.finish_tag_click.connect(lambda x=None: print('finish_tag_click'))
+    # # finish_tag_click = Signal()
     #
-    #     doc = self.ui.view.page().mainFrame().documentElement()
-    #     print(doc.findFirst('p[class="thimbles"]').toOuterXml())
+    # # def select_thimbles(self):
+    # #     self.timer_thimble.start()
+    #
+    # def select_thimble(self):
+    #     left = self.doc.findFirst('span[id="naperstki-left"]').toInnerXml()
+    #     # Если количество попыток равно 0, то останавливаем таймер
+    #     if left == '0':
+    #         self.timer_thimble.stop()
+    #
+    #         ruda = self.doc.findFirst('span[id="naperstki-ruda"]')
+    #         ruda = ruda.toPlainText()
+    #         ruda = int(ruda)
+    #         self.ruda_count += ruda
+    #         logger.info("Раунд {}. Угадано {} руды.".format(self.thimble_round_count, ruda))
+    #
+    #         # Запускаем следующий раунд
+    #         self.timer_round_thimble.start()
+    #         return
     #
     #     css_path = "i[id='thimble3']"
-    #     i = doc.findFirst(css_path)
+    #     i = self.doc.findFirst(css_path)
     #     attr = i.attribute('class')
     #     if 'guessed' not in attr and 'empty' not in attr:
     #         self.click_tag(css_path)
-    #         print(css_path, doc.findFirst('p[class="thimbles"]').toOuterXml())
-    #         time.sleep(2)
-    #     else:
-    #         print('посещено 1')
-    #
-    #     # time.sleep(3)
-    #     # loop.exec_()
+    #     #     print(css_path)
+    #     # else:
+    #     #     print('посещено 1')
     #
     #     css_path = "i[id='thimble4']"
-    #     i = doc.findFirst(css_path)
+    #     i = self.doc.findFirst(css_path)
     #     attr = i.attribute('class')
     #     if 'guessed' not in attr and 'empty' not in attr:
     #         self.click_tag(css_path)
-    #         print(css_path, doc.findFirst('p[class="thimbles"]').toOuterXml())
-    #         time.sleep(2)
-    #     else:
-    #         print('посещено 2')
-    #
-    #     # time.sleep(3)
-    #     # loop.exec_()
+    #     #     print(css_path)
+    #     # else:
+    #     #     print('посещено 2')
     #
     #     css_path = "i[id='thimble5']"
-    #     i = doc.findFirst(css_path)
+    #     i = self.doc.findFirst(css_path)
     #     attr = i.attribute('class')
     #     if 'guessed' not in attr and 'empty' not in attr:
     #         self.click_tag(css_path)
-    #         print(css_path, doc.findFirst('p[class="thimbles"]').toOuterXml())
-    #         time.sleep(2)
-    #     else:
-    #         print('посещено 3')
+    #     #     print(css_path)
+    #     # else:
+    #     #     print('посещено 3')
     #
-    #     # <i id="thimble3" class="icon thimble-closed-active thimble-guessed" data-id="3"></i>
-    #     # <i id="thimble4" class="icon thimble-closed-active thimble-empty" data-id="4"></i>
-    #     # <i id="thimble5" class="icon thimble-closed-active" data-id="5"></i>
+    #     # # Запускаем следующий раунд
+    #     # self.timer_round_thimble.start()
     #
+    # # def select_thimbles(self):
+    # #     import time
+    # #
+    # #     # loop = QEventLoop()
+    # #     # self.finish_tag_click.connect(loop.quit)
+    # #     # self.finish_tag_click.connect(lambda x=None: print('finish_tag_click'))
+    # #
+    # #     print(self.doc.findFirst('p[class="thimbles"]').toOuterXml())
+    # #
+    # #     css_path = "i[id='thimble3']"
+    # #     i = self.doc.findFirst(css_path)
+    # #     attr = i.attribute('class')
+    # #     if 'guessed' not in attr and 'empty' not in attr:
+    # #         self.click_tag(css_path)
+    # #         print(css_path, self.doc.findFirst('p[class="thimbles"]').toOuterXml())
+    # #         time.sleep(2)
+    # #     else:
+    # #         print('посещено 1')
+    # #
+    # #     # time.sleep(3)
+    # #     # loop.exec_()
+    # #
+    # #     css_path = "i[id='thimble4']"
+    # #     i = self.doc.findFirst(css_path)
+    # #     attr = i.attribute('class')
+    # #     if 'guessed' not in attr and 'empty' not in attr:
+    # #         self.click_tag(css_path)
+    # #         print(css_path, self.doc.findFirst('p[class="thimbles"]').toOuterXml())
+    # #         time.sleep(2)
+    # #     else:
+    # #         print('посещено 2')
+    # #
+    # #     # time.sleep(3)
+    # #     # loop.exec_()
+    # #
+    # #     css_path = "i[id='thimble5']"
+    # #     i = self.doc.findFirst(css_path)
+    # #     attr = i.attribute('class')
+    # #     if 'guessed' not in attr and 'empty' not in attr:
+    # #         self.click_tag(css_path)
+    # #         print(css_path, self.doc.findFirst('p[class="thimbles"]').toOuterXml())
+    # #         time.sleep(2)
+    # #     else:
+    # #         print('посещено 3')
+    # #
+    # #     # <i id="thimble3" class="icon thimble-closed-active thimble-guessed" data-id="3"></i>
+    # #     # <i id="thimble4" class="icon thimble-closed-active thimble-empty" data-id="4"></i>
+    # #     # <i id="thimble5" class="icon thimble-closed-active" data-id="5"></i>
+    # #

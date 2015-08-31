@@ -5,17 +5,19 @@ __author__ = 'ipetrash'
 
 
 import time
-from PySide.QtCore import QTimer, Signal, QEventLoop
-from mainwindow import get_logger
+from PySide.QtCore import QObject, QTimer, Signal, QEventLoop
+from utils import get_logger
 
 
 logger = get_logger('thimblerig')
 
 
-class Thimblerig:
+class Thimblerig(QObject):
     """Класс для игры в наперстки в мосваре."""
 
     def __init__(self, mw):
+        super().__init__()
+
         self.mw = mw
 
         # Таймер для отсчета раундов игры

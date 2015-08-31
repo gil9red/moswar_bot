@@ -4,10 +4,6 @@
 __author__ = 'ipetrash'
 
 from urllib.parse import urljoin
-import sys
-import logging
-
-
 
 from PySide.QtGui import *
 from PySide.QtCore import *
@@ -16,6 +12,7 @@ from PySide.QtWebKit import *
 from mainwindow_ui import Ui_MainWindow
 
 from thimblerig import Thimblerig
+from utils import get_logger
 
 
 class MoswarBotError(Exception):
@@ -28,6 +25,10 @@ class MoswarButtonIsMissError(MoswarBotError):
 
 
 class MoswarAuthError(MoswarBotError):
+    pass
+
+
+class MoswarMoneyNotFoundError(MoswarBotError):
     pass
 
 
@@ -69,28 +70,6 @@ PASSWORD = '0JHQu9GPRnVjazop'
 
 # TODO: удалить всех из http://www.moswar.ru/phone/contacts/victims/2/
 # у которых награда меньше 15к
-
-
-def get_logger(name, file='log.txt', encoding='utf8'):
-    log = logging.getLogger(name)
-    log.setLevel(logging.DEBUG)
-
-    formatter = logging.Formatter('%(filename)s[LINE:%(lineno)d]# %(levelname)-8s [%(asctime)s]  %(message)s')
-
-    fh = logging.FileHandler(file, encoding=encoding)
-    fh.setLevel(logging.DEBUG)
-
-    ch = logging.StreamHandler(stream=sys.stdout)
-    # ch = logging.StreamHandler()
-    ch.setLevel(logging.DEBUG)
-
-    fh.setFormatter(formatter)
-    ch.setFormatter(formatter)
-
-    log.addHandler(fh)
-    log.addHandler(ch)
-
-    return log
 
 
 logger = get_logger('moswar_bot')
@@ -153,7 +132,7 @@ class MainWindow(QMainWindow, QObject):
             # 'Бутово': self.butovo,
 
             # 'Игра в наперстки': self.thimble,
-            'Игра в наперстки': self.thimblerig.run(),
+            'Игра в наперстки': self.thimblerig.run,
             # '9': self.nine_thimble,
             # 'select_thimbles': self.select_thimbles,
         }
@@ -164,6 +143,7 @@ class MainWindow(QMainWindow, QObject):
 
     def _get_doc(self):
         return self.ui.view.page().mainFrame().documentElement()
+
     doc = property(_get_doc)
 
     def current_url(self):
@@ -300,10 +280,15 @@ class MainWindow(QMainWindow, QObject):
     def money(self):
         """Функция возвращает количество денег персонажа."""
 
-        money = self.doc.findFirst('li[class="tugriki-block"]')
-        money = money.attribute('title')
-        money = money.split(': ')[-1]
-        return int(money)
+        try:
+            csspath = 'li[class="tugriki-block"]'
+            tugriki = self.doc.findFirst(csspath)
+            tugriki = tugriki.attribute('title')
+            tugriki = tugriki.split(': ')[-1]
+            return int(tugriki)
+
+        except Exception as e:
+            raise MoswarMoneyNotFoundError(e)
 
     def click_tag(self, css_path):
         code = """

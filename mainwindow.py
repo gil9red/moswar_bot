@@ -119,22 +119,31 @@ class MainWindow(QMainWindow, QObject):
 
         return self.ui.view.url().toString()
 
-    def go(self, relative_url):
-        """Функция для загрузки страниц через относительные пути."""
+    def go(self, relative_url=None):
+        """Функция для загрузки страниц.
 
-        url = urljoin(self.moswar_url, relative_url)
+        Если вызывать без параметров, то загрузит основную страницу.
+        Если указывать relative_url, то он будет присоединен к адресу мосвара.
+
+        """
+
+        if relative_url is None:
+            url = self.moswar_url
+        else:
+            url = urljoin(self.moswar_url, relative_url)
+
         self.ui.view.load(url)
+
+        # Ждем пока прогрузится страница
+        loop = QEventLoop()
+        self.ui.view.loadFinished.connect(loop.quit)
+        loop.exec_()
 
     def auth(self):
         """Функция загружает страницу мосвара, заполняет поля логина и пароля и нажимает на кнопку Войти."""
 
         # Открываем страницу мосвара
-        self.ui.view.load(self.moswar_url)
-
-        # Ждем окончания загрузки страницы
-        loop = QEventLoop()
-        self.ui.view.loadFinished.connect(loop.quit)
-        loop.exec_()
+        self.go()
 
         login = self.doc.findFirst('input[id=login-email]')
         password = self.doc.findFirst('input[id=login-password]')
@@ -190,8 +199,8 @@ class MainWindow(QMainWindow, QObject):
         """Функция возвращает количество денег персонажа."""
 
         try:
-            csspath = 'li[class="tugriki-block"]'
-            tugriki = self.doc.findFirst(csspath)
+            css_path = 'li[class="tugriki-block"]'
+            tugriki = self.doc.findFirst(css_path)
             tugriki = tugriki.attribute('title')
             tugriki = tugriki.split(': ')[-1]
             return int(tugriki)
@@ -200,6 +209,8 @@ class MainWindow(QMainWindow, QObject):
             raise MoswarMoneyNotFoundError(e)
 
     def click_tag(self, css_path):
+        """Функция находит html тег по указанному пути и эмулирует клик на него."""
+
         code = """
         tag = $("{}")
         tag.click()

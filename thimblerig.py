@@ -48,12 +48,6 @@ class Thimblerig(QObject):
         # Эмулируем клик на кнопку "Начать играть"
         self.mw.go('thimble/start')
 
-        # Ждем пока прогрузится страница
-        loop = QEventLoop()
-        # TODO: от mv напрямую или сигнал loadFinished ловить, или иметь доступ к view
-        self.mw.ui.view.loadFinished.connect(loop.quit)
-        loop.exec_()
-
         self.ruda_count = 0
         self.thimble_round_count = 0
 

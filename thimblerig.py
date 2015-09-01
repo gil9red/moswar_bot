@@ -29,7 +29,31 @@ class Thimblerig(QObject):
         # Таймер для выбора наперстков
         self._timer_thimble = QTimer()
         self._timer_thimble.setInterval(1000)
-        self._timer_thimble.timeout.connect(self.select_thimble)
+        self._timer_thimble.timeout.connect(self.select_thimbles)
+
+
+        # import random
+        #
+        # # Порядок кликания на наперстки. Если True, то справа на лево
+        # right_to_left = random.choice([True, False])
+        #
+        # variants = [
+        #     # С первого по третий ряд
+        #     [0, 1, 2],
+        #     [3, 4, 5],
+        #     [6, 7, 8],
+        #
+        #     # Диагонально
+        #     [0, 4, 8],
+        #     [6, 4, 2],
+        # ]
+        #
+        # # Выбираем случайный ряд наперстков
+        # numbers_thimble = random.choice(variants)
+        #
+        # if right_to_left:
+        #     numbers_thimble = sorted(variants, reverse=True)
+
 
         # TODO: добавить игре в наперстки немного рандома
         # TODO: кликать на наперстки лучше не полностью рандомно, а по рядам, например,
@@ -79,6 +103,7 @@ class Thimblerig(QObject):
 
         self.thimble_round_count += 1
 
+        # Выбираем кнопку для игры в 9 наперстков
         css_path = "div[id='thimble-controls-buttons'] div[data-count='9']"
         self.mw.click_tag(css_path)
 
@@ -90,11 +115,13 @@ class Thimblerig(QObject):
         css_path = "i[id='thimble{}']".format(number)
         i = self.mw.doc.findFirst(css_path)
         attr = i.attribute('class')
+
+        # Проверяем, что на наперсток не кликали еще
         if 'guessed' not in attr and 'empty' not in attr:
             self.mw.click_tag(css_path)
 
-    def select_thimble(self):
-        """Функция для клика на один из наперстков."""
+    def select_thimbles(self):
+        """Функция для клика на наперстки."""
 
         doc = self.mw.doc
 

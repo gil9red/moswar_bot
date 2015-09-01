@@ -32,6 +32,8 @@ class Thimblerig(QObject):
         self._timer_thimble.timeout.connect(self.select_thimble)
 
         # TODO: добавить игре в наперстки немного рандома
+        # TODO: кликать на наперстки лучше не полностью рандомно, а по рядам, например,
+        # рандом определяет номер ряда наперстков и направление
         self.ruda_count = 0
         self.thimble_round_count = 0
 
@@ -82,6 +84,15 @@ class Thimblerig(QObject):
 
         self._timer_thimble.start()
 
+    def click_thimble(self, number):
+        """Функция для клика на указанный наперсток."""
+
+        css_path = "i[id='thimble{}']".format(number)
+        i = self.mw.doc.findFirst(css_path)
+        attr = i.attribute('class')
+        if 'guessed' not in attr and 'empty' not in attr:
+            self.mw.click_tag(css_path)
+
     def select_thimble(self):
         """Функция для клика на один из наперстков."""
 
@@ -103,20 +114,6 @@ class Thimblerig(QObject):
             self._timer_round_thimble.start()
             return
 
-        css_path = "i[id='thimble3']"
-        i = doc.findFirst(css_path)
-        attr = i.attribute('class')
-        if 'guessed' not in attr and 'empty' not in attr:
-            self.mw.click_tag(css_path)
-
-        css_path = "i[id='thimble4']"
-        i = doc.findFirst(css_path)
-        attr = i.attribute('class')
-        if 'guessed' not in attr and 'empty' not in attr:
-            self.mw.click_tag(css_path)
-
-        css_path = "i[id='thimble5']"
-        i = doc.findFirst(css_path)
-        attr = i.attribute('class')
-        if 'guessed' not in attr and 'empty' not in attr:
-            self.mw.click_tag(css_path)
+        self.click_thimble(3)
+        self.click_thimble(4)
+        self.click_thimble(5)

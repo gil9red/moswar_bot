@@ -4,6 +4,7 @@
 __author__ = 'ipetrash'
 
 
+import random
 import time
 from PySide.QtCore import QObject, QTimer, Signal, QEventLoop
 from utils import get_logger
@@ -31,37 +32,35 @@ class Thimblerig(QObject):
         self._timer_thimble.setInterval(1000)
         self._timer_thimble.timeout.connect(self.select_thimbles)
 
+        # Варианты порядка открытия наперстков
+        self._variants = [
+            # С первого по третий ряд
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 7, 8],
 
-        # import random
-        #
-        # # Порядок кликания на наперстки. Если True, то справа на лево
-        # right_to_left = random.choice([True, False])
-        #
-        # variants = [
-        #     # С первого по третий ряд
-        #     [0, 1, 2],
-        #     [3, 4, 5],
-        #     [6, 7, 8],
-        #
-        #     # Диагонально
-        #     [0, 4, 8],
-        #     [6, 4, 2],
-        # ]
-        #
-        # # Выбираем случайный ряд наперстков
-        # numbers_thimble = random.choice(variants)
-        #
-        # if right_to_left:
-        #     numbers_thimble = sorted(variants, reverse=True)
+            # Диагонально
+            [0, 4, 8],
+            [6, 4, 2],
+        ]
 
+        # Номера наперстков, которые будет открывать бот
+        self._thimble1, self._thimble2, self._thimble3 = 0, 0, 0
 
-        # TODO: добавить игре в наперстки немного рандома
-        # TODO: кликать на наперстки лучше не полностью рандомно, а по рядам, например,
-        # рандом определяет номер ряда наперстков и направление
-        self.ruda_count = 0
-        self.thimble_round_count = 0
+        self._ruda_count = 0
+        self._thimble_round_count = 0
 
     finished_thimble_game = Signal()
+
+    def _get_ruda_count(self):
+        return self._ruda_count
+
+    def _get_thimble_round_count(self):
+        return self._thimble_round_count
+
+    ruda_count = property(_get_ruda_count)
+
+    thimble_round_count = property(_get_thimble_round_count)
 
     def run(self):
         """Игра в наперстки."""
@@ -74,8 +73,8 @@ class Thimblerig(QObject):
         # Эмулируем клик на кнопку "Начать играть"
         self.mw.go('thimble/start')
 
-        self.ruda_count = 0
-        self.thimble_round_count = 0
+        self._ruda_count = 0
+        self._thimble_round_count = 0
 
         self._timer_round_thimble.start()
 
@@ -85,9 +84,10 @@ class Thimblerig(QObject):
         loop.exec_()
 
         logger.debug('Длительность игры {:.1f} секунд'.format(time.clock() - t))
-        logger.debug('Игра в наперстки закончилась за {} раундов'.format(self.thimble_round_count))
-        logger.debug('Угадано {} руды. Потрачено {} тугриков.'.format(self.ruda_count, self.thimble_round_count * 1500))
-        logger.debug('Удача {:.2f}%'.format(self.ruda_count / (self.thimble_round_count * 3) * 100))
+        logger.debug('Игра в наперстки закончилась за {} раундов'.format(self._thimble_round_count))
+        logger.debug('Угадано {} руды. Потрачено {} тугриков.'.format(self._ruda_count,
+                                                                      self._thimble_round_count * 1500))
+        logger.debug('Удача {:.2f}%'.format(self._ruda_count / (self._thimble_round_count * 3) * 100))
 
         # Эмулируем клик на кнопку "Я наигрался, хватит"
         self.mw.go('thimble/leave')
@@ -101,11 +101,24 @@ class Thimblerig(QObject):
             self.finished_thimble_game.emit()
             return
 
-        self.thimble_round_count += 1
+        self._thimble_round_count += 1
 
         # Выбираем кнопку для игры в 9 наперстков
         css_path = "div[id='thimble-controls-buttons'] div[data-count='9']"
         self.mw.click_tag(css_path)
+
+        # Выбираем случайный ряд наперстков
+        numbers_thimble = random.choice(self._variants)
+
+        # Порядок кликания на наперстки. Если True, то справа на лево
+        right_to_left = random.choice([True, False])
+
+        if right_to_left:
+            numbers_thimble.sort(reverse=True)
+
+        self._thimble1, self._thimble2, self._thimble3 = numbers_thimble
+
+        logger.info('Порядок открытия наперстков: {}, {}, {}'.format(self._thimble1, self._thimble2, self._thimble3))
 
         self._timer_thimble.start()
 
@@ -134,13 +147,13 @@ class Thimblerig(QObject):
 
             # Получаем количество угаданной за раунд руды
             ruda = doc.findFirst('span[id="naperstki-ruda"]').toPlainText()
-            self.ruda_count += int(ruda)
-            logger.info("Раунд {}. Угадано {} руды.".format(self.thimble_round_count, ruda))
+            self._ruda_count += int(ruda)
+            logger.info("Раунд {}. Угадано {} руды.".format(self._thimble_round_count, ruda))
 
             # Запускаем следующий раунд
             self._timer_round_thimble.start()
             return
 
-        self.click_thimble(3)
-        self.click_thimble(4)
-        self.click_thimble(5)
+        self.click_thimble(self._thimble1)
+        self.click_thimble(self._thimble2)
+        self.click_thimble(self._thimble3)

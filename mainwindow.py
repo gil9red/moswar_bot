@@ -13,6 +13,7 @@ from mainwindow_ui import Ui_MainWindow
 
 from thimblerig import Thimblerig
 from fight import Fight
+from restore_hp import RestoreHP
 from utils import get_logger
 
 
@@ -95,6 +96,7 @@ class MainWindow(QMainWindow, QObject):
 
         self.thimblerig = Thimblerig(self)
         self.fight = Fight(self)
+        self.restore_hp = RestoreHP(self)
 
         # Список действий бота
         self.name_action_dict = {
@@ -106,6 +108,7 @@ class MainWindow(QMainWindow, QObject):
             'Хата': self.home,
             'Игра в наперстки': self.thimblerig.run,
             'Напасть': self.fight.run,
+            'Восстановление жизней': self.restore_hp.run,
         }
 
         # Добавляем команды
@@ -157,8 +160,11 @@ class MainWindow(QMainWindow, QObject):
         # Открываем страницу мосвара
         self.go()
 
-        login = self.doc.findFirst('input[id=login-email]')
-        password = self.doc.findFirst('input[id=login-password]')
+        # login = self.doc.findFirst('input[id=login-email]')
+        # password = self.doc.findFirst('input[id=login-password]')
+
+        login = self.doc.findFirst('#login-email')
+        password = self.doc.findFirst('#login-password')
 
         if login.isNull() or password.isNull():
             raise MoswarAuthError('Не найдены поля логина и пароля.')
@@ -213,11 +219,38 @@ class MainWindow(QMainWindow, QObject):
         """Функция возвращает количество денег персонажа."""
 
         try:
-            css_path = 'li[class="tugriki-block"]'
+            # css_path = 'li[class="tugriki-block"]'
+            css_path = '.tugriki-block'
             tugriki = self.doc.findFirst(css_path)
             tugriki = tugriki.attribute('title')
             tugriki = tugriki.split(': ')[-1]
             return int(tugriki)
+
+        except Exception as e:
+            raise MoswarElementIsMissError(e)
+
+    def current_hp(self):
+        """Функция возвращает текущее количество жизней персонажа."""
+
+        try:
+            # css_path = 'div[id="personal"] span[id="currenthp"]'
+            css_path = '#personal #currenthp'
+            hp = self.doc.findFirst(css_path)
+            hp = hp.toPlainText()
+            return int(hp)
+
+        except Exception as e:
+            raise MoswarElementIsMissError(e)
+
+    def max_hp(self):
+        """Функция возвращает текущее количество жизней персонажа."""
+
+        try:
+            # css_path = 'div[id="personal"] span[id="maxhp"]'
+            css_path = '#personal #maxhp'
+            hp = self.doc.findFirst(css_path)
+            hp = hp.toPlainText()
+            return int(hp)
 
         except Exception as e:
             raise MoswarElementIsMissError(e)

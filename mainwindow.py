@@ -19,16 +19,16 @@ class MoswarBotError(Exception):
     pass
 
 
-class MoswarButtonIsMissError(MoswarBotError):
+class MoswarElementIsMissError(MoswarBotError):
+    pass
+
+
+class MoswarButtonIsMissError(MoswarElementIsMissError):
     def __init__(self, title_button):
         super().__init__('Не найдена кнопка "{}".'.format(title_button))
 
 
 class MoswarAuthError(MoswarBotError):
-    pass
-
-
-class MoswarMoneyNotFoundError(MoswarBotError):
     pass
 
 
@@ -103,6 +103,7 @@ class MainWindow(QMainWindow, QObject):
             'Персонаж': self.player,
             'Хата': self.home,
             'Игра в наперстки': self.thimblerig.run,
+            'Напасть': self.fight,
         }
 
         # Добавляем команды
@@ -119,11 +120,20 @@ class MainWindow(QMainWindow, QObject):
 
         return self.ui.view.url().toString()
 
+    def wait_loading(self):
+        """Функция ожидания загрузки страницы"""
+
+        # Ждем пока прогрузится страница
+        loop = QEventLoop()
+        self.ui.view.loadFinished.connect(loop.quit)
+        loop.exec_()
+
     def go(self, relative_url=None):
         """Функция для загрузки страниц.
 
         Если вызывать без параметров, то загрузит основную страницу.
         Если указывать relative_url, то он будет присоединен к адресу мосвара.
+        Функция ожидание окончания загрузки страницы.
 
         """
 
@@ -134,13 +144,13 @@ class MainWindow(QMainWindow, QObject):
 
         self.ui.view.load(url)
 
-        # Ждем пока прогрузится страница
-        loop = QEventLoop()
-        self.ui.view.loadFinished.connect(loop.quit)
-        loop.exec_()
+        self.wait_loading()
 
     def auth(self):
-        """Функция загружает страницу мосвара, заполняет поля логина и пароля и нажимает на кнопку Войти."""
+        """Функция загружает страницу мосвара, заполняет поля логина и пароля и нажимает на кнопку Войти.
+        После нажатия на Войти происходит ожидание загрузки страницы.
+
+        """
 
         # Открываем страницу мосвара
         self.go()
@@ -159,6 +169,8 @@ class MainWindow(QMainWindow, QObject):
             raise MoswarButtonIsMissError('Войти')
 
         submit.evaluateJavaScript("this.click()")
+
+        self.wait_loading()
 
     # def base_click_a(self, css_path, title_action):
     #     """Базовая функция для эмуляции клика по a тегам."""
@@ -206,10 +218,29 @@ class MainWindow(QMainWindow, QObject):
             return int(tugriki)
 
         except Exception as e:
-            raise MoswarMoneyNotFoundError(e)
+            raise MoswarElementIsMissError(e)
+
+    def level(self):
+        """Функция возвращает уровень персонажа."""
+
+        try:
+            css_path = 'div[id="personal"] b'
+            level = self.doc.findFirst(css_path).toPlainText()
+            level = level.split()[-1]
+            level = level.replace('[', '').replace(']', '')
+            return int(level)
+
+        except Exception as e:
+            raise MoswarElementIsMissError(e)
 
     def click_tag(self, css_path):
-        """Функция находит html тег по указанному пути и эмулирует клик на него."""
+        """Функция находит html тег по указанному пути и эмулирует клик на него.
+
+        Строки в css_path нужно оборачивать в апострофы.
+        Пример:
+            # Кликаем на кнопку "Отнять у слабого"
+            self.click_tag("div[class='button-big btn f1']")
+        """
 
         code = """
         tag = $("{}")
@@ -219,3 +250,62 @@ class MainWindow(QMainWindow, QObject):
         ok = self.doc.evaluateJavaScript(code)
         if ok is None:
             logger.warn('Выполнение js скрипта неудачно. Code:\n' + code)
+
+    enemy_found = Signal()
+
+    def fight(self):
+        """Функция для нападения на игроков.
+
+        Ищем слабого горожанина (заброшенного персонажа) -- не нужно привлекать внимание к боту.
+        Уровень противника в пределах нашего +/- 1
+        """
+
+        # Идем в Закоулки
+        self.alley()
+
+        # Кликаем на кнопку "Отнять у слабого"
+        self.click_tag("div[class='button-big btn f1']")
+
+        # # Кликаем на кнопку "Напасть"
+        # self.click_tag("div[class='button button-fight']")
+
+        # # Кликаем на кнопку "Искать другого"
+        # self.click_tag("div[class='button button-search']")
+
+        # TODO: восстанавливать здоровье перед боем
+
+        css_path = 'div[class="fighter2"] span[class="level"]'
+
+        def tick():
+            """Функция для ожидания загрузки страницы с выбором противника."""
+
+            level = self.doc.findFirst(css_path)
+            if not level.isNull():
+                self.enemy_found.emit()
+
+        timer = QTimer()
+        timer.setInterval(333)
+        timer.timeout.connect(tick)
+        timer.start()
+
+        loop = QEventLoop()
+        self.enemy_found.connect(loop.quit)
+        loop.exec_()
+
+        is_npc = self.doc.findFirst('div[class="fighter2"] i')
+        is_npc = is_npc.attribute('class') == "npc"
+        print(is_npc)
+
+        level = self.doc.findFirst(css_path)
+        level = level.toPlainText()
+        level = level.replace('[', '').replace(']', '')
+        level = int(level)
+        print(level)
+
+        # <div class="fighter2">
+        #     <span class="user ">
+        #         <i title="Горожанин" class="npc"></i>
+        #         <a href="/player/353908/" onclick="return AngryAjax.goToUrl(this, event);"> iron boot</a>
+        #         <span class="level">[6]</span>
+        #     </span>
+        # </div>

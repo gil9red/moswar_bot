@@ -104,7 +104,8 @@ class Thimblerig(QObject):
         self._thimble_round_count += 1
 
         # Выбираем кнопку для игры в 9 наперстков
-        css_path = "div[id='thimble-controls-buttons'] div[data-count='9']"
+        # css_path = "div[id='thimble-controls-buttons'] div[data-count='9']"
+        css_path = "#thimble-controls-buttons div[data-count='9']"
         self.mw.click_tag(css_path)
 
         # Выбираем случайный ряд наперстков
@@ -125,7 +126,8 @@ class Thimblerig(QObject):
     def click_thimble(self, number):
         """Функция для клика на указанный наперсток."""
 
-        css_path = "i[id='thimble{}']".format(number)
+        # css_path = "i[id='thimble{}']".format(number)
+        css_path = "#thimble{}".format(number)
         i = self.mw.doc.findFirst(css_path)
         attr = i.attribute('class')
 
@@ -139,14 +141,16 @@ class Thimblerig(QObject):
         doc = self.mw.doc
 
         # Количество оставшихся попыток. Для девяти наперсток их максимум будет 3
-        left = doc.findFirst('span[id="naperstki-left"]').toInnerXml()
+        # left = doc.findFirst('span[id="naperstki-left"]').toInnerXml()
+        left = doc.findFirst('#naperstki-left').toInnerXml()
 
         # Если количество попыток равно 0, то останавливаем таймер клика на наперстки
         if left == '0':
             self._timer_thimble.stop()
 
             # Получаем количество угаданной за раунд руды
-            ruda = doc.findFirst('span[id="naperstki-ruda"]').toPlainText()
+            # ruda = doc.findFirst('span[id="naperstki-ruda"]').toPlainText()
+            ruda = doc.findFirst('#naperstki-ruda').toPlainText()
             self._ruda_count += int(ruda)
             logger.info("Раунд {}. Угадано {} руды.".format(self._thimble_round_count, ruda))
 

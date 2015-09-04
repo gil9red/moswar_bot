@@ -108,6 +108,7 @@ class MainWindow(QMainWindow, QObject):
             'Хата': self.home,
             'Игра в наперстки': self.thimblerig.run,
             'Напасть': self.fight.run,
+            'Ищем следующего противника': self.fight._next_enemy,
             'Восстановление жизней': self.restore_hp.run,
         }
 

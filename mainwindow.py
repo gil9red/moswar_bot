@@ -12,6 +12,7 @@ from PySide.QtWebKit import *
 from mainwindow_ui import Ui_MainWindow
 
 from thimblerig import Thimblerig
+from fight import Fight
 from utils import get_logger
 
 
@@ -93,6 +94,7 @@ class MainWindow(QMainWindow, QObject):
         self.ui.run_pb.clicked.connect(lambda: self.ui.commands_cb.itemData(self.ui.commands_cb.currentIndex())())
 
         self.thimblerig = Thimblerig(self)
+        self.fight = Fight(self)
 
         # Список действий бота
         self.name_action_dict = {
@@ -103,7 +105,7 @@ class MainWindow(QMainWindow, QObject):
             'Персонаж': self.player,
             'Хата': self.home,
             'Игра в наперстки': self.thimblerig.run,
-            'Напасть': self.fight,
+            'Напасть': self.fight.run,
         }
 
         # Добавляем команды
@@ -250,62 +252,3 @@ class MainWindow(QMainWindow, QObject):
         ok = self.doc.evaluateJavaScript(code)
         if ok is None:
             logger.warn('Выполнение js скрипта неудачно. Code:\n' + code)
-
-    enemy_found = Signal()
-
-    def fight(self):
-        """Функция для нападения на игроков.
-
-        Ищем слабого горожанина (заброшенного персонажа) -- не нужно привлекать внимание к боту.
-        Уровень противника в пределах нашего +/- 1
-        """
-
-        # Идем в Закоулки
-        self.alley()
-
-        # Кликаем на кнопку "Отнять у слабого"
-        self.click_tag("div[class='button-big btn f1']")
-
-        # # Кликаем на кнопку "Напасть"
-        # self.click_tag("div[class='button button-fight']")
-
-        # # Кликаем на кнопку "Искать другого"
-        # self.click_tag("div[class='button button-search']")
-
-        # TODO: восстанавливать здоровье перед боем
-
-        css_path = 'div[class="fighter2"] span[class="level"]'
-
-        def tick():
-            """Функция для ожидания загрузки страницы с выбором противника."""
-
-            level = self.doc.findFirst(css_path)
-            if not level.isNull():
-                self.enemy_found.emit()
-
-        timer = QTimer()
-        timer.setInterval(333)
-        timer.timeout.connect(tick)
-        timer.start()
-
-        loop = QEventLoop()
-        self.enemy_found.connect(loop.quit)
-        loop.exec_()
-
-        is_npc = self.doc.findFirst('div[class="fighter2"] i')
-        is_npc = is_npc.attribute('class') == "npc"
-        print(is_npc)
-
-        level = self.doc.findFirst(css_path)
-        level = level.toPlainText()
-        level = level.replace('[', '').replace(']', '')
-        level = int(level)
-        print(level)
-
-        # <div class="fighter2">
-        #     <span class="user ">
-        #         <i title="Горожанин" class="npc"></i>
-        #         <a href="/player/353908/" onclick="return AngryAjax.goToUrl(this, event);"> iron boot</a>
-        #         <span class="level">[6]</span>
-        #     </span>
-        # </div>

@@ -13,6 +13,9 @@ from utils import get_logger
 logger = get_logger('thimblerig')
 
 
+# TODO: Уменьшить время выбора наперстков
+
+
 class Thimblerig(QObject):
     """Класс для игры в наперстки в мосваре."""
 

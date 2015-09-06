@@ -181,6 +181,15 @@ class MainWindow(QMainWindow, QObject):
 
         self.wait_loading()
 
+
+        # TODO: удалить, временно!
+        self.fight.run()
+
+        self.timer = QTimer()
+        self.timer.setInterval(1000 * 60 * 20)  # каждые 20 минут
+        self.timer.timeout.connect(self.fight.run)
+        self.timer.start()
+
     # def base_click_a(self, css_path, title_action):
     #     """Базовая функция для эмуляции клика по a тегам."""
     #

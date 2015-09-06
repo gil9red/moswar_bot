@@ -74,6 +74,30 @@ class Fight(QObject):
         # Деньги: .result .tugriki
         # Опыт: .result .expa
         # Искры: .result .sparkles
+        #
+        # Стройматериалы и фрукты:
+        # <span class="object-thumb">
+        # <img tooltip="1" alt="Кирпич" src="/@/images/obj/parts/4.png">
+        # <span class="count">1</span>
+        # </span>
+        # <span class="object-thumb">
+        # <img tooltip="1" alt="Малина" src="/@/images/obj/coctail/fruit9.png">
+        # <span class="count">12</span>
+        # </span>
+        #
+        # <span class="object-thumb">
+        # <img tooltip="1" alt="Каучук" src="/@/images/obj/parts/7.png">
+        # <span class="count">1</span>
+        # </span>
+        # <span class="object-thumb">
+        # <img tooltip="1" alt="Виноград" src="/@/images/obj/coctail/fruit13.png">
+        # <span class="count">12</span>
+        # </span>
+        #
+        # <span class="object-thumb">
+        # <img tooltip="1" alt="Балка" src="/@/images/obj/parts/3.png">
+        # <span class="count">2</span>
+        # </span>
 
         # TODO: таймаут после боя:
         # <a data-no-blinking="1" intitle="1" endtime="1441397312" timer="361" style="" id="timeout" href="/alley/"
@@ -82,6 +106,28 @@ class Fight(QObject):
         # TODO: неактивные таймеры
         # <a id="timeout" data-no-blinking="1" intitle="1" endtime="" timer="" style="display:none;" href="//" onclick="return AngryAjax.goToUrl(this, event);"></a>
         # <a id="timeout2" data-no-blinking="1" intitle="1" endtime="" timer="" style="display:none;" href="//" onclick="return AngryAjax.goToUrl(this, event);"></a>
+
+
+        # TODO: сообщение: Вы слишком часто деретесь.
+        # <div class="alert alert-error alert1" style="display: block; top: 450.5px; left: 1007px;" data-bind-move="1">
+        # <div class="padding">
+        # <h2 id="alert-title">Ошибка</h2>
+        # <span class="close-cross" style="" onclick="closeAlert(this);">×</span>
+        # <div class="data">
+        # <div id="alert-text">Вы слишком часто деретесь.</div>
+        # <div class="actions">
+        # <div class="button">
+        # <span class="f" onclick="$(this).parents("div.alert:first").remove();">
+        # <i class="rl"></i>
+        # <i class="bl"></i>
+        # <i class="brc"></i>
+        # <div class="c">OK</div>
+        # </span>
+        # </div>
+        # </div>
+        # </div>
+        # </div>
+        # </div>
 
     def _check_enemy_load(self):
         """Функция для ожидания загрузки страницы с выбором противника."""

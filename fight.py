@@ -69,64 +69,52 @@ class Fight(QObject):
 
         # TODO: перематывать бой
         # <i id="controls-forward" class="icon icon-forward disabled" onclick="fightForward();"></i>
+        # # Кликаем на кнопку для пропуска боя
+        # self._mw.click_tag("#controls-forward")
 
         # TODO: результат боя
-        # Деньги: .result .tugriki
-        # Опыт: .result .expa
-        # Искры: .result .sparkles
+        # doc = frame.page().mainFrame().documentElement()
+        # result = doc.findFirst('.result')
         #
-        # Стройматериалы и фрукты:
-        # <span class="object-thumb">
-        # <img tooltip="1" alt="Кирпич" src="/@/images/obj/parts/4.png">
-        # <span class="count">1</span>
-        # </span>
-        # <span class="object-thumb">
-        # <img tooltip="1" alt="Малина" src="/@/images/obj/coctail/fruit9.png">
-        # <span class="count">12</span>
-        # </span>
+        # print('Монет:', result.findFirst('.tugriki').toPlainText().replace(',', ''))
+        # print('Опыт:', result.findFirst('.expa').toPlainText())
+        # print('Искры:', result.findFirst('.sparkles').toPlainText())
         #
-        # <span class="object-thumb">
-        # <img tooltip="1" alt="Каучук" src="/@/images/obj/parts/7.png">
-        # <span class="count">1</span>
-        # </span>
-        # <span class="object-thumb">
-        # <img tooltip="1" alt="Виноград" src="/@/images/obj/coctail/fruit13.png">
-        # <span class="count">12</span>
-        # </span>
-        #
-        # <span class="object-thumb">
-        # <img tooltip="1" alt="Балка" src="/@/images/obj/parts/3.png">
-        # <span class="count">2</span>
-        # </span>
+        # for img in result.findAll('.object-thumb'):
+        #     obj = img.findFirst('img').attribute('alt')
+        #     count = img.findFirst('.count').toPlainText()
+        #     print('{}: {}'.format(obj, count))
 
         # TODO: таймаут после боя:
         # <a data-no-blinking="1" intitle="1" endtime="1441397312" timer="361" style="" id="timeout" href="/alley/"
         # onclick="return AngryAjax.goToUrl(this, event);" process="1">00:06:02</a>
-
-        # TODO: неактивные таймеры
-        # <a id="timeout" data-no-blinking="1" intitle="1" endtime="" timer="" style="display:none;" href="//" onclick="return AngryAjax.goToUrl(this, event);"></a>
-        # <a id="timeout2" data-no-blinking="1" intitle="1" endtime="" timer="" style="display:none;" href="//" onclick="return AngryAjax.goToUrl(this, event);"></a>
-
+        # doc = view.page().mainFrame().documentElement()
+        # for timeout in doc.findAll('[id*=timeout]'):
+        #     timer = timeout.attribute('timer')
+        #     if timer and 'alley' in timeout.attribute('href'):
+        #         # return int(timer)
+        #         print('Осталось:', int(timer))
+        #         break
 
         # TODO: сообщение: Вы слишком часто деретесь.
         # <div class="alert alert-error alert1" style="display: block; top: 450.5px; left: 1007px;" data-bind-move="1">
-        # <div class="padding">
-        # <h2 id="alert-title">Ошибка</h2>
-        # <span class="close-cross" style="" onclick="closeAlert(this);">×</span>
-        # <div class="data">
-        # <div id="alert-text">Вы слишком часто деретесь.</div>
-        # <div class="actions">
-        # <div class="button">
-        # <span class="f" onclick="$(this).parents("div.alert:first").remove();">
-        # <i class="rl"></i>
-        # <i class="bl"></i>
-        # <i class="brc"></i>
-        # <div class="c">OK</div>
-        # </span>
-        # </div>
-        # </div>
-        # </div>
-        # </div>
+        #   <div class="padding">
+        #       <h2 id="alert-title">Ошибка</h2>
+        #       <span class="close-cross" style="" onclick="closeAlert(this);">×</span>
+        #       <div class="data">
+        #           <div id="alert-text">Вы слишком часто деретесь.</div>
+        #           <div class="actions">
+        #               <div class="button">
+        #                   <span class="f" onclick="$(this).parents("div.alert:first").remove();">
+        #                       <i class="rl"></i>
+        #                       <i class="bl"></i>
+        #                       <i class="brc"></i>
+        #                       <div class="c">OK</div>
+        #                   </span>
+        #               </div>
+        #           </div>
+        #       </div>
+        #   </div>
         # </div>
 
     def _check_enemy_load(self):

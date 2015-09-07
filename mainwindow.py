@@ -69,6 +69,40 @@ PASSWORD = '0JHQu9GPRnVjazop'
 # <button id="push" class="button" type="button">
 
 
+# TODO: варка петриков.
+# В процессе:
+# <div class="center clear" style="margin: 0 5px -6px;">
+# <h3>Нано-цех</h3>
+# <form class="factory-nanoptric" action="/factory/start-petriks/" method="post" inited="inited">
+# <input type="hidden" value="7171061" name="player">
+# <p>
+# <p id="factory-nanoptric-description" style="display:none;">
+# <p class="total">
+# <div id="factory_petrik_1">
+# <div id="factory_petrik_2" style="display:none;">
+# <input type="hidden" value="1" name="__ajax">
+# <input type="hidden" value="/factory/" name="return_url">
+# </form>
+# <h3>Лаборант</h3>
+# <form class="factory-nanoptric" action="/factory/start-laborant/" method="post" inited="inited">
+# </div>
+#
+# Готово:
+# <div class="center clear" style="margin: 0 5px -6px;">
+# <h3>Нано-цех</h3>
+# <form class="factory-nanoptric" action="/factory/start-petriks/" method="post" inited="inited">
+# <input type="hidden" value="7171061" name="player">
+# <p>
+# <p id="factory-nanoptric-description" style="display:none;">
+# <p class="total">
+# <p style="text-align:center;">
+# <input type="hidden" value="1" name="__ajax">
+# <input type="hidden" value="/factory/" name="return_url">
+# </form>
+# <h3>Лаборант</h3>
+# <form class="factory-nanoptric" action="/factory/start-laborant/" method="post" inited="inited">
+# </div>
+
 
 # TODO: удалить всех из http://www.moswar.ru/phone/contacts/victims/2/
 # у которых награда меньше 15к

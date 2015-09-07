@@ -47,7 +47,7 @@ class Fight(QObject):
         # TODO: проверить таймер
 
         if self._mw.current_hp() < self._mw.max_hp():
-            self.restore_hp.run()
+            self._mw.restore_hp.run()
 
         # Кликаем на кнопку "Отнять у слабого"
         self._mw.click_tag("div[class='button-big btn f1']")

@@ -116,6 +116,15 @@ class Fight(QObject):
         #       </div>
         #   </div>
         # </div>
+        # for el in self.mw.doc.findAll('.alert'):
+        #     title = el.findFirst('#alert-text')
+        #     if not title.isNull() and title.toPlainText() == 'Вы слишком часто деретесь.':
+        #         logger.debug('Вы слишком часто деретесь.')
+        #
+        #         self._restore_hp_window = el
+        #         self._find_restore_hp_window_finded.emit()
+        #         self._timer.stop()
+        #         return
 
     def _check_enemy_load(self):
         """Функция для ожидания загрузки страницы с выбором противника."""

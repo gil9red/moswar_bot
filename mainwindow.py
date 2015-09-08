@@ -42,6 +42,16 @@ PASSWORD = '0JHQu9GPRnVjazop'
 # TODO: level up:
 # <div id="content" class="levelup">
 # После левел апа нужно кликнуть на: <button class="button" type="submit">
+# TODO: показать столько побед / награблено
+#
+# is_levelup = doc.findFirst('.levelup').isNone() == False
+#
+# button = doc.findFirst('.levelup .button')
+# кликаем на кнопку
+#
+# # if button.findFirst('.c').toPlainText() == 'Вперед, к новым победам!':
+# #     кликаем на кнопку
+
 
 
 # TODO: ограбление корованов: http://www.moswar.ru/desert/
@@ -83,8 +93,6 @@ PASSWORD = '0JHQu9GPRnVjazop'
 # <input type="hidden" value="1" name="__ajax">
 # <input type="hidden" value="/factory/" name="return_url">
 # </form>
-# <h3>Лаборант</h3>
-# <form class="factory-nanoptric" action="/factory/start-laborant/" method="post" inited="inited">
 # </div>
 #
 # Готово:
@@ -99,8 +107,6 @@ PASSWORD = '0JHQu9GPRnVjazop'
 # <input type="hidden" value="1" name="__ajax">
 # <input type="hidden" value="/factory/" name="return_url">
 # </form>
-# <h3>Лаборант</h3>
-# <form class="factory-nanoptric" action="/factory/start-laborant/" method="post" inited="inited">
 # </div>
 
 

@@ -150,14 +150,11 @@ class Fight(QObject):
         loop.exec_()
 
         # Определим тип противника -- нам нужен горожанин (нпс)
-        # is_npc = self._mw.doc.findFirst('div[class="fighter2"] i')
-        # is_npc = is_npc.attribute('class') == "npc"
         is_npc = self._mw.doc.findFirst('.fighter2 .npc')
         is_npc = not is_npc.isNull()
         logger.info('Противник горожанин -> %s.', is_npc)
 
         # Узнаем уровень противника
-        # npc_level = self._mw.doc.findFirst('div[class="fighter2"] span[class="level"]')
         npc_level = self._mw.doc.findFirst('.fighter2 .level')
         npc_level = npc_level.toPlainText()
         npc_level = npc_level.replace('[', '').replace(']', '')
@@ -177,7 +174,6 @@ class Fight(QObject):
         logger.debug('Ищем следующего противника.')
 
         # Кликаем на кнопку "Искать другого"
-        # self._mw.click_tag("div[class='button button-search'] a")
         self._mw.click_tag(".button-search a")
 
         # Если нашли противника

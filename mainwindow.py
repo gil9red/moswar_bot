@@ -136,60 +136,6 @@ PASSWORD = '0JHQu9GPRnVjazop'
 # </div>
 # </div>
 
-# TODO: варка петриков.
-# В процессе:
-# <div class="center clear" style="margin: 0 5px -6px;">
-# <h3>Нано-цех</h3>
-# <form class="factory-nanoptric" action="/factory/start-petriks/" method="post" inited="inited">
-# <input type="hidden" value="7171061" name="player">
-# <p>
-# <p id="factory-nanoptric-description" style="display:none;">
-# <p class="total">
-# <div id="factory_petrik_1">
-# <table class="process">
-# <tbody>
-# <tr>
-# <td class="label">Переработка:</td>
-# <td class="progress">
-# <td id="petriksprocess" class="value" timer2="3600" timer="3023" endtime="1441831242" process="1">00:50:24</td>
-# </tr>
-# </tbody>
-# </table>
-# </div>
-# <div id="factory_petrik_2" style="display:none;">
-# <input type="hidden" value="1" name="__ajax">
-# <input type="hidden" value="/factory/" name="return_url">
-# </form>
-# <h3>Лаборант</h3>
-# <form class="factory-nanoptric" action="/factory/start-laborant/" method="post" inited="inited">
-# </div>
-#
-#
-# Готово:
-# <p style="text-align:center;">
-# Для производства
-# <span class="petric">
-# требуется 1 час.
-# <br>
-# <button class="button" style="margin-top:5px;" type="submit">
-# <span class="f">
-# <i class="rl"></i>
-# <i class="bl"></i>
-# <i class="brc"></i>
-# <div class="c">
-# Начать переработку -
-# <span class="tugriki">
-# 500
-# <i></i>
-# </span>
-# <span class="ruda">
-# 5
-# <i></i>
-# </span>
-# </div>
-# </span>
-# </button>
-
 
 # TODO: удалить всех из http://www.moswar.ru/phone/contacts/victims/2/
 # у которых награда меньше 15к
@@ -234,6 +180,7 @@ class MainWindow(QMainWindow, QObject):
             'Напасть': self.fight.run,
             'Ищем следующего противника': self.fight._next_enemy,
             'Восстановление жизней': self.restore_hp.run,
+            'Варка нано-петриков': self.start_petriks,
         }
 
         # Добавляем команды
@@ -328,6 +275,64 @@ class MainWindow(QMainWindow, QObject):
 
     def home(self):
         self.go('home')
+
+    def start_petriks(self):
+        """Функция используется для производства нанопетриков."""
+
+# TODO: варка петриков.
+# В процессе:
+# <div class="center clear" style="margin: 0 5px -6px;">
+# <h3>Нано-цех</h3>
+# <form class="factory-nanoptric" action="/factory/start-petriks/" method="post" inited="inited">
+# <input type="hidden" value="7171061" name="player">
+# <p>
+# <p id="factory-nanoptric-description" style="display:none;">
+# <p class="total">
+# <div id="factory_petrik_1">
+# <table class="process">
+# <tbody>
+# <tr>
+# <td class="label">Переработка:</td>
+# <td class="progress">
+# <td id="petriksprocess" class="value" timer2="3600" timer="3023" endtime="1441831242" process="1">00:50:24</td>
+# </tr>
+# </tbody>
+# </table>
+# </div>
+# <div id="factory_petrik_2" style="display:none;">
+# <input type="hidden" value="1" name="__ajax">
+# <input type="hidden" value="/factory/" name="return_url">
+# </form>
+# <h3>Лаборант</h3>
+# <form class="factory-nanoptric" action="/factory/start-laborant/" method="post" inited="inited">
+# </div>
+#
+#
+# Готово:
+# <p style="text-align:center;">
+# Для производства
+# <span class="petric">
+# требуется 1 час.
+# <br>
+# <button class="button" style="margin-top:5px;" type="submit">
+# <span class="f">
+# <i class="rl"></i>
+# <i class="bl"></i>
+# <i class="brc"></i>
+# <div class="c">
+# Начать переработку -
+# <span class="tugriki">
+# 500
+# <i></i>
+# </span>
+# <span class="ruda">
+# 5
+# <i></i>
+# </span>
+# </div>
+# </span>
+# </button>
+
 
     def money(self):
         """Функция возвращает количество денег персонажа."""

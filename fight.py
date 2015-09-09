@@ -45,6 +45,7 @@ class Fight(QObject):
         self._mw.alley()
 
         # TODO: проверить таймер
+        # TODO: если есть сникерс, съесть его
 
         if self._mw.current_hp() < self._mw.max_hp():
             self._mw.restore_hp.run()

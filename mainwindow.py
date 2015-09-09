@@ -292,9 +292,7 @@ class MainWindow(QMainWindow, QObject):
         """Функция возвращает текущее количество жизней персонажа."""
 
         try:
-            # css_path = 'div[id="personal"] span[id="maxhp"]'
-            css_path = '#personal #maxhp'
-            hp = self.doc.findFirst(css_path)
+            hp = self.doc.findFirst('#personal #maxhp')
             hp = hp.toPlainText()
             return int(hp)
 
@@ -305,8 +303,7 @@ class MainWindow(QMainWindow, QObject):
         """Функция возвращает уровень персонажа."""
 
         try:
-            css_path = '#personal b'
-            level = self.doc.findFirst(css_path).toPlainText()
+            level = self.doc.findFirst('#personal b').toPlainText()
             level = level.split()[-1]
             level = level.replace('[', '').replace(']', '')
             return int(level)

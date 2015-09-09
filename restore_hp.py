@@ -44,7 +44,6 @@ class RestoreHP(QObject):
             logger.info('Жизни полные!')
             return
 
-        # self.click_tag("div[class='life'] i[class='plus-icon']")
         self.mw.click_tag(".life .plus-icon")
 
         self._timer.start()

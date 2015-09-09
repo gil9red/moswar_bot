@@ -6,6 +6,7 @@ __author__ = 'ipetrash'
 
 from PySide.QtCore import QObject, Signal, QTimer, QEventLoop
 from utils import get_logger
+from waitable import Waitable
 
 
 logger = get_logger('fight')
@@ -44,14 +45,29 @@ class Fight(QObject):
         # Идем в Закоулки
         self._mw.alley()
 
-        # TODO: проверить таймер
-        # TODO: если есть сникерс, съесть его
+        # Кнопка "Отнять у слабого"
+        button_fight = "div[class='button-big btn f1']"
 
-        if self._mw.current_hp() < self._mw.max_hp():
-            self._mw.restore_hp.run()
+        # TODO: проверить таймер
+
+        # TODO: если есть тонус, использовать, чтобы сразу напасть
+        # print(self._mw.doc.findFirst('div[onclick*=tonus]').toPlainText())
+
+        button = self._mw.doc.findFirst('div[onclick*=snikers]')
+        if not button.isNull():
+            logger.debug('Съедаю сникерс')
+            self._mw.click_tag('div[onclick*=snikers]')
+
+            # Ждем пока после клика прогрузится страница и появится элемент
+            Waitable(self._mw.doc).wait(button_fight)
+        else:
+            if self._mw.current_hp() < self._mw.max_hp():
+                self._mw.restore_hp.run()
+
+        logger.debug('Нажимаю на кнопку "Отнять у слабого".')
 
         # Кликаем на кнопку "Отнять у слабого"
-        self._mw.click_tag("div[class='button-big btn f1']")
+        self._mw.click_tag(button_fight)
 
         # Если не нашли подходящего противника, смотрим следующего
         if not self._check_enemy():
@@ -65,7 +81,6 @@ class Fight(QObject):
         logger.debug('Нападаем на противника.')
 
         # Кликаем на кнопку "Напасть"
-        # self._mw.click_tag("div[class='button button-fight'] a")
         self._mw.click_tag(".button-fight a")
 
         # TODO: перематывать бой
@@ -126,6 +141,9 @@ class Fight(QObject):
         #         self._find_restore_hp_window_finded.emit()
         #         self._timer.stop()
         #         return
+
+    # TODO: сделать
+    # def eat_snickers(self):
 
     def _check_enemy_load(self):
         """Функция для ожидания загрузки страницы с выбором противника."""

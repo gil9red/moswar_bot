@@ -79,8 +79,7 @@ PASSWORD = '0JHQu9GPRnVjazop'
 # <div class="side-invite">
 # <a style="text-decoration:none;" href="/casino/kubovich/" onclick="return AngryAjax.goToUrl(this, event);">
 # <div class="side-fractionwar" style="color:#89deff; background:url(/@/images/link/kubovich.jpg) #2a66a1 no-repeat;"> Приз в студию! </div>
-
-
+#
 # TODO: крутить барабан:
 # <div class="reel-place">
 # <div class="icon reel">
@@ -92,7 +91,50 @@ PASSWORD = '0JHQu9GPRnVjazop'
 # <td style="width: 35%;">
 # <div>
 # <button id="push" class="button" type="button">
-
+#
+# TODO: кубович не готов:
+# <div class="kubovich">
+# <div class="welcome">
+# <div style="position:absolute; top:-2px; left:-2px; width:1px; height:1px;">
+# <div class="goback">
+# <div class="corner-links">
+# <div class="reel-place">
+# <div class="icon reel">
+# <div id="kubovich-smile"></div>
+# <div class="controls">
+# <table align="center">
+# <tbody>
+# <tr>
+# <td style="width: 35%;">
+# <div>
+# <button id="push" class="button disabled" type="button">
+# </div>
+# </td>
+# <td class="supergame" style="width: 65%;">
+# <div class="padding">
+# <div class="icon cellbar">
+# <button id="push-ellow" class="button disabled" tooltip="1" type="button">
+# <span class="f">
+# <i class="rl"></i>
+# <i class="bl"></i>
+# <i class="brc"></i>
+# <div class="c">
+# </span>
+# </button>
+# </div>
+# </td>
+# </tr>
+# </tbody>
+# </table>
+# </div>
+# <div class="ready-false">
+# </div>
+# <div class="block-rounded">
+# <div class="jobs-points"></div>
+# </div>
+# </div>
+# </div>
+# </div>
 
 # TODO: варка петриков.
 # В процессе:
@@ -104,25 +146,49 @@ PASSWORD = '0JHQu9GPRnVjazop'
 # <p id="factory-nanoptric-description" style="display:none;">
 # <p class="total">
 # <div id="factory_petrik_1">
+# <table class="process">
+# <tbody>
+# <tr>
+# <td class="label">Переработка:</td>
+# <td class="progress">
+# <td id="petriksprocess" class="value" timer2="3600" timer="3023" endtime="1441831242" process="1">00:50:24</td>
+# </tr>
+# </tbody>
+# </table>
+# </div>
 # <div id="factory_petrik_2" style="display:none;">
 # <input type="hidden" value="1" name="__ajax">
 # <input type="hidden" value="/factory/" name="return_url">
 # </form>
+# <h3>Лаборант</h3>
+# <form class="factory-nanoptric" action="/factory/start-laborant/" method="post" inited="inited">
 # </div>
 #
+#
 # Готово:
-# <div class="center clear" style="margin: 0 5px -6px;">
-# <h3>Нано-цех</h3>
-# <form class="factory-nanoptric" action="/factory/start-petriks/" method="post" inited="inited">
-# <input type="hidden" value="7171061" name="player">
-# <p>
-# <p id="factory-nanoptric-description" style="display:none;">
-# <p class="total">
 # <p style="text-align:center;">
-# <input type="hidden" value="1" name="__ajax">
-# <input type="hidden" value="/factory/" name="return_url">
-# </form>
+# Для производства
+# <span class="petric">
+# требуется 1 час.
+# <br>
+# <button class="button" style="margin-top:5px;" type="submit">
+# <span class="f">
+# <i class="rl"></i>
+# <i class="bl"></i>
+# <i class="brc"></i>
+# <div class="c">
+# Начать переработку -
+# <span class="tugriki">
+# 500
+# <i></i>
+# </span>
+# <span class="ruda">
+# 5
+# <i></i>
+# </span>
 # </div>
+# </span>
+# </button>
 
 
 # TODO: удалить всех из http://www.moswar.ru/phone/contacts/victims/2/

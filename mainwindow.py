@@ -8,6 +8,7 @@ from urllib.parse import urljoin
 from PySide.QtGui import *
 from PySide.QtCore import *
 from PySide.QtWebKit import *
+from PySide.QtNetwork import QNetworkProxyFactory
 
 from mainwindow_ui import Ui_MainWindow
 
@@ -139,6 +140,9 @@ class MainWindow(QMainWindow, QObject):
         self.ui.setupUi(self)
 
         self.moswar_url = 'http://www.moswar.ru/'
+
+        # Чтобы не было проблем запуска компов с прокси:
+        QNetworkProxyFactory.setUseSystemConfiguration(True)
 
         QWebSettings.globalSettings().setAttribute(QWebSettings.DeveloperExtrasEnabled, True)
 

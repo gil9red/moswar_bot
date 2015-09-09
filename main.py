@@ -23,3 +23,19 @@ if __name__ == '__main__':
     mw.auth()
 
     sys.exit(app.exec_())
+
+    # from PySide.QtWebKit import *
+    # view = QWebView()
+    # view.setHtml(open('Ограбление корованов. Пустыня.htm', encoding='utf-8').read())
+    # from PySide.QtCore import *
+    # timer = QTimer()
+    # timer.setSingleShot(True)
+    # timer.start(3000)
+    # loop = QEventLoop()
+    # timer.timeout.connect(loop.quit)
+    # loop.exec_()
+    #
+    # doc = view.page().mainFrame().documentElement()
+    #
+    # # view.show()
+    # # app.exec_()

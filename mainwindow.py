@@ -42,19 +42,33 @@ PASSWORD = '0JHQu9GPRnVjazop'
 # TODO: level up:
 # <div id="content" class="levelup">
 # После левел апа нужно кликнуть на: <button class="button" type="submit">
-# TODO: показать столько побед / награблено
+# doc = view.page().mainFrame().documentElement()
+# level_up = doc.findFirst('.levelup')
+# if not level_up.isNull():
+#     # Показать столько побед / награблено
+#     for td in level_up.findAll('td'):
+#         print(' '.join(td.toPlainText().split()))
 #
-# is_levelup = doc.findFirst('.levelup').isNone() == False
+#     # Ищем кнопку 'Вперед, к новым победам!' и кликаем на нее
+#     button = doc.findFirst('.levelup .button')
+#     if button.isNull():
+#         raise MoswarButtonIsMissError('Вперед, к новым победам!')
 #
-# button = doc.findFirst('.levelup .button')
-# кликаем на кнопку
-#
-# # if button.findFirst('.c').toPlainText() == 'Вперед, к новым победам!':
-# #     кликаем на кнопку
-
+#     button.evaluateJavaScript('this.click()')
 
 
 # TODO: ограбление корованов: http://www.moswar.ru/desert/
+# # Ищем кнопку 'Грабить караваны!' и кликаем на нее
+# button = doc.findFirst('.desert .button')
+# if button.isNull():
+#     raise MoswarButtonIsMissError('Грабить караваны!')
+#
+# print(button.toPlainText())
+# button.evaluateJavaScript('this.click()')
+#
+# TODO: ограбление проходит в этапа: при патрулировании кликаешь на ограбление корованов и кнопку в
+# всплывающем окне, показывающем сколько награблено. Вот этого второго информативного окна нет.
+
 
 
 # TODO: кубович на любой странице:
@@ -201,9 +215,6 @@ class MainWindow(QMainWindow, QObject):
         # Открываем страницу мосвара
         self.go()
 
-        # login = self.doc.findFirst('input[id=login-email]')
-        # password = self.doc.findFirst('input[id=login-password]')
-
         login = self.doc.findFirst('#login-email')
         password = self.doc.findFirst('#login-password')
 
@@ -230,23 +241,6 @@ class MainWindow(QMainWindow, QObject):
         self.timer.timeout.connect(self.fight.run)
         self.timer.start()
 
-    # def base_click_a(self, css_path, title_action):
-    #     """Базовая функция для эмуляции клика по a тегам."""
-    #
-    #     a = self.doc.findFirst(css_path)
-    #     if a.isNull():
-    #         raise MoswarButtonIsMissError(title_action)
-    #
-    #     a.evaluateJavaScript("window.location.href = this.href;")
-    #
-    # def click_header_a(self, class_name, title_action):
-    #     """Функция, которая ищет тег a с class_name и эмулирует клик.
-    #
-    #     Клик настроен на кнопки на заголовке сайта, такие как: Персонаж, Закоулки, Хата и т.п.
-    #     """
-    #
-    #     self.base_click_a("a[class={}]".format(class_name), title_action)
-
     def alley(self):
         self.go('alley')
 
@@ -269,7 +263,6 @@ class MainWindow(QMainWindow, QObject):
         """Функция возвращает количество денег персонажа."""
 
         try:
-            # css_path = 'li[class="tugriki-block"]'
             css_path = '.tugriki-block'
             tugriki = self.doc.findFirst(css_path)
             tugriki = tugriki.attribute('title')
@@ -283,7 +276,6 @@ class MainWindow(QMainWindow, QObject):
         """Функция возвращает текущее количество жизней персонажа."""
 
         try:
-            # css_path = 'div[id="personal"] span[id="currenthp"]'
             css_path = '#personal #currenthp'
             hp = self.doc.findFirst(css_path)
             hp = hp.toPlainText()
@@ -309,7 +301,7 @@ class MainWindow(QMainWindow, QObject):
         """Функция возвращает уровень персонажа."""
 
         try:
-            css_path = 'div[id="personal"] b'
+            css_path = '#personal b'
             level = self.doc.findFirst(css_path).toPlainText()
             level = level.split()[-1]
             level = level.replace('[', '').replace(']', '')
@@ -325,12 +317,15 @@ class MainWindow(QMainWindow, QObject):
         Пример:
             # Кликаем на кнопку "Отнять у слабого"
             self.click_tag("div[class='button-big btn f1']")
+
+            # Кликаем на кнопку "Искать другого"
+            self.click_tag(".button-search a")
         """
 
+        # Используем для клика jQuery
         code = """
-        tag = $("{}")
-        tag.click()
-        """.format(css_path)
+        tag = $("{}");
+        tag.click();""".format(css_path)
 
         ok = self.doc.evaluateJavaScript(code)
         if ok is None:

@@ -129,7 +129,6 @@ class Fight(QObject):
     def _check_enemy_load(self):
         """Функция для ожидания загрузки страницы с выбором противника."""
 
-        # enemy = self._mw.doc.findFirst('div[class="fighter2"]')
         enemy = self._mw.doc.findFirst('.fighter2')
 
         # Если нашли элемент, описывающий противника

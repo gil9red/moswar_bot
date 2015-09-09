@@ -198,7 +198,7 @@ class MainWindow(QMainWindow, QObject):
         return self.ui.view.url().toString()
 
     def wait_loading(self):
-        """Функция ожидания загрузки страницы"""
+        """Функция ожидания загрузки страницы. Использовать только при изменении url."""
 
         # Ждем пока прогрузится страница
         loop = QEventLoop()

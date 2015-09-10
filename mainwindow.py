@@ -81,64 +81,33 @@ PASSWORD = '0JHQu9GPRnVjazop'
 # <div class="side-fractionwar" style="color:#89deff; background:url(/@/images/link/kubovich.jpg) #2a66a1 no-repeat;"> Приз в студию! </div>
 #
 # TODO: крутить барабан:
-# <div class="reel-place">
-# <div class="icon reel">
-# <div id="kubovich-smile"></div>
-# <div class="controls">
-# <table align="center">
-# <tbody>
-# <tr>
-# <td style="width: 35%;">
-# <div>
-# <button id="push" class="button" type="button">
+#     controls = doc.findFirst('.kubovich .controls')
+#     if controls.isNull():
+#         raise MoswarElementIsMissError('Не найдена панель управления для игры с Кубовичем.')
 #
-# TODO: кубович не готов:
-# <div class="kubovich">
-# <div class="welcome">
-# <div style="position:absolute; top:-2px; left:-2px; width:1px; height:1px;">
-# <div class="goback">
-# <div class="corner-links">
-# <div class="reel-place">
-# <div class="icon reel">
-# <div id="kubovich-smile"></div>
-# <div class="controls">
-# <table align="center">
-# <tbody>
-# <tr>
-# <td style="width: 35%;">
-# <div>
-# <button id="push" class="button disabled" type="button">
-# </div>
-# </td>
-# <td class="supergame" style="width: 65%;">
-# <div class="padding">
-# <div class="icon cellbar">
-# <button id="push-ellow" class="button disabled" tooltip="1" type="button">
-# <span class="f">
-# <i class="rl"></i>
-# <i class="bl"></i>
-# <i class="brc"></i>
-# <div class="c">
-# </span>
-# </button>
-# </div>
-# </td>
-# </tr>
-# </tbody>
-# </table>
-# </div>
-# <div class="ready-false">
-# </div>
-# <div class="block-rounded">
-# <div class="jobs-points"></div>
-# </div>
-# </div>
-# </div>
-# </div>
+#     game_button = controls.findFirst('#push')
+#     super_game_button = controls.findFirst('#push-ellow')
+#
+#     if game_button.isNull() or super_game_button.isNull():
+#         raise MoswarElementIsMissError('Не найдены кнопки для игры с Кубовичем.')
+#
+#     disabled_game = 'disabled' in game_button.attribute('class')
+#     disabled_super_game = 'disabled' in super_game_button.attribute('class')
+#
+#     print(disabled_game)
+#     print(disabled_super_game)
+#
+#     if not disabled_game:
+#         # TODO: определять, была ли уже игра или еще сегодня не наступила
+#         print('Кубович еще не готов играть')
+#         return
 
 
 # TODO: удалить всех из http://www.moswar.ru/phone/contacts/victims/2/
 # у которых награда меньше 15к
+
+
+# TODO: бесплатный спортлото: http://www.moswar.ru/casino/sportloto/
 
 
 logger = get_logger('moswar_bot')
@@ -287,10 +256,11 @@ class MainWindow(QMainWindow, QObject):
         # Полоска прогресса переработки в нано-петрики
         progress = self.doc.findFirst('#petriksprocess')
 
+        # Если есть кнопка "Начать переработку", кликаем
         if not button.isNull():
-            # Клик на кнопку "Начать переработку"
             button.evaluateJavaScript("this.click()")
 
+        # Иначе, узнаем сколько осталось ждать
         elif not progress.isNull():
             # Сколько осталось секунд
             end_time = progress.attribute('timer')

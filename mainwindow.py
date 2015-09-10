@@ -59,6 +59,21 @@ PASSWORD = '0JHQu9GPRnVjazop'
 
 
 # TODO: ограбление корованов: http://www.moswar.ru/desert/
+# <form class="patrol" action="/alley/" method="post" id="patrolForm" inited="inited">
+# <input type="hidden" name="action" value="patrol"><p><img src="/@/images/obj/set_new/hat1_m.png" align="left">В темных улочках столицы происходит <b>много событий</b>. Отправляйся <b>в патруль</b> на улицу, и кто знает, быть может тебя ждут веселые встречи и <b>ценные находки</b>.</p>
+# <table class="process"><tbody><tr>
+# <td class="label">Патрулирование:</td>
+# <td class="progress"><div class="exp"><div class="bar"><div><div class="percent" style="width: 5%; " id="patrolbar"></div></div></div></div></td>
+# <td class="value" timer="1714" timer2="1800" id="patrol" intitle="1" endtime="1441838940" process="1">00:28:35</td>
+# </tr></tbody></table>
+# <div style="margin:5px 0;" id="leave-patrol-button"><span class="button" onclick="alleyPatrolLeave();"><span class="f"><i class="rl"></i><i class="bl"></i><i class="brc"></i><div class="c">Улизнуть с патрулирования</div></span></span></div>
+# <p>Ваши действия привлекли уличного мага Девида Блейна.
+# 															</p><div class="button"><a class="f" href="/desert/" onclick="return AngryAjax.goToUrl(this, event);"><i class="rl"></i><i class="bl"></i><i class="brc"></i><div class="c">Далее</div></a></div><p></p>
+# <p class="timeleft">Осталось времени на сегодня: 50 минут</p>
+# <p class="major">Мажоры, привыкшие к бессонным ночным гулянкам, могут патрулировать вдвое больше. <a href="/stash/#major" onclick="return AngryAjax.goToUrl(this, event);">Стать мажором</a>.</p>
+# <input type="hidden" name="__ajax" value="1"><input type="hidden" name="return_url" value="/alley/"></form>
+#
+#
 # # Ищем кнопку 'Грабить караваны!' и кликаем на нее
 # button = doc.findFirst('.desert .button')
 # if button.isNull():
@@ -67,8 +82,15 @@ PASSWORD = '0JHQu9GPRnVjazop'
 # print(button.toPlainText())
 # button.evaluateJavaScript('this.click()')
 #
-# TODO: ограбление проходит в этапа: при патрулировании кликаешь на ограбление корованов и кнопку в
-# всплывающем окне, показывающем сколько награблено. Вот этого второго информативного окна нет.
+#
+# <div id="content" class="desert"><div class="welcome">
+# <i class="tlc"></i><i class="trc"></i><div class="block-rounded">
+# <i class="blc"></i><i class="brc"></i><div class="text">
+# <p>К сожалению, верблюды вас перехитрили, и вы не смогли ограбить караван.</p>
+# <div style="text-align:center"><div class="button" onclick="AngryAjax.goToUrl('/alley/');"><span class="f"><i class="rl"></i><i class="bl"></i><i class="brc"></i><div class="c">Вернуться</div></span></div></div>
+# </div>
+# </div>
+# <div class="jobs-points"></div></div></div>
 
 
 

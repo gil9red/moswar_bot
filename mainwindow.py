@@ -277,62 +277,28 @@ class MainWindow(QMainWindow, QObject):
         self.go('home')
 
     def start_petriks(self):
-        """Функция используется для производства нанопетриков."""
+        """Функция используется для производства нано-петриков."""
 
-# TODO: варка петриков.
-# В процессе:
-# <div class="center clear" style="margin: 0 5px -6px;">
-# <h3>Нано-цех</h3>
-# <form class="factory-nanoptric" action="/factory/start-petriks/" method="post" inited="inited">
-# <input type="hidden" value="7171061" name="player">
-# <p>
-# <p id="factory-nanoptric-description" style="display:none;">
-# <p class="total">
-# <div id="factory_petrik_1">
-# <table class="process">
-# <tbody>
-# <tr>
-# <td class="label">Переработка:</td>
-# <td class="progress">
-# <td id="petriksprocess" class="value" timer2="3600" timer="3023" endtime="1441831242" process="1">00:50:24</td>
-# </tr>
-# </tbody>
-# </table>
-# </div>
-# <div id="factory_petrik_2" style="display:none;">
-# <input type="hidden" value="1" name="__ajax">
-# <input type="hidden" value="/factory/" name="return_url">
-# </form>
-# <h3>Лаборант</h3>
-# <form class="factory-nanoptric" action="/factory/start-laborant/" method="post" inited="inited">
-# </div>
-#
-#
-# Готово:
-# <p style="text-align:center;">
-# Для производства
-# <span class="petric">
-# требуется 1 час.
-# <br>
-# <button class="button" style="margin-top:5px;" type="submit">
-# <span class="f">
-# <i class="rl"></i>
-# <i class="bl"></i>
-# <i class="brc"></i>
-# <div class="c">
-# Начать переработку -
-# <span class="tugriki">
-# 500
-# <i></i>
-# </span>
-# <span class="ruda">
-# 5
-# <i></i>
-# </span>
-# </div>
-# </span>
-# </button>
+        # TODO: варка петриков.
 
+        # Кнопка "Начать переработку"
+        button = self.doc.findFirst('.petric .button')
+
+        # Полоска прогресса переработки в нано-петрики
+        progress = self.doc.findFirst('#petriksprocess')
+
+        if not button.isNull():
+            # Клик на кнопку "Начать переработку"
+            button.evaluateJavaScript("this.click()")
+
+        elif not progress.isNull():
+            # Сколько осталось секунд
+            end_time = progress.attribute('timer')
+            print('Осталось {} секунд'.format(end_time))
+
+        else:
+            raise MoswarElementIsMissError('Не найдена кнопка "Начать переработку" и полоса '
+                                           'прогресса переработки в нано-петрики')
 
     def money(self):
         """Функция возвращает количество денег персонажа."""

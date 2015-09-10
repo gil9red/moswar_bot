@@ -156,6 +156,9 @@ class MainWindow(QMainWindow, QObject):
         for command in sorted(self.name_action_dict):
             self.ui.commands_cb.addItem(command, self.name_action_dict[command])
 
+        # Выполнение кода в окне "Выполнение скрипта"
+        self.ui.button_exec.clicked.connect(lambda x=None: exec(self.ui.code.toPlainText()))
+
     def _get_doc(self):
         return self.ui.view.page().mainFrame().documentElement()
 

@@ -13,7 +13,7 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
 
     mw = MainWindow()
-    mw.resize(1000, 800)
+    mw.resize(1300, 800)
     mw.show()
 
     # Загрузка страницы мосвара и авторизация

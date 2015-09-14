@@ -270,12 +270,14 @@ class MainWindow(QMainWindow, QObject):
     def home(self):
         self.go('home')
 
+    # TODO: вынести в отдельный класс
     def start_petriks(self):
         """Функция используется для производства нано-петриков."""
 
         # TODO: варка петриков.
 
         # Кнопка "Начать переработку"
+        # TODO: не .petric использовать, а что-то с nanofactory
         button = self.doc.findFirst('.petric .button')
 
         # Полоска прогресса переработки в нано-петрики

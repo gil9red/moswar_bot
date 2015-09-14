@@ -65,6 +65,9 @@ class FactoryPetric:
 
             button.evaluateJavaScript("this.click()")
 
+            # После выполнения указываем, что доступ есть (правда, по таймерам это может и не быть)
+            self._date_ready = None
+
         else:
             raise MoswarElementIsMissError('Не найдена кнопка "Начать переработку" и полоса '
                                            'прогресса переработки в нано-петрики')

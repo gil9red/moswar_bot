@@ -158,6 +158,9 @@ class Fight(QObject):
         #         self._timer.stop()
         #         return
 
+        # После выполнения указываем, что доступ есть (правда, по таймерам это может и не быть)
+        self._date_ready = None
+
     # TODO: проверить
     def eat_snickers(self):
         """Функция для съедания Сникерса. Возвращает True, если получилось съесть, иначе False."""

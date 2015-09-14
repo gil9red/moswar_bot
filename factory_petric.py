@@ -35,15 +35,14 @@ class FactoryPetric:
     def run(self):
         """Функция используется для производства нано-петриков."""
 
-        # TODO: варка петриков.
+        # TODO: учеть моментальное проивзодство -- если есть 2 кнопки -- можем готовить
+        # TODO: вызывать себя же в таймере, пока не появится полоса загрузки производства
         logger.debug('Выполняю переработку петриков.')
 
-        # TODO: идти на завод
         self._mw.factory()
 
         # Кнопка "Начать переработку"
-        # TODO: не .petric использовать, а что-то с nanofactory
-        button = self._mw.doc.findFirst('.petric .button')
+        button = self._mw.doc.findFirst('.factory-nanoptric .button')
 
         # Полоска прогресса переработки в нано-петрики
         progress = self._mw.doc.findFirst('#petriksprocess')
@@ -66,7 +65,6 @@ class FactoryPetric:
 
             # После выполнения указываем, что доступ есть (правда, по таймерам это может и не быть)
             self._date_ready = None
-
         else:
             raise MoswarElementIsMissError('Не найдена кнопка "Начать переработку" и полоса '
                                            'прогресса переработки в нано-петрики')

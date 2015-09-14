@@ -152,7 +152,6 @@ class MainWindow(QMainWindow, QObject):
             'Напасть': self.fight.run,
             'Ищем следующего противника': self.fight._next_enemy,
             'Восстановление жизней': self.restore_hp.run,
-            # 'Варка нано-петриков': self.start_petriks,
             'Варка нано-петриков': self.factory_petric.run,
         }
 
@@ -176,17 +175,17 @@ class MainWindow(QMainWindow, QObject):
         # TODO: настраивать лимиты, при которых деньги в руду сливаются через наперстки
         if self.money() >= 200000:
             self.thimblerig.run()
-            return
+            # return
 
         # TODO: проверять, что класс готов для запуска (is_ready)
         if self.fight.is_ready():
             self.fight.run()
-            return
+            # return
 
         # TODO: проверять, что класс готов для запуска (is_ready)
         if self.factory_petric.is_ready():
             self.factory_petric.run()
-            return
+            # return
 
     def _get_doc(self):
         return self.ui.view.page().mainFrame().documentElement()
@@ -260,16 +259,11 @@ class MainWindow(QMainWindow, QObject):
 
         logger.debug('Запуск таймера выполнения задач.')
 
-        # Запускаем выполнение задач
+        # Запускаем таймер выполнение задач
         self._task_timer.start()
 
-        # # TODO: удалить, временно!
-        # self.fight.run()
-        #
-        # self.timer = QTimer()
-        # self.timer.setInterval(1000 * 60 * 20)  # каждые 20 минут
-        # self.timer.timeout.connect(self.fight.run)
-        # self.timer.start()
+        # Выполнение первых задач
+        self._task_tick()
 
     def alley(self):
         self.go('alley')

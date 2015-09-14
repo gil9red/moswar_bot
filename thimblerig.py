@@ -7,7 +7,7 @@ __author__ = 'ipetrash'
 import random
 import time
 from PySide.QtCore import QObject, QTimer, Signal, QEventLoop
-from utils import get_logger
+from common import get_logger
 
 
 logger = get_logger('thimblerig')

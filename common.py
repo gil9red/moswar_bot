@@ -28,3 +28,24 @@ def get_logger(name, file='log.txt', encoding='utf8'):
     log.addHandler(ch)
 
     return log
+
+
+class MoswarBotError(Exception):
+    pass
+
+
+class MoswarElementIsMissError(MoswarBotError):
+    pass
+
+
+class MoswarButtonIsMissError(MoswarElementIsMissError):
+    def __init__(self, title_button):
+        super().__init__('Не найдена кнопка "{}".'.format(title_button))
+
+
+class MoswarAuthError(MoswarBotError):
+    pass
+
+
+LOGIN = 'ilya.petrash@inbox.ru'
+PASSWORD = '0JHQu9GPRnVjazop'

@@ -7,8 +7,7 @@ __author__ = 'ipetrash'
 from datetime import datetime, timedelta
 
 # TODO: вынести в другой модуль, например, utils, или common
-from mainwindow import MoswarElementIsMissError
-from utils import get_logger
+from common import get_logger, MoswarElementIsMissError
 
 
 logger = get_logger('factory_petric')

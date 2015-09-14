@@ -16,29 +16,7 @@ from thimblerig import Thimblerig
 from fight import Fight
 from restore_hp import RestoreHP
 from factory_petric import FactoryPetric
-from utils import get_logger
-
-
-class MoswarBotError(Exception):
-    pass
-
-
-class MoswarElementIsMissError(MoswarBotError):
-    pass
-
-
-class MoswarButtonIsMissError(MoswarElementIsMissError):
-    def __init__(self, title_button):
-        super().__init__('Не найдена кнопка "{}".'.format(title_button))
-
-
-class MoswarAuthError(MoswarBotError):
-    pass
-
-
-LOGIN = 'ilya.petrash@inbox.ru'
-PASSWORD = '0JHQu9GPRnVjazop'
-
+from common import *
 
 
 # TODO: level up:

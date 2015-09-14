@@ -4,6 +4,8 @@
 __author__ = 'ipetrash'
 
 
+from datetime import datetime, timedelta
+
 from PySide.QtCore import QObject, Signal, QTimer, QEventLoop
 from utils import get_logger
 from waitable import Waitable
@@ -18,6 +20,9 @@ class Fight(QObject):
 
         self._mw = mw
 
+        # Кнопка "Отнять у слабого"
+        self.button_fight = "div[class='button-big btn f1']"
+
         # Таймер для ожидания загрузки страницы с выбором противника
         self._timer_enemy_load = QTimer()
         self._timer_enemy_load.setInterval(333)
@@ -29,11 +34,22 @@ class Fight(QObject):
         self._timer_next_enemy.setSingleShot(True)
         self._timer_next_enemy.timeout.connect(self._next_enemy)
 
+        # Время, когда возможно нападение. Время используется локальное, а не серверное.
+        self._date_ready = None
+
     # Сигнал вызывается, когда противник на странице найден -- например, страница загрузилась
     _enemy_load_finished = Signal()
 
     # Сигнал вызывается, когда противник подходит для нападения
     _enemy_found = Signal()
+
+    def is_ready(self):
+        """Возвращает True, если вызов метода run будет иметь смысл -- можем напасть, иначе False."""
+
+        if self._date_ready is None:
+            return True
+
+        return datetime.today() >= self._date_ready
 
     def run(self):
         """Функция для нападения на игроков.
@@ -45,29 +61,43 @@ class Fight(QObject):
         # Идем в Закоулки
         self._mw.alley()
 
-        # Кнопка "Отнять у слабого"
-        button_fight = "div[class='button-big btn f1']"
-
         # TODO: проверить таймер
+        # TODO: таймаут после боя:
+        # <a data-no-blinking="1" intitle="1" endtime="1441397312" timer="361" style="" id="timeout" href="/alley/"
+        # onclick="return AngryAjax.goToUrl(this, event);" process="1">00:06:02</a>
+        # doc = view.page().mainFrame().documentElement()
+        # for timeout in doc.findAll('[id*=timeout]'):
+        #     timer = timeout.attribute('timer')
+        #     if timer and 'alley' in timeout.attribute('href'):
+        #         # return int(timer)
+        #         print('Осталось:', int(timer))
+        #         break
+
+        # TODO: если есть таймер, но есть Сникерс, то не выходим из функции и ищем противника
+
+        for timeout in self._mw.doc.findAll('[id*=timeout]'):
+            timer = timeout.attribute('timer')
+            print('timer:', timer)
+            if timer and 'alley' in timeout.attribute('href'):
+                timer = int(timer)
+                print('Осталось:', timer)
+                if timer > 0:
+                    # Указываем время готовности, плюс 5 секунд -- на всякий
+                    self._date_ready = datetime.today() + timedelta(seconds=timer + 5)
+                    return
 
         # TODO: если есть тонус, использовать, чтобы сразу напасть
         # print(self._mw.doc.findFirst('div[onclick*=tonus]').toPlainText())
 
-        button = self._mw.doc.findFirst('div[onclick*=snikers]')
-        if not button.isNull():
-            logger.debug('Съедаю сникерс')
-            self._mw.click_tag('div[onclick*=snikers]')
-
-            # Ждем пока после клика прогрузится страница и появится элемент
-            Waitable(self._mw.doc).wait(button_fight)
-        else:
+        # Если не получилось съесть Сникерс, восстанавливаем по старинке
+        if not self.eat_snickers():
             if self._mw.current_hp() < self._mw.max_hp():
                 self._mw.restore_hp.run()
 
         logger.debug('Нажимаю на кнопку "Отнять у слабого".')
 
         # Кликаем на кнопку "Отнять у слабого"
-        self._mw.click_tag(button_fight)
+        self._mw.click_tag(self.button_fight)
 
         # Если не нашли подходящего противника, смотрим следующего
         if not self._check_enemy():
@@ -83,10 +113,6 @@ class Fight(QObject):
         # Кликаем на кнопку "Напасть"
         self._mw.click_tag(".button-fight a")
 
-        # TODO: перематывать бой
-        # <i id="controls-forward" class="icon icon-forward disabled" onclick="fightForward();"></i>
-        # # Кликаем на кнопку для пропуска боя
-        # self._mw.click_tag("#controls-forward")
 
         # TODO: результат боя
         # doc = frame.page().mainFrame().documentElement()
@@ -101,16 +127,6 @@ class Fight(QObject):
         #     count = img.findFirst('.count').toPlainText()
         #     print('{}: {}'.format(obj, count))
 
-        # TODO: таймаут после боя:
-        # <a data-no-blinking="1" intitle="1" endtime="1441397312" timer="361" style="" id="timeout" href="/alley/"
-        # onclick="return AngryAjax.goToUrl(this, event);" process="1">00:06:02</a>
-        # doc = view.page().mainFrame().documentElement()
-        # for timeout in doc.findAll('[id*=timeout]'):
-        #     timer = timeout.attribute('timer')
-        #     if timer and 'alley' in timeout.attribute('href'):
-        #         # return int(timer)
-        #         print('Осталось:', int(timer))
-        #         break
 
         # TODO: сообщение: Вы слишком часто деретесь.
         # <div class="alert alert-error alert1" style="display: block; top: 450.5px; left: 1007px;" data-bind-move="1">
@@ -142,8 +158,20 @@ class Fight(QObject):
         #         self._timer.stop()
         #         return
 
-    # TODO: сделать
-    # def eat_snickers(self):
+    # TODO: проверить
+    def eat_snickers(self):
+        """Функция для съедания Сникерса. Возвращает True, если получилось съесть, иначе False."""
+
+        button = self._mw.doc.findFirst('div[onclick*=snikers]')
+        if not button.isNull():
+            logger.debug('Съедаю сникерс.')
+            self._mw.click_tag('div[onclick*=snikers]')
+
+            # Ждем пока после клика прогрузится страница и появится элемент
+            Waitable(self._mw.doc).wait(self.button_fight)
+            return True
+
+        return False
 
     def _check_enemy_load(self):
         """Функция для ожидания загрузки страницы с выбором противника."""

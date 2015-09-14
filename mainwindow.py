@@ -15,6 +15,7 @@ from mainwindow_ui import Ui_MainWindow
 from thimblerig import Thimblerig
 from fight import Fight
 from restore_hp import RestoreHP
+from factory_petric import FactoryPetric
 from utils import get_logger
 
 
@@ -158,12 +159,14 @@ class MainWindow(QMainWindow, QObject):
         self.thimblerig = Thimblerig(self)
         self.fight = Fight(self)
         self.restore_hp = RestoreHP(self)
+        self.factory_petric = FactoryPetric(self)
 
         # Список действий бота
         self.name_action_dict = {
             'Закоулки': self.alley,
             'Площадь': self.square,
             'Метро': self.metro,
+            'Завод': self.factory,
             'Задания': self.jobs,
             'Персонаж': self.player,
             'Хата': self.home,
@@ -171,7 +174,8 @@ class MainWindow(QMainWindow, QObject):
             'Напасть': self.fight.run,
             'Ищем следующего противника': self.fight._next_enemy,
             'Восстановление жизней': self.restore_hp.run,
-            'Варка нано-петриков': self.start_petriks,
+            # 'Варка нано-петриков': self.start_petriks,
+            'Варка нано-петриков': self.factory_petric.run,
         }
 
         # Добавляем команды
@@ -180,6 +184,31 @@ class MainWindow(QMainWindow, QObject):
 
         # Выполнение кода в окне "Выполнение скрипта"
         self.ui.button_exec.clicked.connect(lambda x=None: exec(self.ui.code.toPlainText()))
+
+        # Таймер используемый для вызова функции для запуска задач
+        self._task_timer = QTimer()
+        self._task_timer.setInterval(3 * 60 * 1000)  # Каждые 3 минуты
+        self._task_timer.timeout.connect(self._task_tick)
+
+    def _task_tick(self):
+        """Функция для запуска задач."""
+
+        logger.debug('Запуск задач.')
+
+        # TODO: настраивать лимиты, при которых деньги в руду сливаются через наперстки
+        if self.money() >= 200000:
+            self.thimblerig.run()
+            return
+
+        # TODO: проверять, что класс готов для запуска (is_ready)
+        if self.fight.is_ready():
+            self.fight.run()
+            return
+
+        # TODO: проверять, что класс готов для запуска (is_ready)
+        if self.factory_petric.is_ready():
+            self.factory_petric.run()
+            return
 
     def _get_doc(self):
         return self.ui.view.page().mainFrame().documentElement()
@@ -213,6 +242,8 @@ class MainWindow(QMainWindow, QObject):
         else:
             url = urljoin(self.moswar_url, relative_url)
 
+        logger.debug('Перехожу по адресу "%s"', url)
+
         self.ui.view.load(url)
 
         self.wait_loading()
@@ -243,20 +274,26 @@ class MainWindow(QMainWindow, QObject):
 
         self.wait_loading()
 
+        # Запускаем выполнение задач
+        self._task_timer.start()
 
-        # TODO: удалить, временно!
-        self.fight.run()
-
-        self.timer = QTimer()
-        self.timer.setInterval(1000 * 60 * 20)  # каждые 20 минут
-        self.timer.timeout.connect(self.fight.run)
-        self.timer.start()
+        # # TODO: удалить, временно!
+        # self.fight.run()
+        #
+        # self.timer = QTimer()
+        # self.timer.setInterval(1000 * 60 * 20)  # каждые 20 минут
+        # self.timer.timeout.connect(self.fight.run)
+        # self.timer.start()
 
     def alley(self):
         self.go('alley')
 
     def square(self):
         self.go('square')
+
+    # TODO: проверить корректность метода
+    def factory(self):
+        self.go('factory')
 
     def metro(self):
         self.go('metro')
@@ -270,32 +307,32 @@ class MainWindow(QMainWindow, QObject):
     def home(self):
         self.go('home')
 
-    # TODO: вынести в отдельный класс
-    def start_petriks(self):
-        """Функция используется для производства нано-петриков."""
-
-        # TODO: варка петриков.
-
-        # Кнопка "Начать переработку"
-        # TODO: не .petric использовать, а что-то с nanofactory
-        button = self.doc.findFirst('.petric .button')
-
-        # Полоска прогресса переработки в нано-петрики
-        progress = self.doc.findFirst('#petriksprocess')
-
-        # Если есть кнопка "Начать переработку", кликаем
-        if not button.isNull():
-            button.evaluateJavaScript("this.click()")
-
-        # Иначе, узнаем сколько осталось ждать
-        elif not progress.isNull():
-            # Сколько осталось секунд
-            end_time = progress.attribute('timer')
-            print('Осталось {} секунд'.format(end_time))
-
-        else:
-            raise MoswarElementIsMissError('Не найдена кнопка "Начать переработку" и полоса '
-                                           'прогресса переработки в нано-петрики')
+    # # TODO: вынести в отдельный класс
+    # def start_petriks(self):
+    #     """Функция используется для производства нано-петриков."""
+    #
+    #     # TODO: варка петриков.
+    #
+    #     # Кнопка "Начать переработку"
+    #     # TODO: не .petric использовать, а что-то с nanofactory
+    #     button = self.doc.findFirst('.petric .button')
+    #
+    #     # Полоска прогресса переработки в нано-петрики
+    #     progress = self.doc.findFirst('#petriksprocess')
+    #
+    #     # Если есть кнопка "Начать переработку", кликаем
+    #     if not button.isNull():
+    #         button.evaluateJavaScript("this.click()")
+    #
+    #     # Иначе, узнаем сколько осталось ждать
+    #     elif not progress.isNull():
+    #         # Сколько осталось секунд
+    #         end_time = progress.attribute('timer')
+    #         print('Осталось {} секунд'.format(end_time))
+    #
+    #     else:
+    #         raise MoswarElementIsMissError('Не найдена кнопка "Начать переработку" и полоса '
+    #                                        'прогресса переработки в нано-петрики')
 
     def money(self):
         """Функция возвращает количество денег персонажа."""

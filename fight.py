@@ -34,8 +34,8 @@ class Fight(QObject):
         self._timer_next_enemy.setSingleShot(True)
         self._timer_next_enemy.timeout.connect(self._next_enemy)
 
-        # Время, когда возможно нападение. Время используется локальное, а не серверное.
-        self._date_ready = None
+        # # Время, когда возможно нападение. Время используется локальное, а не серверное.
+        # self._date_ready = None
 
     # Сигнал вызывается, когда противник на странице найден -- например, страница загрузилась
     _enemy_load_finished = Signal()
@@ -46,10 +46,29 @@ class Fight(QObject):
     def is_ready(self):
         """Возвращает True, если вызов метода run будет иметь смысл -- можем напасть, иначе False."""
 
-        if self._date_ready is None:
-            return True
+        return self._timeout_fight() is None
 
-        return datetime.today() >= self._date_ready
+        # print('self._date_ready:', self._date_ready)
+        # print('datetime.today():', datetime.today())
+        # if self._date_ready is not None:
+        #     print('datetime.today() >= self._date_ready', datetime.today() >= self._date_ready)
+        #
+        # if self._date_ready is None:
+        #     return True
+        #
+        # return datetime.today() >= self._date_ready
+
+    def _timeout_fight(self):
+        """Функция возвращает количество оставшихся секунд до возможности напасть.
+        Если секунд осталось 0 или меньше 0, то вернется None."""
+
+        for timeout in self._mw.doc.findAll('[id*=timeout]'):
+            timer = timeout.attribute('timer')
+            print('timer:', timer)
+            if timer and 'alley' in timeout.attribute('href'):
+                timer = int(timer)
+                print('Осталось:', timer)
+                return timer if timer > 0 else None
 
     def run(self):
         """Функция для нападения на игроков.
@@ -61,30 +80,10 @@ class Fight(QObject):
         # Идем в Закоулки
         self._mw.alley()
 
-        # TODO: проверить таймер
-        # TODO: таймаут после боя:
-        # <a data-no-blinking="1" intitle="1" endtime="1441397312" timer="361" style="" id="timeout" href="/alley/"
-        # onclick="return AngryAjax.goToUrl(this, event);" process="1">00:06:02</a>
-        # doc = view.page().mainFrame().documentElement()
-        # for timeout in doc.findAll('[id*=timeout]'):
-        #     timer = timeout.attribute('timer')
-        #     if timer and 'alley' in timeout.attribute('href'):
-        #         # return int(timer)
-        #         print('Осталось:', int(timer))
-        #         break
-
         # TODO: если есть таймер, но есть Сникерс, то не выходим из функции и ищем противника
-
-        for timeout in self._mw.doc.findAll('[id*=timeout]'):
-            timer = timeout.attribute('timer')
-            print('timer:', timer)
-            if timer and 'alley' in timeout.attribute('href'):
-                timer = int(timer)
-                print('Осталось:', timer)
-                if timer > 0:
-                    # Указываем время готовности, плюс 5 секунд -- на всякий
-                    self._date_ready = datetime.today() + timedelta(seconds=timer + 5)
-                    return
+        if not self.is_ready():
+            logger.debug('Нападать еще нельзя')
+            return
 
         # TODO: если есть тонус, использовать, чтобы сразу напасть
         # print(self._mw.doc.findFirst('div[onclick*=tonus]').toPlainText())

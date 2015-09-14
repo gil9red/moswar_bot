@@ -181,11 +181,17 @@ class MainWindow(QMainWindow, QObject):
         if self.fight.is_ready():
             self.fight.run()
             # return
+        # else:
+        #     # TODO: рефакторринг
+        #     logger.info('fight не готов, время готовности: %s', self.fight._date_ready)
 
         # TODO: проверять, что класс готов для запуска (is_ready)
         if self.factory_petric.is_ready():
             self.factory_petric.run()
             # return
+        else:
+            # TODO: рефакторринг
+            logger.info('factory_petric не готов, время готовности: %s', self.factory_petric._date_ready)
 
     def _get_doc(self):
         return self.ui.view.page().mainFrame().documentElement()

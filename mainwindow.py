@@ -223,10 +223,14 @@ class MainWindow(QMainWindow, QObject):
     def wait_loading(self):
         """Функция ожидания загрузки страницы. Использовать только при изменении url."""
 
+        logger.debug('Начинаю ожидание загрузки страницы.')
+
         # Ждем пока прогрузится страница
         loop = QEventLoop()
         self.ui.view.loadFinished.connect(loop.quit)
         loop.exec_()
+
+        logger.debug('Закончено ожидание загрузки страницы.')
 
     def go(self, relative_url=None):
         """Функция для загрузки страниц.
@@ -254,6 +258,8 @@ class MainWindow(QMainWindow, QObject):
 
         """
 
+        logger.debug('Авторизуюсь.')
+
         # Открываем страницу мосвара
         self.go()
 
@@ -273,6 +279,8 @@ class MainWindow(QMainWindow, QObject):
         submit.evaluateJavaScript("this.click()")
 
         self.wait_loading()
+
+        logger.debug('Запуск таймера выполнения задач.')
 
         # Запускаем выполнение задач
         self._task_timer.start()
@@ -393,6 +401,8 @@ class MainWindow(QMainWindow, QObject):
             # Кликаем на кнопку "Искать другого"
             self.click_tag(".button-search a")
         """
+
+        logger.debug('Выполняю клик по тегу: %s', css_path)
 
         # Используем для клика jQuery
         code = """

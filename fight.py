@@ -34,6 +34,7 @@ class Fight(QObject):
         self._timer_next_enemy.setSingleShot(True)
         self._timer_next_enemy.timeout.connect(self._next_enemy)
 
+        # TODO: remove
         # # Время, когда возможно нападение. Время используется локальное, а не серверное.
         # self._date_ready = None
 
@@ -48,6 +49,7 @@ class Fight(QObject):
 
         return self._timeout_fight() is None
 
+        # TODO: remove
         # print('self._date_ready:', self._date_ready)
         # print('datetime.today():', datetime.today())
         # if self._date_ready is not None:
@@ -64,10 +66,8 @@ class Fight(QObject):
 
         for timeout in self._mw.doc.findAll('[id*=timeout]'):
             timer = timeout.attribute('timer')
-            print('timer:', timer)
             if timer and 'alley' in timeout.attribute('href'):
                 timer = int(timer)
-                print('Осталось:', timer)
                 return timer if timer > 0 else None
 
     def run(self):
@@ -110,55 +110,55 @@ class Fight(QObject):
         logger.debug('Нападаем на противника.')
 
         # Кликаем на кнопку "Напасть"
-        self._mw.click_tag(".button-fight a")
+        self._mw.click_tag('.button-fight a')
 
+        # Логируем результаты боя
+        self.print_results()
 
-        # TODO: результат боя
-        # doc = frame.page().mainFrame().documentElement()
-        # result = doc.findFirst('.result')
-        #
-        # print('Монет:', result.findFirst('.tugriki').toPlainText().replace(',', ''))
-        # print('Опыт:', result.findFirst('.expa').toPlainText())
-        # print('Искры:', result.findFirst('.sparkles').toPlainText())
-        #
-        # for img in result.findAll('.object-thumb'):
-        #     obj = img.findFirst('img').attribute('alt')
-        #     count = img.findFirst('.count').toPlainText()
-        #     print('{}: {}'.format(obj, count))
+        # TODO: remove
+        # # После выполнения указываем, что доступ есть (правда, по таймерам это может и не быть)
+        # self._date_ready = None
 
+    def print_results(self):
+        """Логируем результат боя."""
 
-        # TODO: сообщение: Вы слишком часто деретесь.
-        # <div class="alert alert-error alert1" style="display: block; top: 450.5px; left: 1007px;" data-bind-move="1">
-        #   <div class="padding">
-        #       <h2 id="alert-title">Ошибка</h2>
-        #       <span class="close-cross" style="" onclick="closeAlert(this);">×</span>
-        #       <div class="data">
-        #           <div id="alert-text">Вы слишком часто деретесь.</div>
-        #           <div class="actions">
-        #               <div class="button">
-        #                   <span class="f" onclick="$(this).parents("div.alert:first").remove();">
-        #                       <i class="rl"></i>
-        #                       <i class="bl"></i>
-        #                       <i class="brc"></i>
-        #                       <div class="c">OK</div>
-        #                   </span>
-        #               </div>
-        #           </div>
-        #       </div>
-        #   </div>
-        # </div>
-        # for el in self.mw.doc.findAll('.alert'):
-        #     title = el.findFirst('#alert-text')
-        #     if not title.isNull() and title.toPlainText() == 'Вы слишком часто деретесь.':
-        #         logger.debug('Вы слишком часто деретесь.')
-        #
-        #         self._restore_hp_window = el
-        #         self._find_restore_hp_window_finded.emit()
-        #         self._timer.stop()
-        #         return
+        # TODO: учитывать проигрыш
 
-        # После выполнения указываем, что доступ есть (правда, по таймерам это может и не быть)
-        self._date_ready = None
+        result = '.result'
+
+        # Ждем пока после клика прогрузится страница и появится элемент
+        Waitable(self._mw.doc).wait(result)
+
+        # Найдем элемент, в котором будут все результаты боя
+        result = self._mw.doc.findFirst(result)
+
+        # Сначала покажем выигранные монет и опыт, потом все остальное. Список используется для того, чтобы
+        # порядок вывода результата боя был в порядке добавления элементов в этот список
+        result_item_keys = ['Монеты', 'Опыт']
+
+        result_dict = {
+            'Монеты': result.findFirst('.tugriki').toPlainText().replace(',', ''),
+            'Опыт': result.findFirst('.expa').toPlainText(),
+        }
+
+        # Искры не всегда будут -- обычно перед праздниками они появляются
+        sparkles = result.findFirst('.sparkles')
+        if not sparkles.isNull():
+            result_item_keys.append('Искры')
+            result_dict['Искры'] = sparkles.toPlainText()
+
+        for img in result.findAll('.object-thumb'):
+            obj = img.findFirst('img').attribute('alt')
+            count = img.findFirst('.count').toPlainText()
+
+            result_dict[obj] = count
+            result_item_keys.append(obj)
+
+        result_list = list()
+        for key in result_item_keys:
+            result_list.append('  {}: {}'.format(key, result_dict[key]))
+
+        logger.debug('Результат боя:\n' + '\n'.join(result_list))
 
     # TODO: проверить
     def eat_snickers(self):

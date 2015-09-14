@@ -175,23 +175,15 @@ class MainWindow(QMainWindow, QObject):
         # TODO: настраивать лимиты, при которых деньги в руду сливаются через наперстки
         if self.money() >= 200000:
             self.thimblerig.run()
-            # return
+            return
 
-        # TODO: проверять, что класс готов для запуска (is_ready)
         if self.fight.is_ready():
             self.fight.run()
-            # return
-        # else:
-        #     # TODO: рефакторринг
-        #     logger.info('fight не готов, время готовности: %s', self.fight._date_ready)
+            return
 
-        # TODO: проверять, что класс готов для запуска (is_ready)
         if self.factory_petric.is_ready():
             self.factory_petric.run()
-            # return
-        else:
-            # TODO: рефакторринг
-            logger.info('factory_petric не готов, время готовности: %s', self.factory_petric._date_ready)
+            return
 
     def _get_doc(self):
         return self.ui.view.page().mainFrame().documentElement()

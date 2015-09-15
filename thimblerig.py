@@ -7,7 +7,7 @@ __author__ = 'ipetrash'
 import random
 import time
 from PySide.QtCore import QObject, QTimer, Signal, QEventLoop
-from common import get_logger
+from common import get_logger, MoswarElementIsMissError
 
 
 logger = get_logger('thimblerig')
@@ -76,6 +76,21 @@ class Thimblerig(QObject):
         # Эмулируем клик на кнопку "Начать играть"
         self.mw.go('thimble/start')
 
+        # TODO: проверять на сообщение которое говорит, что билеты для игры закончились
+# <div class="alert infoalert alert-error alert1" rel="" style="display: block; top: 428px;" data-bind-move="1">
+# <div class="padding">
+# <h2 id="alert-title">Ошибка</h2>
+# <div class="data">
+# <div id="alert-text">
+# Вы сегодня уже играли в наперстки с Моней Шацом много раз, и его интерес к вам сильно поубавился. Но если же вы хотите во что бы то ни стало рискнуть еще разок, то
+# <a href="/berezka/" onclick="return AngryAjax.goToUrl(this, event);">купите билетик</a>
+# в Березке.
+# </div>
+# <div class="actions">
+# </div>
+# </div>
+# </div>
+
         self._ruda_count = 0
         self._thimble_round_count = 0
 
@@ -107,7 +122,6 @@ class Thimblerig(QObject):
         self._thimble_round_count += 1
 
         # Выбираем кнопку для игры в 9 наперстков
-        # css_path = "div[id='thimble-controls-buttons'] div[data-count='9']"
         css_path = "#thimble-controls-buttons div[data-count='9']"
         self.mw.click_tag(css_path)
 

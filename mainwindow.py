@@ -173,7 +173,7 @@ class MainWindow(QMainWindow, QObject):
         logger.debug('Запуск задач.')
 
         # TODO: настраивать лимиты, при которых деньги в руду сливаются через наперстки
-        if self.money() >= 200000:
+        if self.money() >= 500000:
             self.thimblerig.run()
             return
 
@@ -269,7 +269,6 @@ class MainWindow(QMainWindow, QObject):
     def square(self):
         self.go('square')
 
-    # TODO: проверить корректность метода
     def factory(self):
         self.go('factory')
 
@@ -284,33 +283,6 @@ class MainWindow(QMainWindow, QObject):
 
     def home(self):
         self.go('home')
-
-    # # TODO: вынести в отдельный класс
-    # def start_petriks(self):
-    #     """Функция используется для производства нано-петриков."""
-    #
-    #     # TODO: варка петриков.
-    #
-    #     # Кнопка "Начать переработку"
-    #     # TODO: не .petric использовать, а что-то с nanofactory
-    #     button = self.doc.findFirst('.petric .button')
-    #
-    #     # Полоска прогресса переработки в нано-петрики
-    #     progress = self.doc.findFirst('#petriksprocess')
-    #
-    #     # Если есть кнопка "Начать переработку", кликаем
-    #     if not button.isNull():
-    #         button.evaluateJavaScript("this.click()")
-    #
-    #     # Иначе, узнаем сколько осталось ждать
-    #     elif not progress.isNull():
-    #         # Сколько осталось секунд
-    #         end_time = progress.attribute('timer')
-    #         print('Осталось {} секунд'.format(end_time))
-    #
-    #     else:
-    #         raise MoswarElementIsMissError('Не найдена кнопка "Начать переработку" и полоса '
-    #                                        'прогресса переработки в нано-петрики')
 
     def money(self):
         """Функция возвращает количество денег персонажа."""

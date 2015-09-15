@@ -212,7 +212,7 @@ class Fight(QObject):
         # Проверяем, что нападаем на горожанина и разница в уровнях небольшая
         # found = is_npc and npc_level - 1 <= self._mw.level() <= npc_level + 1
         # TODO: Тупо ищем противника уровнем выше -- нужно получать максимальное количество искр
-        found = is_npc and self._mw.level() == npc_level + 1
+        found = is_npc and self._mw.level() + 1 == npc_level
 
         logger.info('Противник подходящий -> %s.', found)
 

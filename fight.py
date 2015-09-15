@@ -21,7 +21,10 @@ class Fight(QObject):
         self._mw = mw
 
         # Кнопка "Отнять у слабого"
-        self.button_fight = "div[class='button-big btn f1']"
+        self._css_path_button_fight = "div[class='button-big btn f1']"
+
+        # Кнопка поедания сникерса
+        self._css_path_button_snikers = 'div[onclick*=snikers]'
 
         # Таймер для ожидания загрузки страницы с выбором противника
         self._timer_enemy_load = QTimer()
@@ -47,7 +50,12 @@ class Fight(QObject):
     def is_ready(self):
         """Возвращает True, если вызов метода run будет иметь смысл -- можем напасть, иначе False."""
 
-        return self._timeout_fight() is None
+        # TODO: для того, чтобы метод self.fight.is_ready() работал правильно, текущим адресом должны
+        # быть Закоулки -- метод has_snikers, используемый в is_ready работает только в Закоулках
+        # Идем в Закоулки
+        self._mw.alley()
+
+        return self._timeout_fight() is None or self.has_snickers()
 
         # TODO: remove
         # print('self._date_ready:', self._date_ready)
@@ -77,12 +85,13 @@ class Fight(QObject):
         Уровень противника в пределах нашего +/- 1
         """
 
-        # Идем в Закоулки
-        self._mw.alley()
+        # TODO: этот метод уже вызывается в is_ready
+        # # Идем в Закоулки
+        # self._mw.alley()
 
-        # TODO: если есть таймер, но есть Сникерс, то не выходим из функции и ищем противника
-        if not self.is_ready():
-            logger.debug('Нападать еще нельзя')
+        # TODO: если есть таймер, и нельзя съесть сникерс, то выходим из функции
+        if not self.is_ready() and not self.has_snickers():
+            logger.debug('Нападать еще нельзя.')
             return
 
         # TODO: если есть тонус, использовать, чтобы сразу напасть
@@ -96,7 +105,7 @@ class Fight(QObject):
         logger.debug('Нажимаю на кнопку "Отнять у слабого".')
 
         # Кликаем на кнопку "Отнять у слабого"
-        self._mw.click_tag(self.button_fight)
+        self._mw.click_tag(self._css_path_button_fight)
 
         # Если не нашли подходящего противника, смотрим следующего
         if not self._check_enemy():
@@ -160,17 +169,22 @@ class Fight(QObject):
 
         logger.debug('Результат боя:\n' + '\n'.join(result_list))
 
-    # TODO: проверить
+    # TODO: работает только в Закоулках
+    def has_snickers(self):
+        """Функция возвратит True, если можно съесть Сникерс, иначе False."""
+
+        button = self._mw.doc.findFirst(self._css_path_button_snikers)
+        return not button.isNull()
+
     def eat_snickers(self):
         """Функция для съедания Сникерса. Возвращает True, если получилось съесть, иначе False."""
 
-        button = self._mw.doc.findFirst('div[onclick*=snikers]')
-        if not button.isNull():
+        if self.has_snickers():
             logger.debug('Съедаю сникерс.')
-            self._mw.click_tag('div[onclick*=snikers]')
+            self._mw.click_tag(self._css_path_button_snikers)
 
             # Ждем пока после клика прогрузится страница и появится элемент
-            Waitable(self._mw.doc).wait(self.button_fight)
+            Waitable(self._mw.doc).wait(self._css_path_button_fight)
             return True
 
         return False

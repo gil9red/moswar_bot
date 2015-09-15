@@ -4,6 +4,7 @@
 __author__ = 'ipetrash'
 
 from urllib.parse import urljoin
+from random import random, randint
 
 from PySide.QtGui import *
 from PySide.QtCore import *
@@ -179,7 +180,9 @@ class MainWindow(QMainWindow, QObject):
 
         # Таймер используемый для вызова функции для запуска задач
         self._task_timer = QTimer()
-        self._task_timer.setInterval(3 * 60 * 1000)  # Каждые 3 минуты
+        # TODO: делаем таймер немного рандомным
+        self._task_timer.setSingleShot(True)
+        # self._task_timer.setInterval(3 * 60 * 1000)  # Каждые 3 минуты
         self._task_timer.timeout.connect(self._task_tick)
 
     def _task_tick(self):
@@ -190,15 +193,21 @@ class MainWindow(QMainWindow, QObject):
         # TODO: настраивать лимиты, при которых деньги в руду сливаются через наперстки
         if self.money() >= 500000:
             self.thimblerig.run()
-            return
 
-        if self.fight.is_ready():
+        elif self.fight.is_ready():
             self.fight.run()
-            return
 
+        # elif self.factory_petric.is_ready():
+        #     self.factory_petric.run()
         if self.factory_petric.is_ready():
             self.factory_petric.run()
-            return
+
+        # Запускаем таймер выполнение задач
+        # Следующий вызов будет случайным от 3 до 10 минут + немного случайных секунд
+        interval = (randint(3, 10) + random()) * 60 * 1000
+        interval = int(interval)
+        logger.debug('Повторный запуск задач через %s миллисекунд.', interval)
+        self._task_timer.start(interval)
 
     def _get_doc(self):
         return self.ui.view.page().mainFrame().documentElement()
@@ -272,8 +281,9 @@ class MainWindow(QMainWindow, QObject):
 
         logger.debug('Запуск таймера выполнения задач.')
 
-        # Запускаем таймер выполнение задач
-        self._task_timer.start()
+        # TODO: удалить
+        # # Запускаем таймер выполнение задач
+        # self._task_timer.start()
 
         # Выполнение первых задач
         self._task_tick()

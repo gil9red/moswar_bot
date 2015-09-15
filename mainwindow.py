@@ -37,6 +37,21 @@ from common import *
 #     button.evaluateJavaScript('this.click()')
 
 
+# TODO: спорт-лото выигрыш, но без кнопки забирания выигрыша -- по ошибки тыкнул
+# <div class="center clear">
+# <h3>
+# <div class="clear casino-sportloto-drawing" style="position:relative;">
+# <div style="float:left; width:49%;">
+# <div style="float:right; width:49%;">
+# <table class="tickets list">
+# <div id="prize-error" class="error" style="text-align:center; display: none;"></div>
+# <p class="borderdata" style="margin:5px 0;">
+# <div class="hint" style="text-align:center">Купите билетик на завтра</div>
+# </div>
+# </div>
+# </div>
+
+
 # TODO: ограбление корованов: http://www.moswar.ru/desert/
 # <form class="patrol" action="/alley/" method="post" id="patrolForm" inited="inited">
 # <input type="hidden" name="action" value="patrol"><p><img src="/@/images/obj/set_new/hat1_m.png" align="left">В темных улочках столицы происходит <b>много событий</b>. Отправляйся <b>в патруль</b> на улицу, и кто знает, быть может тебя ждут веселые встречи и <b>ценные находки</b>.</p>

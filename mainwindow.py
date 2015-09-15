@@ -194,13 +194,19 @@ class MainWindow(QMainWindow, QObject):
         if self.money() >= 500000:
             self.thimblerig.run()
 
+        # elif self.fight.is_ready():
+        #     self.fight.run()
+        #
+        # # elif self.factory_petric.is_ready():
+        # #     self.factory_petric.run()
+        # if self.factory_petric.is_ready():
+        #     self.factory_petric.run()
+
+        elif self.factory_petric.is_ready():
+            self.factory_petric.run()
+
         elif self.fight.is_ready():
             self.fight.run()
-
-        # elif self.factory_petric.is_ready():
-        #     self.factory_petric.run()
-        if self.factory_petric.is_ready():
-            self.factory_petric.run()
 
         # Запускаем таймер выполнение задач
         # Следующий вызов будет случайным от 3 до 10 минут + немного случайных секунд

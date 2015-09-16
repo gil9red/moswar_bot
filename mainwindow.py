@@ -23,15 +23,15 @@ from common import *
 # TODO: level up:
 # <div id="content" class="levelup">
 # После левел апа нужно кликнуть на: <button class="button" type="submit">
-# doc = view.page().mainFrame().documentElement()
-# level_up = doc.findFirst('.levelup')
+#
+# level_up = self.doc.findFirst('.levelup')
 # if not level_up.isNull():
 #     # Показать столько побед / награблено
 #     for td in level_up.findAll('td'):
 #         print(' '.join(td.toPlainText().split()))
 #
 #     # Ищем кнопку 'Вперед, к новым победам!' и кликаем на нее
-#     button = doc.findFirst('.levelup .button')
+#     button = self.doc.findFirst('.levelup .button')
 #     if button.isNull():
 #         raise MoswarButtonIsMissError('Вперед, к новым победам!')
 #

@@ -69,7 +69,8 @@ class Waitable(QObject):
             self._finished_event_loop.emit()
 
     def wait(self, element, max_number_attempts=10):
-        """Функция завершается только тогда, когда element будет найден в вебдокументе."""
+        """Функция завершается element будет найден в вебдокументе и на это у нее
+        есть max_number_attempts попыток."""
 
         logger.debug('Ищу элемент: %s. Количество попыток: %s.', element, max_number_attempts)
 

@@ -90,6 +90,17 @@ class Thimblerig(QObject):
 # </div>
 # </div>
 # </div>
+#
+#
+# for el in self.mw.doc.findAll('.alert'):
+#     title = el.findFirst('#alert-title')
+#     if not title.isNull() and title.toPlainText() == 'Восстановить здоровье':
+#         logger.debug('Найдено окно восстановления жизней.')
+#
+#         self._restore_hp_window = el
+#         self._find_restore_hp_window_finded.emit()
+#         self._timer.stop()
+#         return
 
         self._ruda_count = 0
         self._thimble_round_count = 0

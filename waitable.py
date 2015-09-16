@@ -7,7 +7,7 @@ __author__ = 'ipetrash'
 from PySide.QtCore import QObject, QTimer, Signal, QEventLoop
 from common import get_logger
 
-# TODO: ограничение времени / количества работы класса
+
 logger = get_logger('waitable')
 
 
@@ -27,13 +27,15 @@ class Waitable(QObject):
         self._found = False
         self._element = None
 
+        # Осталось попыток
+        self._attempts_remaining = None
+
         self._timer = QTimer()
         self._timer.setInterval(333)
         self._timer.timeout.connect(self._found_tick)
 
-    # Сигнал нужен для прерывания QEventLoop'а, вызывается, когда
-    # требуемый элемент найден
-    _element_found = Signal()
+    # Сигнал нужен для прерывания QEventLoop'а
+    _finished_event_loop = Signal()
 
     def _found_tick(self):
         """Функция с переодичностью в 333 мс вызывается таймером и ищет указанный элемент.
@@ -53,24 +55,32 @@ class Waitable(QObject):
         # Ищем элемент
         element = self._doc.findFirst(self._element)
 
-        logger.debug('Ищу элемент: %s.', self._element)
-
         if not element.isNull():
             logger.debug('Элемент найден.')
 
             self.found = True
             self._timer.stop()
-            self._element_found.emit()
+            self._finished_event_loop.emit()
 
-    def wait(self, element):
+        self._attempts_remaining -= 1
+        if self._attempts_remaining == 0:
+            logger.warn('Закончилось количество попыток найти элемент: %s.', self._element)
+            self._timer.stop()
+            self._finished_event_loop.emit()
+
+    def wait(self, element, max_number_attempts=10):
         """Функция завершается только тогда, когда element будет найден в вебдокументе."""
+
+        logger.debug('Ищу элемент: %s. Количество попыток: %s.', element, max_number_attempts)
 
         self._element = element
         self._found = False
+
+        self._attempts_remaining = max_number_attempts
 
         self._timer.start(333)
 
         if not self._found:
             loop = QEventLoop()
-            self._element_found.connect(loop.quit)
+            self._finished_event_loop.connect(loop.quit)
             loop.exec_()

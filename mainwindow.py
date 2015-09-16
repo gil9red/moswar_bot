@@ -180,9 +180,7 @@ class MainWindow(QMainWindow, QObject):
 
         # Таймер используемый для вызова функции для запуска задач
         self._task_timer = QTimer()
-        # TODO: делаем таймер немного рандомным
         self._task_timer.setSingleShot(True)
-        # self._task_timer.setInterval(3 * 60 * 1000)  # Каждые 3 минуты
         self._task_timer.timeout.connect(self._task_tick)
 
     def _task_tick(self):
@@ -286,10 +284,6 @@ class MainWindow(QMainWindow, QObject):
         self.wait_loading()
 
         logger.debug('Запуск таймера выполнения задач.')
-
-        # TODO: удалить
-        # # Запускаем таймер выполнение задач
-        # self._task_timer.start()
 
         # Выполнение первых задач
         self._task_tick()

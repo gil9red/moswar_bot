@@ -5,10 +5,10 @@ __author__ = 'ipetrash'
 
 
 from PySide.QtCore import QObject, QTimer, Signal, QEventLoop
+from common import get_logger
 
-
-# TODO: логиование
 # TODO: ограничение времени / количества работы класса
+logger = get_logger('waitable')
 
 
 class Waitable(QObject):
@@ -41,19 +41,23 @@ class Waitable(QObject):
         """
 
         if not self._element:
-            print('Элемент не указан')
+            logger.warn('Элемент не указан.')
             self._timer.stop()
             return
 
         if not self._doc:
-            print('Документ не указан')
+            logger.warn('Документ не указан.')
             self._timer.stop()
             return
 
         # Ищем элемент
         element = self._doc.findFirst(self._element)
 
+        logger.debug('Ищу элемент: %s.', self._element)
+
         if not element.isNull():
+            logger.debug('Элемент найден.')
+
             self.found = True
             self._timer.stop()
             self._element_found.emit()
@@ -63,8 +67,6 @@ class Waitable(QObject):
 
         self._element = element
         self._found = False
-
-        print('Начинаю искать элемент:', self._element)
 
         self._timer.start(333)
 

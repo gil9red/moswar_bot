@@ -5,8 +5,6 @@ __author__ = 'ipetrash'
 
 
 from datetime import datetime, timedelta
-
-# TODO: вынести в другой модуль, например, utils, или common
 from common import get_logger, MoswarElementIsMissError
 
 

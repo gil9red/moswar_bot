@@ -40,30 +40,5 @@ if __name__ == '__main__':
 #
 #     doc = view.page().mainFrame().documentElement()
 #
-#     controls = doc.findFirst('.kubovich .controls')
-#     if controls.isNull():
-#         raise MoswarElementIsMissError('Не найдена панель управления для игры с Кубовичем.')
-#
-#     game_button = controls.findFirst('#push')
-#     super_game_button = controls.findFirst('#push-ellow')
-#
-#     if game_button.isNull() or super_game_button.isNull():
-#         raise MoswarElementIsMissError('Не найдены кнопки для игры с Кубовичем.')
-#
-#     disabled_game = 'disabled' in game_button.attribute('class')
-#     disabled_super_game = 'disabled' in super_game_button.attribute('class')
-#
-#     print(disabled_game)
-#     print(disabled_super_game)
-#
-#     if not disabled_game:
-#         # TODO: определять, была ли уже игра или еще сегодня не наступила
-#         print('Кубович еще не готов играть')
-#         return
-#
-#
-#     # Крутить барабан: controls.findFirst('#push')
-# # Супер игра: controls.findFirst('.#push-ellow')
-#
 #     # view.show()
 #     # app.exec_()

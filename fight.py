@@ -37,10 +37,6 @@ class Fight(QObject):
         self._timer_next_enemy.setSingleShot(True)
         self._timer_next_enemy.timeout.connect(self._next_enemy)
 
-        # TODO: remove
-        # # Время, когда возможно нападение. Время используется локальное, а не серверное.
-        # self._date_ready = None
-
     # Сигнал вызывается, когда противник на странице найден -- например, страница загрузилась
     _enemy_load_finished = Signal()
 
@@ -56,17 +52,6 @@ class Fight(QObject):
         self._mw.alley()
 
         return self._timeout_fight() is None or self.has_snickers()
-
-        # TODO: remove
-        # print('self._date_ready:', self._date_ready)
-        # print('datetime.today():', datetime.today())
-        # if self._date_ready is not None:
-        #     print('datetime.today() >= self._date_ready', datetime.today() >= self._date_ready)
-        #
-        # if self._date_ready is None:
-        #     return True
-        #
-        # return datetime.today() >= self._date_ready
 
     def _timeout_fight(self):
         """Функция возвращает количество оставшихся секунд до возможности напасть.
@@ -126,10 +111,6 @@ class Fight(QObject):
 
         # Логируем результаты боя
         self.print_results()
-
-        # TODO: remove
-        # # После выполнения указываем, что доступ есть (правда, по таймерам это может и не быть)
-        # self._date_ready = None
 
     def print_results(self):
         """Логируем результат боя."""

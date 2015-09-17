@@ -4,9 +4,10 @@
 __author__ = 'ipetrash'
 
 
-from datetime import datetime, timedelta
+from urllib.parse import urljoin
 
 from PySide.QtCore import QObject, Signal, QTimer, QEventLoop
+
 from common import get_logger
 from waitable import Waitable
 
@@ -251,7 +252,7 @@ class Fight(QObject):
         name = a.toPlainText()
 
         # Адрес противника
-        url = a.attribute('href')
+        url = urljoin(self._mw.moswar_url, a.attribute('href'))
 
         # Проверяем, что нападаем на горожанина и разница в уровнях небольшая
         found = is_npc and level - 1 <= self._mw.level() <= level + 1

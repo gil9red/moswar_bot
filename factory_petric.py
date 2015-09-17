@@ -26,7 +26,28 @@ class FactoryPetric:
         """Возвращает True, если вызов метода run будет иметь смысл -- можем напасть, иначе False."""
 
         if self._date_ready is None:
-            return True
+            # return True
+
+            # Узнаем сколько осталось ждать переработки, и нужно ли вообще ждать
+            # TODO: довести до ума
+
+            self._mw.factory()
+
+            # Полоска прогресса переработки в нано-петрики
+            progress = self._mw.doc.findFirst('#petriksprocess')
+
+            # Если не нашли полосу прогресса переработки, значит переработка закончена
+            if progress.isNull():
+                return True
+
+            # Сколько осталось секунд
+            timer = int(progress.attribute('timer'))
+
+            # TODO: повтор
+            # Указываем время готовности, плюс 5 секунд -- на всякий
+            self._date_ready = datetime.today() + timedelta(seconds=timer + 5)
+
+            logger.debug('До окончания переработки осталось %s секунд.', timer)
 
         return datetime.today() >= self._date_ready
 
@@ -50,6 +71,7 @@ class FactoryPetric:
             # Сколько осталось секунд
             timer = int(progress.attribute('timer'))
 
+            # TODO: повтор
             # Указываем время готовности, плюс 5 секунд -- на всякий
             self._date_ready = datetime.today() + timedelta(seconds=timer + 5)
 
@@ -61,8 +83,8 @@ class FactoryPetric:
 
             button.evaluateJavaScript("this.click()")
 
-            # После выполнения указываем, что доступ есть (правда, по таймерам это может и не быть)
-            self._date_ready = None
+            # Указываем время готовности -- 1 час, плюс на всякий минуту добавим
+            self._date_ready = datetime.today() + timedelta(hours=1, minutes=1)
         else:
             raise MoswarElementIsMissError('Не найдена кнопка "Начать переработку" и полоса '
                                            'прогресса переработки в нано-петрики')

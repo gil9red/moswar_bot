@@ -193,14 +193,6 @@ class MainWindow(QMainWindow, QObject):
         if self.money() >= 500000:
             self.thimblerig.run()
 
-        # elif self.fight.is_ready():
-        #     self.fight.run()
-        #
-        # # elif self.factory_petric.is_ready():
-        # #     self.factory_petric.run()
-        # if self.factory_petric.is_ready():
-        #     self.factory_petric.run()
-
         elif self.factory_petric.is_ready():
             self.factory_petric.run()
 

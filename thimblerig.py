@@ -71,6 +71,9 @@ class Thimblerig(QObject):
         if self.mw.current_url() == 'http://www.moswar.ru/thimble/':
             return
 
+        self.mw._used = True
+        self.mw._used_process = "Игра в наперстки"
+
         t = time.clock()
 
         # Эмулируем клик на кнопку "Начать играть"
@@ -119,6 +122,8 @@ class Thimblerig(QObject):
 
         # Эмулируем клик на кнопку "Я наигрался, хватит"
         self.mw.go('thimble/leave')
+
+        self.mw._used = False
 
     def nine_thimble(self):
         """Функция для начала игры в девять наперстков."""

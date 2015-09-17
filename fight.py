@@ -61,6 +61,9 @@ class Fight(QObject):
         # Идем в Закоулки
         self._mw.alley()
 
+        if self._timeout_fight() is not None:
+            logger.info('Напасть можно будет через %s секунд.', self._timeout_fight())
+
         # True, если таймер закончился или есть Сникерс
         return self._timeout_fight() is None or self.has_snickers()
 
@@ -92,6 +95,9 @@ class Fight(QObject):
             logger.debug('Нападать еще нельзя.')
             return
 
+        self._mw._used = True
+        self._mw._used_process = "Нападение на игроков"
+
         # TODO: если есть тонус, использовать, чтобы сразу напасть
         # TODO: флаг на разрешение использования тонуса, чтобы сразу напасть
         # self.use_tonus()
@@ -122,6 +128,8 @@ class Fight(QObject):
 
         # Обрабатываем результаты боя
         self.handle_results()
+
+        self._mw._used = False
 
     def handle_results(self):
         """Обработка результата боя."""

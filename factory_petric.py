@@ -54,6 +54,9 @@ class FactoryPetric:
     def run(self):
         """Функция используется для производства нано-петриков."""
 
+        self._mw._used = True
+        self._mw._used_process = "Производство нано-петриков"
+
         # TODO: учеть моментальное проивзодство -- если есть 2 кнопки -- можем готовить
         # TODO: вызывать себя же в таймере, пока не появится полоса загрузки производства
         logger.debug('Выполняю переработку петриков.')
@@ -77,6 +80,8 @@ class FactoryPetric:
 
             logger.debug('До окончания переработки осталось %s секунд.', timer)
 
+            self._mw._used = False
+
         # Иначе кликаем на кнопку "Начать переработку"
         elif not button.isNull():
             logger.debug('Нажимаю на кнопку "Начать переработку".')
@@ -85,6 +90,9 @@ class FactoryPetric:
 
             # Указываем время готовности -- 1 час, плюс на всякий минуту добавим
             self._date_ready = datetime.today() + timedelta(hours=1, minutes=1)
+
+            self._mw._used = False
+
         else:
             raise MoswarElementIsMissError('Не найдена кнопка "Начать переработку" и полоса '
                                            'прогресса переработки в нано-петрики')

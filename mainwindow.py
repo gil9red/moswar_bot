@@ -184,26 +184,35 @@ class MainWindow(QMainWindow, QObject):
         self._task_timer.setSingleShot(True)
         self._task_timer.timeout.connect(self._task_tick)
 
+        # Если стоит True -- происходит выполнение задачи и функция _task_tick прерывается
+        self._used = False
+
+        # Название процесса, из-за которого в данный момент  _task_tick не может выполниться
+        self._used_process = None
+
     def _task_tick(self):
         """Функция для запуска задач."""
 
-        logger.debug('Запуск задач.')
+        if self._used:
+            logger.debug('Запуск задач отменяется -- процесс занят "%s".', self._used_process)
+        else:
+            logger.debug('Запуск задач.')
 
-        # TODO: настраивать лимиты, при которых деньги в руду сливаются через наперстки
-        if self.money() >= 500000:
-            self.thimblerig.run()
+            # TODO: настраивать лимиты, при которых деньги в руду сливаются через наперстки
+            if self.money() >= 500000:
+                self.thimblerig.run()
 
-        elif self.factory_petric.is_ready():
-            self.factory_petric.run()
+            elif self.factory_petric.is_ready():
+                self.factory_petric.run()
 
-        elif self.fight.is_ready():
-            self.fight.run()
+            elif self.fight.is_ready():
+                self.fight.run()
 
         # Запускаем таймер выполнение задач
         # Следующий вызов будет случайным от 3 до 10 минут + немного случайных секунд
         interval = (randint(3, 10) + random()) * 60 * 1000
         interval = int(interval)
-        logger.debug('Повторный запуск задач через %s миллисекунд.', interval)
+        logger.debug('Повторный запуск задач через %s секунд.', interval / 1000)
         self._task_timer.start(interval)
 
     def _get_doc(self):

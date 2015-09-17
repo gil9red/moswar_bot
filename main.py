@@ -21,24 +21,26 @@ if __name__ == '__main__':
 
     sys.exit(app.exec_())
 
-#     from PySide.QtWebKit import *
-#     view = QWebView()
-#     # view.setHtml(open('Ограбление корованов. Пустыня.htm', encoding='utf-8').read())
-#     view.setHtml("""<div class="kubovich">
-#                     <div class="controls">
-#                     <button id="push" class="button disabled" type="button"/>
-#                     <button id="push-ellow" class="button" tooltip="1" type="button"/>
-#                     </div>
-#                     </div>""")
-#     # from PySide.QtCore import *
-#     # timer = QTimer()
-#     # timer.setSingleShot(True)
-#     # timer.start(3000)
-#     # loop = QEventLoop()
-#     # timer.timeout.connect(loop.quit)
-#     # loop.exec_()
-#
-#     doc = view.page().mainFrame().documentElement()
-#
-#     # view.show()
-#     # app.exec_()
+    # from PySide.QtWebKit import *
+    # view = QWebView()
+    # # view.setHtml(open('Ограбление корованов. Пустыня.htm', encoding='utf-8').read())
+    # view.setHtml("""        <div class="fighter2">
+    #       <span class="user ">
+    #            <i class="npc" title="Горожанин"></i>
+    #            <a onclick="return AngryAjax.goToUrl(this, event);" href="http://www.moswar.ru/player/38325/"> savteam</a>
+    #            <span class="level">[7]</span>
+    #        </span>
+    #      </div>""")
+    # # from PySide.QtCore import *
+    # # timer = QTimer()
+    # # timer.setSingleShot(True)
+    # # timer.start(3000)
+    # # loop = QEventLoop()
+    # # timer.timeout.connect(loop.quit)
+    # # loop.exec_()
+    #
+    # doc = view.page().mainFrame().documentElement()
+    # print(doc.findFirst('.fighter2 a').attribute('href'))
+    #
+    # # view.show()
+    # # app.exec_()

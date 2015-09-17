@@ -40,6 +40,12 @@ class Fight(QObject):
         self._timer_next_enemy.setSingleShot(True)
         self._timer_next_enemy.timeout.connect(self._next_enemy)
 
+        # Информация о противнике: имя, уровень, url, выигрыш
+        self.enemy_name = None
+        self.enemy_level = None
+        self.enemy_url = None
+        self.enemy_received_money = None
+
     # Сигнал вызывается, когда противник на странице найден -- например, страница загрузилась
     _enemy_load_finished = Signal()
 
@@ -108,16 +114,16 @@ class Fight(QObject):
             self._enemy_found.connect(loop.quit)
             loop.exec_()
 
-        logger.debug('Нападаем на противника.')
+        logger.debug('Нападаем на "%s" [%s]: %s.', self.enemy_name, self.enemy_level, self.enemy_url)
 
         # Кликаем на кнопку "Напасть"
         self._mw.click_tag('.button-fight a')
 
-        # Логируем результаты боя
-        self.print_results()
+        # Обрабатываем результаты боя
+        self.handle_results()
 
-    def print_results(self):
-        """Логируем результат боя."""
+    def handle_results(self):
+        """Обработка результата боя."""
 
         # TODO: учитывать проигрыш
 
@@ -129,12 +135,16 @@ class Fight(QObject):
         # Найдем элемент, в котором будут все результаты боя
         result = self._mw.doc.findFirst(result)
 
+        tugriki = result.findFirst('.tugriki').toPlainText().replace(',', '')
+        tugriki = int(tugriki)
+        self.enemy_received_money = tugriki
+
         # Сначала покажем выигранные монет и опыт, потом все остальное. Список используется для того, чтобы
         # порядок вывода результата боя был в порядке добавления элементов в этот список
         result_item_keys = ['Монеты', 'Опыт']
 
         result_dict = {
-            'Монеты': result.findFirst('.tugriki').toPlainText().replace(',', ''),
+            'Монеты': tugriki,
             'Опыт': result.findFirst('.expa').toPlainText(),
         }
 
@@ -157,7 +167,7 @@ class Fight(QObject):
 
         logger.debug('Результат боя:\n' + '\n'.join(result_list))
 
-    # TODO: сделать
+    # TODO: проверить
     # TODO: работает только в Закоулках
     def has_tonus(self):
         """Функция возвратит True, если можно использовать Тонус для сброса таймера, иначе False."""
@@ -222,24 +232,37 @@ class Fight(QObject):
         self._enemy_load_finished.connect(loop.quit)
         loop.exec_()
 
+        enemy = self._mw.doc.findFirst('.fighter2')
+
         # Определим тип противника -- нам нужен горожанин (нпс)
-        is_npc = self._mw.doc.findFirst('.fighter2 .npc')
+        is_npc = enemy.findFirst('.npc')
         is_npc = not is_npc.isNull()
-        logger.info('Противник горожанин -> %s.', is_npc)
 
         # Узнаем уровень противника
-        npc_level = self._mw.doc.findFirst('.fighter2 .level')
-        npc_level = npc_level.toPlainText()
-        npc_level = npc_level.replace('[', '').replace(']', '')
-        npc_level = int(npc_level)
-        logger.info('Уровень противники -> %s.', npc_level)
+        level = enemy.findFirst('.level')
+        level = level.toPlainText()
+        level = level.replace('[', '').replace(']', '')
+        level = int(level)
+
+        # Гиперссылка на профиль противника
+        a = enemy.findFirst('a')
+
+        # Имя противника
+        name = a.toPlainText()
+
+        # Адрес противника
+        url = a.attribute('href')
 
         # Проверяем, что нападаем на горожанина и разница в уровнях небольшая
-        # found = is_npc and npc_level - 1 <= self._mw.level() <= npc_level + 1
-        # TODO: Тупо ищем противника уровнем выше -- нужно получать максимальное количество искр
-        found = is_npc and self._mw.level() + 1 == npc_level
+        found = is_npc and level - 1 <= self._mw.level() <= level + 1
+        # TODO: диапазон уровней, на которые нападаем делать настраивыми
+        # # TODO: Тупо ищем противника уровнем выше -- нужно получать максимальное количество искр
+        # found = is_npc and self._mw.level() + 1 == level
 
-        logger.info('Противник подходящий -> %s.', found)
+        if found:
+            self.enemy_name = name
+            self.enemy_level = level
+            self.enemy_url = url
 
         return found
 

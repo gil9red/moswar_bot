@@ -61,8 +61,13 @@ class Fight(QObject):
         # Идем в Закоулки
         self._mw.alley()
 
+        # TODO: рефакторинг с self._timeout_fight()
         if self._timeout_fight() is not None:
             logger.info('Напасть можно будет через %s секунд.', self._timeout_fight())
+
+        logger.info('self._timeout_fight() = %s.', self._timeout_fight())
+        logger.info('self.has_snickers() = %s.', self.has_snickers())
+        logger.info('self.is_ready() = %s.', self._timeout_fight() is None or self.has_snickers())
 
         # True, если таймер закончился или есть Сникерс
         return self._timeout_fight() is None or self.has_snickers()

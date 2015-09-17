@@ -280,14 +280,15 @@ class MainWindow(QMainWindow, QObject):
         if submit.isNull():
             raise MoswarButtonIsMissError('Войти')
 
+        logger.debug('Захожу в игру.')
         submit.evaluateJavaScript("this.click()")
 
         self.wait_loading()
 
         logger.debug('Запуск таймера выполнения задач.')
 
-        # Выполнение первых задач
-        self._task_tick()
+        # # Выполнение первых задач
+        # self._task_tick()
 
     def alley(self):
         self.go('alley')

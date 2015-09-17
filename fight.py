@@ -23,8 +23,11 @@ class Fight(QObject):
         # Кнопка "Отнять у слабого"
         self._css_path_button_fight = "div[class='button-big btn f1']"
 
-        # Кнопка поедания сникерса
+        # Кнопка поедания Сникерса
         self._css_path_button_snikers = 'div[onclick*=snikers]'
+
+        # Кнопка использования Тонуса
+        self._css_path_button_use_tonus = 'div[onclick*=tonus]'
 
         # Таймер для ожидания загрузки страницы с выбором противника
         self._timer_enemy_load = QTimer()
@@ -51,6 +54,7 @@ class Fight(QObject):
         # Идем в Закоулки
         self._mw.alley()
 
+        # True, если таймер закончился или есть Сникерс
         return self._timeout_fight() is None or self.has_snickers()
 
     def _timeout_fight(self):
@@ -77,13 +81,13 @@ class Fight(QObject):
         # TODO: оптимиизровать использование сникерсов -- если они есть, сразу использовать и нападать и так,
         # пока не будут потрачены все
 
-        # TODO: если есть таймер, и нельзя съесть сникерс, то выходим из функции
-        if not self.is_ready() and not self.has_snickers():
+        if not self.is_ready():
             logger.debug('Нападать еще нельзя.')
             return
 
         # TODO: если есть тонус, использовать, чтобы сразу напасть
-        # print(self._mw.doc.findFirst('div[onclick*=tonus]').toPlainText())
+        # TODO: флаг на разрешение использования тонуса, чтобы сразу напасть
+        # self.use_tonus()
 
         # Если не получилось съесть Сникерс, восстанавливаем по старинке
         if not self.eat_snickers():
@@ -152,6 +156,29 @@ class Fight(QObject):
             result_list.append('  {}: {}'.format(key, result_dict[key]))
 
         logger.debug('Результат боя:\n' + '\n'.join(result_list))
+
+    # TODO: сделать
+    # TODO: работает только в Закоулках
+    def has_tonus(self):
+        """Функция возвратит True, если можно использовать Тонус для сброса таймера, иначе False."""
+
+        button = self._mw.doc.findFirst(self._css_path_button_use_tonus)
+        return not button.isNull()
+
+    # TODO: проверить работу
+    def use_tonus(self):
+        """Функция для использования Тонуса, для сброса таймаута между драками.
+        Возвращает True, если получилось, иначе False."""
+
+        if self.has_tonus():
+            logger.debug('Использую Тонус.')
+            self._mw.click_tag(self._css_path_button_use_tonus)
+
+            # Ждем пока после клика прогрузится страница и появится элемент
+            Waitable(self._mw.doc).wait(self._css_path_button_use_tonus)
+            return True
+
+        return False
 
     # TODO: работает только в Закоулках
     def has_snickers(self):

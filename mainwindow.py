@@ -169,6 +169,7 @@ class MainWindow(QMainWindow, QObject):
             'Ищем следующего противника': self.fight._next_enemy,
             'Восстановление жизней': self.restore_hp.run,
             'Варка нано-петриков': self.factory_petric.run,
+            'Убрать таймаут Тонусом': self.fight.use_tonus,
         }
 
         # Добавляем команды

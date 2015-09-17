@@ -91,14 +91,13 @@ class Thimblerig(QObject):
 # </div>
 # </div>
 #
-#
 # for el in self.mw.doc.findAll('.alert'):
-#     title = el.findFirst('#alert-title')
-#     if not title.isNull() and title.toPlainText() == 'Восстановить здоровье':
-#         logger.debug('Найдено окно восстановления жизней.')
+#     text = el.findFirst('#alert-text')
+#     if not text.isNull() and 'Вы сегодня уже играли в наперстки с Моней Шацом' in text.toPlainText():
+#         logger.debug('Закончились билеты для игры в наперстки..')
 #
-#         self._restore_hp_window = el
-#         self._find_restore_hp_window_finded.emit()
+#         self._window = el
+#         self._window_finded.emit()
 #         self._timer.stop()
 #         return
 

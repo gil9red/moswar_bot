@@ -287,8 +287,8 @@ class MainWindow(QMainWindow, QObject):
 
         logger.debug('Запуск таймера выполнения задач.')
 
-        # # Выполнение первых задач
-        # self._task_tick()
+        # Выполнение первых задач
+        self._task_tick()
 
     def alley(self):
         self.go('alley')

@@ -200,6 +200,8 @@ class Fight(QObject):
             logger.debug('Использую Тонус.')
             self._mw.click_tag(self._css_path_button_use_tonus)
 
+            # TODO: если Тонуса будет не хватать, то появится окошко с предложением восстановить за плату
+
             # Ждем пока после клика прогрузится страница и появится элемент
             Waitable(self._mw.doc).wait(self._css_path_button_use_tonus)
             return True

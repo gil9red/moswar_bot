@@ -20,6 +20,15 @@ from factory_petric import FactoryPetric
 from common import *
 
 
+# TODO: обработка ситуации: Задержка за бои
+
+
+# TODO: свой обработчик логов:
+# http://python-lab.blogspot.ru/2013/03/blog-post.html
+# http://stackoverflow.com/questions/2819791/how-can-i-redirect-the-logger-to-a-wxpython-textctrl-using-a-custom-logging-hand
+# http://stackoverflow.com/questions/3118059/how-to-write-custom-python-logging-handler
+
+
 # TODO: level up:
 # <div id="content" class="levelup">
 # После левел апа нужно кликнуть на: <button class="button" type="submit">

@@ -163,6 +163,7 @@ class Thimblerig(QObject):
         i = self.mw.doc.findFirst(css_path)
         attr = i.attribute('class')
 
+        # TODO: оптимизировать клики: по логам из слишком много выходит
         # Проверяем, что на наперсток не кликали еще
         if 'guessed' not in attr and 'empty' not in attr:
             self.mw.click_tag(css_path)
@@ -181,7 +182,6 @@ class Thimblerig(QObject):
             self._timer_thimble.stop()
 
             # Получаем количество угаданной за раунд руды
-            # ruda = doc.findFirst('span[id="naperstki-ruda"]').toPlainText()
             ruda = doc.findFirst('#naperstki-ruda').toPlainText()
             self._ruda_count += int(ruda)
             logger.info("Раунд {}. Угадано {} руды.".format(self._thimble_round_count, ruda))

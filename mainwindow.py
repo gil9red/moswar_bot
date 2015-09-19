@@ -136,6 +136,9 @@ from common import *
 # TODO: бесплатный спортлото: http://www.moswar.ru/casino/sportloto/
 
 
+# TODO: научить бота покупать "шокочай" и жрать его -- для собирания коллекций
+
+
 logger = get_logger('moswar_bot')
 
 

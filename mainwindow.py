@@ -137,6 +137,63 @@ from common import *
 
 
 # TODO: научить бота покупать "шокочай" и жрать его -- для собирания коллекций
+# positive_gifts = self.doc.findAll('.shop li[data-gift-category=positive]')
+# if positive_gifts.count() == 0:
+#     logger.warn("Подарки не найдены.")
+#     return
+#
+# # Шоколадки «Пралине» #chocolates_17 (2500 тугриков 15 руды 25 нефти)
+# # Шоколад #chocolates_12 (1000 тугриков 9 руды)
+# # Шоколад #chocolates_11 (500 тугриков 9 руды)
+# # Шоколад #chocolates_10 (100 тугриков 5 руды)
+#
+# # Чай в пирамидках #chocolates_16 (2500 тугриков 15 руды 25 нефти)
+# # Чай #chocolates_15 (1000 тугриков 9 руды)
+# # Чай #chocolates_14 (500 тугриков 9 руды)
+# # Чай #chocolates_13 (100 тугриков 5 руды)
+#
+# # Кликаем на покупку
+# self.click_tag('.shop #chocolates_13 .f')
+#
+# # Ищем диалог "Подарить подарок"
+# present_dialog = self.doc.findFirst('#present-panel')
+# if present_dialog.isNull():
+#     logger.warn("Диалог дарения подарка не найден.")
+#     return
+#
+# # Кнопка "Подарить"
+# give = present_dialog.findFirst('[type=button]')
+#
+# # Нажимаем на кнопку
+# give.evaluateJavaScript('this.click()')
+#
+#
+# TODO: зайти в персонажа и открыть шокочаи
+# TODO: зайти в персонажа и использовать чайные пакетики и шоколадные конфеты
+#
+# # TODO: идея неплохая, но id нужно заменить прямыми id, типа #chocolates_13
+# # # Список id подарков типа "Чай" и "Шоколад", начиная с самых
+# # # низкоуровневых
+# # chocoteas = [
+# #     "326",  # Чай (100 тугриков 5 руды)
+# #     "327",  # Чай (500 тугриков 9 руды)
+# #     "328",  # Чай (1000 тугриков 9 руды)
+# #     "2936",  # Чай в пирамидках (2500 тугриков 15 руды 25 нефти)
+# #
+# #     "323",  # Шоколад (100 тугриков 5 руды)
+# #     "324",  # Шоколад (500 тугриков 9 руды)
+# #     "325",  # Шоколад (1000 тугриков 9 руды)
+# #     "2937",  # Шоколадки «Пралине» (2500 тугриков 15 руды 25 нефти)
+# # ]
+# # chocoteas.clear()
+# # for gift in positive_gifts:
+# #     if gift.attribute("rel") in chocoteas:
+# #         name = gift.findFirst("h2").toPlainText()
+# #         print(name, gift.findFirst('.button').attribute('id'))
+
+
+
+# TODO: патрулирование в закоулках
 
 
 logger = get_logger('moswar_bot')
@@ -305,8 +362,8 @@ class MainWindow(QMainWindow, QObject):
 
         logger.debug('Запуск таймера выполнения задач.')
 
-        # # Выполнение первых задач
-        # self._task_tick()
+        # Выполнение первых задач
+        self._task_tick()
 
     def alley(self):
         self.go('alley')

@@ -182,6 +182,7 @@ class MainWindow(QMainWindow, QObject):
             'Восстановление жизней': self.restore_hp.run,
             'Варка нано-петриков': self.factory_petric.run,
             'Убрать таймаут Тонусом': self.fight.use_tonus,
+            'Шаурбургерс': self.shaurburgers,
         }
 
         # Добавляем команды
@@ -304,8 +305,8 @@ class MainWindow(QMainWindow, QObject):
 
         logger.debug('Запуск таймера выполнения задач.')
 
-        # Выполнение первых задач
-        self._task_tick()
+        # # Выполнение первых задач
+        # self._task_tick()
 
     def alley(self):
         self.go('alley')
@@ -327,6 +328,31 @@ class MainWindow(QMainWindow, QObject):
 
     def home(self):
         self.go('home')
+
+    def shaurburgers(self):
+# TODO: работа в Шаурбургерсе
+#
+# work = self.doc.findFirst('.shaurburgers-work')
+#
+# job_process = work.findFirst('.process .value')
+# if not job_process.isNull():
+#     logger.debug("Работа в Шаурбургерсе еще не закончена, осталось %s секунд.", job_process.attribute('timer'))
+#     return
+#
+# job_time = work.findFirst('select[name=time]')
+# hours = job_time.findAll('option').count()
+#
+# # По-умолчанию, 4 часа, если оставшееся время работы, меньше 4 часов,
+# # работаем сколько можно
+# select_hour = 4 if hours > 4 else hours
+#
+# job_time.evaluateJavaScript("this.selectedIndex = {}".format(select_hour - 1))
+#
+# logger.debug("Начинаю работать в Шаурбергерсе %s часов.", select_hour)
+#
+# self.click_tag('.shaurburgers-work .button')
+
+        self.go('shaurburgers')
 
     def money(self):
         """Функция возвращает количество денег персонажа."""
@@ -376,6 +402,7 @@ class MainWindow(QMainWindow, QObject):
         except Exception as e:
             raise MoswarElementIsMissError(e)
 
+    # TODO: добавить возможность выбрать область поиска элемента для клика, а то она все время вся страница -- self.doc
     def click_tag(self, css_path):
         """Функция находит html тег по указанному пути и эмулирует клик на него.
 

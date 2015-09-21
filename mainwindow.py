@@ -192,6 +192,20 @@ from common import *
 # #         print(name, gift.findFirst('.button').attribute('id'))
 
 
+# TODO: выходить из подобной ситуации
+# [2015-09-21 17:54:29,517] fight.py[LINE:131] DEBUG    Нападаем на " larsson40" [8]: http://www.moswar.ru/player/413160/.
+# [2015-09-21 17:54:29,517] mainwindow.py[LINE:391] DEBUG    Выполняю клик по тегу: .button-fight a
+# [2015-09-21 17:54:31,085] waitable.py[LINE:75] DEBUG    Ищу элемент: .result. Количество попыток: 10.
+# [2015-09-21 17:54:34,506] waitable.py[LINE:67] WARNING  Закончилось количество попыток найти элемент: .result.
+# Traceback (most recent call last):
+#   File "C:\Users\ipetrash\Projects\moswar_bot\mainwindow.py", line 221, in _task_tick
+#
+#   File "C:\Users\ipetrash\Projects\moswar_bot\fight.py", line 137, in run
+#     self.handle_results()
+#   File "C:\Users\ipetrash\Projects\moswar_bot\fight.py", line 155, in handle_results
+#     tugriki = int(tugriki)
+# ValueError: invalid literal for int() with base 10: ''
+
 
 # TODO: патрулирование в закоулках
 

@@ -15,6 +15,30 @@ from waitable import Waitable
 logger = get_logger('fight')
 
 
+# TODO: что-то случилось и боя не дождался, в итоге больше ничего не делал
+# [2015-09-22 23:48:22,908] mainwindow.py[LINE:284] DEBUG    Запуск задач.
+# [2015-09-22 23:48:22,908] mainwindow.py[LINE:343] DEBUG    Перехожу по адресу "http://www.moswar.ru/alley"
+# [2015-09-22 23:48:22,909] mainwindow.py[LINE:320] DEBUG    Начинаю ожидание загрузки страницы.
+# [2015-09-22 23:48:24,222] mainwindow.py[LINE:327] DEBUG    Закончено ожидание загрузки страницы.
+# [2015-09-22 23:48:24,223] fight.py[LINE:66] INFO     Напасть можно будет через 692 секунд.
+# [2015-09-22 23:48:24,223] fight.py[LINE:68] INFO     self._timeout_fight() = 692.
+# [2015-09-22 23:48:24,223] fight.py[LINE:69] INFO     self.has_snickers() = True.
+# [2015-09-22 23:48:24,223] fight.py[LINE:70] INFO     self.is_ready() = True.
+# [2015-09-22 23:48:24,224] mainwindow.py[LINE:343] DEBUG    Перехожу по адресу "http://www.moswar.ru/alley"
+# [2015-09-22 23:48:24,225] mainwindow.py[LINE:320] DEBUG    Начинаю ожидание загрузки страницы.
+# [2015-09-22 23:48:24,884] mainwindow.py[LINE:327] DEBUG    Закончено ожидание загрузки страницы.
+# [2015-09-22 23:48:24,884] fight.py[LINE:66] INFO     Напасть можно будет через 691 секунд.
+# [2015-09-22 23:48:24,884] fight.py[LINE:68] INFO     self._timeout_fight() = 691.
+# [2015-09-22 23:48:24,884] fight.py[LINE:69] INFO     self.has_snickers() = True.
+# [2015-09-22 23:48:24,885] fight.py[LINE:70] INFO     self.is_ready() = True.
+# [2015-09-22 23:48:24,885] fight.py[LINE:222] DEBUG    Съедаю сникерс.
+# [2015-09-22 23:48:24,885] mainwindow.py[LINE:498] DEBUG    Выполняю клик по тегу: div[onclick*=snikers]
+# [2015-09-22 23:48:25,233] waitable.py[LINE:75] DEBUG    Ищу элемент: div[class='button-big btn f1']. Количество попыток: 10.
+# [2015-09-22 23:48:25,573] waitable.py[LINE:59] DEBUG    Элемент найден.
+# [2015-09-22 23:48:25,573] fight.py[LINE:115] DEBUG    Нажимаю на кнопку "Отнять у слабого".
+# [2015-09-22 23:48:25,574] mainwindow.py[LINE:498] DEBUG    Выполняю клик по тегу: div[class='button-big btn f1']
+
+
 class Fight(QObject):
     def __init__(self, mw):
         super().__init__()

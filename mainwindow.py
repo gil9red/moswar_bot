@@ -18,6 +18,7 @@ from fight import Fight
 from restore_hp import RestoreHP
 from factory_petric import FactoryPetric
 from common import *
+from waitable import Waitable
 
 
 # TODO: обработка ситуации: Задержка за бои
@@ -355,6 +356,14 @@ class MainWindow(QMainWindow, QObject):
 
         # Открываем страницу мосвара
         self.go()
+
+        # Если закрыт доступ к сайту
+        if 'closed.html' in self.current_url():
+            logger.warn('Закрыто, причина:\n%s', self.doc.toPlainText().strip())
+
+            # Попробуем снова авторизоваться через 1 час
+            QTimer.singleShot(60 * 60 * 1000, self.auth)
+            return
 
         login = self.doc.findFirst('#login-email')
         password = self.doc.findFirst('#login-password')

@@ -73,6 +73,9 @@ class FactoryPetric:
             self._mw._used = False
             return
 
+        # TODO: путь %button% кликает лаборатна за 3 меда, что не очень хорошо -- нужно различать их и
+        # кликать только переработку
+
         # Кнопка "Начать переработку"
         button = self._mw.doc.findFirst('.factory-nanoptric .button')
 

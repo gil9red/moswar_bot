@@ -149,12 +149,8 @@ class Thimblerig(QObject):
         if right_to_left:
             numbers_thimble.sort(reverse=True)
 
-        self._thimble1, self._thimble2, self._thimble3 = numbers_thimble
-
+        self._thimble1, self._thimble2, self._thimble3 = ["#thimble{}".format(i) for i in numbers_thimble]
         logger.info('Порядок открытия наперстков: {}, {}, {}'.format(self._thimble1, self._thimble2, self._thimble3))
-        self._thimble1 = "#thimble{}".format(self._thimble1)
-        self._thimble2 = "#thimble{}".format(self._thimble2)
-        self._thimble3 = "#thimble{}".format(self._thimble3)
 
         self._timer_thimble.start()
 

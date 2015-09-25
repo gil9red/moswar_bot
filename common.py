@@ -4,8 +4,21 @@
 __author__ = 'ipetrash'
 
 
+from datetime import datetime
 import sys
 import logging
+
+
+def save_current_html(doc):
+    """Функция принимает QWebElement и сохраняет в файл, возвращая имя файла."""
+
+    t = datetime.today().time()
+    file_name = t.strftime("%H.%M.%S") + ".html"
+
+    with open(file_name, mode='w', encoding='utf8') as f:
+        f.write(doc.toOuterXml())
+
+    return file_name
 
 
 def get_logger(name, file='log.txt', encoding='utf8'):

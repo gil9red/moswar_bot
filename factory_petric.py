@@ -23,7 +23,7 @@ class FactoryPetric:
         self._date_ready = None
 
     def is_ready(self):
-        """Возвращает True, если вызов метода run будет иметь смысл -- можем напасть, иначе False."""
+        """Возвращает True, если вызов метода run будет иметь смысл, иначе False."""
 
         if self._date_ready is None:
             # return True

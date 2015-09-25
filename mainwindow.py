@@ -275,6 +275,9 @@ class MainWindow(QMainWindow, QObject):
         # Название процесса, из-за которого в данный момент  _task_tick не может выполниться
         self._used_process = None
 
+        # Минимальная сумма для игры в Наперстки
+        self.min_money_for_thimblerig = 500000
+
     def _task_tick(self):
         """Функция для запуска задач."""
 
@@ -283,8 +286,7 @@ class MainWindow(QMainWindow, QObject):
         else:
             logger.debug('Запуск задач.')
 
-            # TODO: настраивать лимиты, при которых деньги в руду сливаются через наперстки
-            if self.money() >= 500000:
+            if self.money() >= self.min_money_for_thimblerig:
                 self.thimblerig.run()
 
             elif self.factory_petric.is_ready():
@@ -505,3 +507,8 @@ class MainWindow(QMainWindow, QObject):
         ok = self.doc.evaluateJavaScript(code)
         if ok is None:
             logger.warn('Выполнение js скрипта неудачно. Code:\n' + code)
+
+    def alert(self, text):
+        """Функция показывает окно сообщений в браузере, используя javascript функцию alert."""
+
+        self.doc.evaluateJavaScript('alert("{}")'.format(text))

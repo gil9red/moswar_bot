@@ -54,6 +54,10 @@ class FactoryPetric:
     def run(self):
         """Функция используется для производства нано-петриков."""
 
+        if self._mw._used:
+            logger.warn('Бот в данный момент занят процессом "%s". Выхожу из функции.', self._mw._used_process)
+            return
+
         self._mw._used = True
         self._mw._used_process = "Производство нано-петриков"
 
@@ -62,6 +66,12 @@ class FactoryPetric:
         logger.debug('Выполняю переработку петриков.')
 
         self._mw.factory()
+
+        # Проверяем перенаправление адресов
+        if 'factory' not in self._mw.current_url():
+            logger.warn('Перенаправление адреса на "%s". Выхожу из функции.', self._mw.current_url())
+            self._mw._used = False
+            return
 
         # Кнопка "Начать переработку"
         button = self._mw.doc.findFirst('.factory-nanoptric .button')

@@ -7,15 +7,13 @@ __author__ = 'ipetrash'
 import random
 import time
 from PySide.QtCore import QObject, QTimer, Signal, QEventLoop
-from common import get_logger, MoswarElementIsMissError
+from common import get_logger
 
 
 logger = get_logger('thimblerig')
 
 
 # TODO: Уменьшить время выбора наперстков
-# TODO: Во время игры нагрузка на процессор сильно растет,
-# посмотреть варианты оптимизации
 
 
 class Thimblerig(QObject):
@@ -70,8 +68,7 @@ class Thimblerig(QObject):
     def run(self):
         """Игра в наперстки."""
 
-        if self.mw.current_url() == 'http://www.moswar.ru/thimble/':
-            return
+        logger.debug('Начинаю игру в Наперстки.')
 
         self.mw._used = True
         self.mw._used_process = "Игра в наперстки"
@@ -79,7 +76,8 @@ class Thimblerig(QObject):
         t = time.clock()
 
         # Эмулируем клик на кнопку "Начать играть"
-        self.mw.go('thimble/start')
+        if 'thimble' not in self.mw.current_url():
+            self.mw.go('thimble/start')
 
         # TODO: проверять на сообщение которое говорит, что билеты для игры закончились
 # <div class="alert infoalert alert-error alert1" rel="" style="display: block; top: 428px;" data-bind-move="1">
@@ -154,21 +152,23 @@ class Thimblerig(QObject):
         self._thimble1, self._thimble2, self._thimble3 = numbers_thimble
 
         logger.info('Порядок открытия наперстков: {}, {}, {}'.format(self._thimble1, self._thimble2, self._thimble3))
+        self._thimble1 = "#thimble{}".format(self._thimble1)
+        self._thimble2 = "#thimble{}".format(self._thimble2)
+        self._thimble3 = "#thimble{}".format(self._thimble3)
 
         self._timer_thimble.start()
 
-    def click_thimble(self, number):
-        """Функция для клика на указанный наперсток."""
+    def _check_click_thimble(self, css_path):
+        """Функция, вернет True, если на Наперсток уже кликали."""
 
-        # css_path = "i[id='thimble{}']".format(number)
-        css_path = "#thimble{}".format(number)
-        i = self.mw.doc.findFirst(css_path)
-        attr = i.attribute('class')
+        tag = self.mw.doc.findFirst(css_path)
+        attr = tag.attribute('class')
 
-        # TODO: оптимизировать клики: по логам из слишком много выходит
-        # Проверяем, что на наперсток не кликали еще
-        if 'guessed' not in attr and 'empty' not in attr:
-            self.mw.click_tag(css_path)
+        # Проверяем, что на наперсток кликнули
+        check = 'guessed' in attr or 'empty' in attr
+
+        logger.info('Проверяем наперсток "%s". Атрибут элемента: "%s". -> "%s".', css_path, attr, check)
+        return check
 
     def select_thimbles(self):
         """Функция для клика на наперстки."""
@@ -176,7 +176,6 @@ class Thimblerig(QObject):
         doc = self.mw.doc
 
         # Количество оставшихся попыток. Для девяти наперсток их максимум будет 3
-        # left = doc.findFirst('span[id="naperstki-left"]').toInnerXml()
         left = doc.findFirst('#naperstki-left').toInnerXml()
 
         # Если количество попыток равно 0, то останавливаем таймер клика на наперстки
@@ -192,6 +191,10 @@ class Thimblerig(QObject):
             self._timer_round_thimble.start()
             return
 
-        self.click_thimble(self._thimble1)
-        self.click_thimble(self._thimble2)
-        self.click_thimble(self._thimble3)
+        # Проверяем, что на наперсток не кликали и кликаем
+        if not self._check_click_thimble(self._thimble1):
+            self.mw.click_tag(self._thimble1)
+        elif not self._check_click_thimble(self._thimble2):
+            self.mw.click_tag(self._thimble2)
+        elif not self._check_click_thimble(self._thimble3):
+            self.mw.click_tag(self._thimble3)

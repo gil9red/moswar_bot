@@ -5,7 +5,7 @@ __author__ = 'ipetrash'
 
 
 from PySide.QtCore import QObject, Signal, QTimer, QEventLoop
-from utils import get_logger
+from common import get_logger
 
 
 logger = get_logger('restore_hp')

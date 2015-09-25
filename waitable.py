@@ -5,10 +5,10 @@ __author__ = 'ipetrash'
 
 
 from PySide.QtCore import QObject, QTimer, Signal, QEventLoop
+from common import get_logger, save_current_html
 
 
-# TODO: логиование
-# TODO: ограничение времени / количества работы класса
+logger = get_logger('waitable')
 
 
 class Waitable(QObject):
@@ -20,20 +20,27 @@ class Waitable(QObject):
     данных, можно использовать этот класс.
     """
 
-    def __init__(self, doc):
+    def __init__(self, mw):
         super().__init__()
 
-        self._doc = doc
+        self._mw = mw
+        self._doc = mw.doc
         self._found = False
         self._element = None
 
+        # Осталось попыток
+        self._attempts_remaining = None
+
+        # # Функция проверки ожидания, если функция возвращает True, ожидание прекращается
+        # self._wait_check_func = lambda doc, css_path: not doc.findFirst(css_path).isNull()
+
         self._timer = QTimer()
-        self._timer.setInterval(333)
         self._timer.timeout.connect(self._found_tick)
 
-    # Сигнал нужен для прерывания QEventLoop'а, вызывается, когда
-    # требуемый элемент найден
-    _element_found = Signal()
+        logger.debug('Текущий адрес: %s.', mw.current_url())
+
+    # Сигнал нужен для прерывания QEventLoop'а
+    _finished_event_loop = Signal()
 
     def _found_tick(self):
         """Функция с переодичностью в 333 мс вызывается таймером и ищет указанный элемент.
@@ -41,34 +48,68 @@ class Waitable(QObject):
         """
 
         if not self._element:
-            print('Элемент не указан')
+            logger.warn('Элемент не указан.')
             self._timer.stop()
             return
 
         if not self._doc:
-            print('Документ не указан')
+            logger.warn('Документ не указан.')
             self._timer.stop()
             return
+
+        # TODO: ВОЗМОЖНО, пригодится. Поиск и проверка определены в лямбде _wait_check_func
+        # if self._wait_check_func(self._doc, self._element):
+        #     logger.debug('Элемент найден.')
+        #
+        #     self.found = True
+        #     self._timer.stop()
+        #     self._finished_event_loop.emit()
 
         # Ищем элемент
         element = self._doc.findFirst(self._element)
 
         if not element.isNull():
+            logger.debug('Элемент найден.')
+
             self.found = True
             self._timer.stop()
-            self._element_found.emit()
+            self._finished_event_loop.emit()
 
-    def wait(self, element):
-        """Функция завершается только тогда, когда element будет найден в вебдокументе."""
+        self._attempts_remaining -= 1
+        if self._attempts_remaining == 0:
+            logger.warn('Закончилось количество попыток найти элемент: %s.', self._element)
+            logger.debug('Текущий адрес: %s.', self._mw.current_url())
+            logger.debug('Текущая страница сохранена в файл: %s.', save_current_html(self._doc))
+
+            self._timer.stop()
+            self._finished_event_loop.emit()
+
+    # def wait(self, element, max_number_attempts=30, interval=1000, wait_check_func=None):
+    def wait(self, element, max_number_attempts=30, interval=1000):
+        """Функция завершается, когда element будет найден в вебдокументе и на это у
+        нее есть max_number_attempts попыток.
+
+        :param element: css путь поиск элемента
+        :param max_number_attempts: максимальное количество попыток
+        :param interval: интервал проверки
+        :param wait_check_func: функция поиска элемента, ожидание прекращается, когда эта функция вернет True.
+        Функция принимает 2 параметра QWebElement и css-путь к элементу, который проверяем.
+        """
+
+        logger.debug('Ищу элемент: %s. Количество попыток: %s. Интервал: %s.', element, max_number_attempts, interval)
 
         self._element = element
         self._found = False
 
-        print('Начинаю искать элемент:', self._element)
+        self._attempts_remaining = max_number_attempts
 
-        self._timer.start(333)
+        # # Если фукнция определена, используем пользовательскую, а не стандартную
+        # if wait_check_func is not None:
+        #     self._wait_check_func = wait_check_func
+
+        self._timer.start(interval)
 
         if not self._found:
             loop = QEventLoop()
-            self._element_found.connect(loop.quit)
+            self._finished_event_loop.connect(loop.quit)
             loop.exec_()

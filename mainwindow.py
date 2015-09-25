@@ -4,6 +4,7 @@
 __author__ = 'ipetrash'
 
 from urllib.parse import urljoin
+from random import random, randint
 
 from PySide.QtGui import *
 from PySide.QtCore import *
@@ -15,47 +16,51 @@ from mainwindow_ui import Ui_MainWindow
 from thimblerig import Thimblerig
 from fight import Fight
 from restore_hp import RestoreHP
-from utils import get_logger
+from factory_petric import FactoryPetric
+from common import *
+from waitable import Waitable
 
 
-class MoswarBotError(Exception):
-    pass
+# TODO: обработка ситуации: Задержка за бои
 
 
-class MoswarElementIsMissError(MoswarBotError):
-    pass
-
-
-class MoswarButtonIsMissError(MoswarElementIsMissError):
-    def __init__(self, title_button):
-        super().__init__('Не найдена кнопка "{}".'.format(title_button))
-
-
-class MoswarAuthError(MoswarBotError):
-    pass
-
-
-LOGIN = 'ilya.petrash@inbox.ru'
-PASSWORD = '0JHQu9GPRnVjazop'
-
+# TODO: свой обработчик логов:
+# http://python-lab.blogspot.ru/2013/03/blog-post.html
+# http://stackoverflow.com/questions/2819791/how-can-i-redirect-the-logger-to-a-wxpython-textctrl-using-a-custom-logging-hand
+# http://stackoverflow.com/questions/3118059/how-to-write-custom-python-logging-handler
 
 
 # TODO: level up:
 # <div id="content" class="levelup">
 # После левел апа нужно кликнуть на: <button class="button" type="submit">
-# doc = view.page().mainFrame().documentElement()
-# level_up = doc.findFirst('.levelup')
+#
+# level_up = self.doc.findFirst('.levelup')
 # if not level_up.isNull():
 #     # Показать столько побед / награблено
 #     for td in level_up.findAll('td'):
 #         print(' '.join(td.toPlainText().split()))
 #
 #     # Ищем кнопку 'Вперед, к новым победам!' и кликаем на нее
-#     button = doc.findFirst('.levelup .button')
+#     button = self.doc.findFirst('.levelup .button')
 #     if button.isNull():
 #         raise MoswarButtonIsMissError('Вперед, к новым победам!')
 #
 #     button.evaluateJavaScript('this.click()')
+
+
+# TODO: спорт-лото выигрыш, но без кнопки забирания выигрыша -- по ошибки тыкнул
+# <div class="center clear">
+# <h3>
+# <div class="clear casino-sportloto-drawing" style="position:relative;">
+# <div style="float:left; width:49%;">
+# <div style="float:right; width:49%;">
+# <table class="tickets list">
+# <div id="prize-error" class="error" style="text-align:center; display: none;"></div>
+# <p class="borderdata" style="margin:5px 0;">
+# <div class="hint" style="text-align:center">Купите билетик на завтра</div>
+# </div>
+# </div>
+# </div>
 
 
 # TODO: ограбление корованов: http://www.moswar.ru/desert/
@@ -132,6 +137,80 @@ PASSWORD = '0JHQu9GPRnVjazop'
 # TODO: бесплатный спортлото: http://www.moswar.ru/casino/sportloto/
 
 
+# TODO: научить бота покупать "шокочай" и жрать его -- для собирания коллекций
+# positive_gifts = self.doc.findAll('.shop li[data-gift-category=positive]')
+# if positive_gifts.count() == 0:
+#     logger.warn("Подарки не найдены.")
+#     return
+#
+# # Шоколадки «Пралине» #chocolates_17 (2500 тугриков 15 руды 25 нефти)
+# # Шоколад #chocolates_12 (1000 тугриков 9 руды)
+# # Шоколад #chocolates_11 (500 тугриков 9 руды)
+# # Шоколад #chocolates_10 (100 тугриков 5 руды)
+#
+# # Чай в пирамидках #chocolates_16 (2500 тугриков 15 руды 25 нефти)
+# # Чай #chocolates_15 (1000 тугриков 9 руды)
+# # Чай #chocolates_14 (500 тугриков 9 руды)
+# # Чай #chocolates_13 (100 тугриков 5 руды)
+#
+# # Кликаем на покупку
+# self.click_tag('.shop #chocolates_13 .f')
+#
+# # Ищем диалог "Подарить подарок"
+# present_dialog = self.doc.findFirst('#present-panel')
+# if present_dialog.isNull():
+#     logger.warn("Диалог дарения подарка не найден.")
+#     return
+#
+# # Кнопка "Подарить"
+# give = present_dialog.findFirst('[type=button]')
+#
+# # Нажимаем на кнопку
+# give.evaluateJavaScript('this.click()')
+#
+#
+# TODO: зайти в персонажа и открыть шокочаи
+# TODO: зайти в персонажа и использовать чайные пакетики и шоколадные конфеты
+#
+# # TODO: идея неплохая, но id нужно заменить прямыми id, типа #chocolates_13
+# # # Список id подарков типа "Чай" и "Шоколад", начиная с самых
+# # # низкоуровневых
+# # chocoteas = [
+# #     "326",  # Чай (100 тугриков 5 руды)
+# #     "327",  # Чай (500 тугриков 9 руды)
+# #     "328",  # Чай (1000 тугриков 9 руды)
+# #     "2936",  # Чай в пирамидках (2500 тугриков 15 руды 25 нефти)
+# #
+# #     "323",  # Шоколад (100 тугриков 5 руды)
+# #     "324",  # Шоколад (500 тугриков 9 руды)
+# #     "325",  # Шоколад (1000 тугриков 9 руды)
+# #     "2937",  # Шоколадки «Пралине» (2500 тугриков 15 руды 25 нефти)
+# # ]
+# # chocoteas.clear()
+# # for gift in positive_gifts:
+# #     if gift.attribute("rel") in chocoteas:
+# #         name = gift.findFirst("h2").toPlainText()
+# #         print(name, gift.findFirst('.button').attribute('id'))
+
+
+# TODO: выходить из подобной ситуации
+# [2015-09-21 17:54:29,517] fight.py[LINE:131] DEBUG    Нападаем на " larsson40" [8]: http://www.moswar.ru/player/413160/.
+# [2015-09-21 17:54:29,517] mainwindow.py[LINE:391] DEBUG    Выполняю клик по тегу: .button-fight a
+# [2015-09-21 17:54:31,085] waitable.py[LINE:75] DEBUG    Ищу элемент: .result. Количество попыток: 10.
+# [2015-09-21 17:54:34,506] waitable.py[LINE:67] WARNING  Закончилось количество попыток найти элемент: .result.
+# Traceback (most recent call last):
+#   File "C:\Users\ipetrash\Projects\moswar_bot\mainwindow.py", line 221, in _task_tick
+#
+#   File "C:\Users\ipetrash\Projects\moswar_bot\fight.py", line 137, in run
+#     self.handle_results()
+#   File "C:\Users\ipetrash\Projects\moswar_bot\fight.py", line 155, in handle_results
+#     tugriki = int(tugriki)
+# ValueError: invalid literal for int() with base 10: ''
+
+
+# TODO: патрулирование в закоулках
+
+
 logger = get_logger('moswar_bot')
 
 
@@ -158,12 +237,14 @@ class MainWindow(QMainWindow, QObject):
         self.thimblerig = Thimblerig(self)
         self.fight = Fight(self)
         self.restore_hp = RestoreHP(self)
+        self.factory_petric = FactoryPetric(self)
 
         # Список действий бота
         self.name_action_dict = {
             'Закоулки': self.alley,
             'Площадь': self.square,
             'Метро': self.metro,
+            'Завод': self.factory,
             'Задания': self.jobs,
             'Персонаж': self.player,
             'Хата': self.home,
@@ -171,7 +252,9 @@ class MainWindow(QMainWindow, QObject):
             'Напасть': self.fight.run,
             'Ищем следующего противника': self.fight._next_enemy,
             'Восстановление жизней': self.restore_hp.run,
-            'Варка нано-петриков': self.start_petriks,
+            'Варка нано-петриков': self.factory_petric.run,
+            'Убрать таймаут Тонусом': self.fight.use_tonus,
+            'Шаурбургерс': self.shaurburgers,
         }
 
         # Добавляем команды
@@ -180,6 +263,48 @@ class MainWindow(QMainWindow, QObject):
 
         # Выполнение кода в окне "Выполнение скрипта"
         self.ui.button_exec.clicked.connect(lambda x=None: exec(self.ui.code.toPlainText()))
+
+        # Таймер используемый для вызова функции для запуска задач
+        self._task_timer = QTimer()
+        self._task_timer.setSingleShot(True)
+        self._task_timer.timeout.connect(self._task_tick)
+
+        # Если стоит True -- происходит выполнение задачи и функция _task_tick прерывается
+        self._used = False
+
+        # Название процесса, из-за которого в данный момент  _task_tick не может выполниться
+        self._used_process = None
+
+        # Минимальная сумма для игры в Наперстки
+        self.min_money_for_thimblerig = 500000
+
+    def _task_tick(self):
+        """Функция для запуска задач."""
+
+        if self._used:
+            logger.debug('Запуск задач отменяется -- процесс занят "%s".', self._used_process)
+        else:
+            logger.debug('Запуск задач.')
+
+            if self.money() >= self.min_money_for_thimblerig:
+                self.thimblerig.run()
+
+            elif self.factory_petric.is_ready():
+                self.factory_petric.run()
+
+            elif self.fight.is_ready():
+                self.fight.run()
+
+        # TODO: настраивать interval: спрашивать у другиз модулей их таймауты (если есть) и выбирать
+        # наименьший, он и будет interval. Если же interval не был изменен, то задавать рандомное время
+        # Это позволит увеличить эффективность бота
+
+        # Запускаем таймер выполнение задач
+        # Следующий вызов будет случайным от 3 до 10 минут + немного случайных секунд
+        interval = (randint(3, 10) + random()) * 60 * 1000
+        interval = int(interval)
+        logger.debug('Повторный запуск задач через %s секунд.', interval / 1000)
+        self._task_timer.start(interval)
 
     def _get_doc(self):
         return self.ui.view.page().mainFrame().documentElement()
@@ -194,10 +319,14 @@ class MainWindow(QMainWindow, QObject):
     def wait_loading(self):
         """Функция ожидания загрузки страницы. Использовать только при изменении url."""
 
+        logger.debug('Начинаю ожидание загрузки страницы.')
+
         # Ждем пока прогрузится страница
         loop = QEventLoop()
         self.ui.view.loadFinished.connect(loop.quit)
         loop.exec_()
+
+        logger.debug('Закончено ожидание загрузки страницы.')
 
     def go(self, relative_url=None):
         """Функция для загрузки страниц.
@@ -213,6 +342,8 @@ class MainWindow(QMainWindow, QObject):
         else:
             url = urljoin(self.moswar_url, relative_url)
 
+        logger.debug('Перехожу по адресу "%s"', url)
+
         self.ui.view.load(url)
 
         self.wait_loading()
@@ -223,8 +354,18 @@ class MainWindow(QMainWindow, QObject):
 
         """
 
+        logger.debug('Авторизуюсь.')
+
         # Открываем страницу мосвара
         self.go()
+
+        # Если закрыт доступ к сайту
+        if 'closed.html' in self.current_url():
+            logger.warn('Закрыто, причина:\n%s', self.doc.toPlainText().strip())
+
+            # Попробуем снова авторизоваться через 1 час
+            QTimer.singleShot(60 * 60 * 1000, self.auth)
+            return
 
         login = self.doc.findFirst('#login-email')
         password = self.doc.findFirst('#login-password')
@@ -239,24 +380,24 @@ class MainWindow(QMainWindow, QObject):
         if submit.isNull():
             raise MoswarButtonIsMissError('Войти')
 
+        logger.debug('Захожу в игру.')
         submit.evaluateJavaScript("this.click()")
 
         self.wait_loading()
 
+        logger.debug('Запуск таймера выполнения задач.')
 
-        # TODO: удалить, временно!
-        self.fight.run()
-
-        self.timer = QTimer()
-        self.timer.setInterval(1000 * 60 * 20)  # каждые 20 минут
-        self.timer.timeout.connect(self.fight.run)
-        self.timer.start()
+        # Выполнение первых задач
+        self._task_tick()
 
     def alley(self):
         self.go('alley')
 
     def square(self):
         self.go('square')
+
+    def factory(self):
+        self.go('factory')
 
     def metro(self):
         self.go('metro')
@@ -270,30 +411,30 @@ class MainWindow(QMainWindow, QObject):
     def home(self):
         self.go('home')
 
-    def start_petriks(self):
-        """Функция используется для производства нано-петриков."""
+    def shaurburgers(self):
+# TODO: работа в Шаурбургерсе
+#
+# work = self.doc.findFirst('.shaurburgers-work')
+#
+# job_process = work.findFirst('.process .value')
+# if not job_process.isNull():
+#     logger.debug("Работа в Шаурбургерсе еще не закончена, осталось %s секунд.", job_process.attribute('timer'))
+#     return
+#
+# job_time = work.findFirst('select[name=time]')
+# hours = job_time.findAll('option').count()
+#
+# # По-умолчанию, 4 часа, если оставшееся время работы, меньше 4 часов,
+# # работаем сколько можно
+# select_hour = 4 if hours > 4 else hours
+#
+# job_time.evaluateJavaScript("this.selectedIndex = {}".format(select_hour - 1))
+#
+# logger.debug("Начинаю работать в Шаурбергерсе %s часов.", select_hour)
+#
+# self.click_tag('.shaurburgers-work .button')
 
-        # TODO: варка петриков.
-
-        # Кнопка "Начать переработку"
-        button = self.doc.findFirst('.petric .button')
-
-        # Полоска прогресса переработки в нано-петрики
-        progress = self.doc.findFirst('#petriksprocess')
-
-        # Если есть кнопка "Начать переработку", кликаем
-        if not button.isNull():
-            button.evaluateJavaScript("this.click()")
-
-        # Иначе, узнаем сколько осталось ждать
-        elif not progress.isNull():
-            # Сколько осталось секунд
-            end_time = progress.attribute('timer')
-            print('Осталось {} секунд'.format(end_time))
-
-        else:
-            raise MoswarElementIsMissError('Не найдена кнопка "Начать переработку" и полоса '
-                                           'прогресса переработки в нано-петрики')
+        self.go('shaurburgers')
 
     def money(self):
         """Функция возвращает количество денег персонажа."""
@@ -343,6 +484,7 @@ class MainWindow(QMainWindow, QObject):
         except Exception as e:
             raise MoswarElementIsMissError(e)
 
+    # TODO: добавить возможность выбрать область поиска элемента для клика, а то она все время вся страница -- self.doc
     def click_tag(self, css_path):
         """Функция находит html тег по указанному пути и эмулирует клик на него.
 
@@ -355,6 +497,8 @@ class MainWindow(QMainWindow, QObject):
             self.click_tag(".button-search a")
         """
 
+        logger.debug('Выполняю клик по тегу: %s', css_path)
+
         # Используем для клика jQuery
         code = """
         tag = $("{}");
@@ -363,3 +507,8 @@ class MainWindow(QMainWindow, QObject):
         ok = self.doc.evaluateJavaScript(code)
         if ok is None:
             logger.warn('Выполнение js скрипта неудачно. Code:\n' + code)
+
+    def alert(self, text):
+        """Функция показывает окно сообщений в браузере, используя javascript функцию alert."""
+
+        self.doc.evaluateJavaScript('alert("{}")'.format(text))

@@ -170,7 +170,7 @@ class Fight(QObject):
         result = '.result'
 
         # Ждем пока после клика прогрузится страница и появится элемент
-        Waitable(self._mw.doc).wait(result)
+        Waitable(self._mw).wait(result)
 
         # Найдем элемент, в котором будут все результаты боя
         result = self._mw.doc.findFirst(result)
@@ -227,7 +227,7 @@ class Fight(QObject):
             # TODO: если Тонуса будет не хватать, то появится окошко с предложением восстановить за плату
 
             # Ждем пока после клика прогрузится страница и появится элемент
-            Waitable(self._mw.doc).wait(self._css_path_button_use_tonus)
+            Waitable(self._mw).wait(self._css_path_button_use_tonus)
             return True
 
         return False
@@ -247,7 +247,7 @@ class Fight(QObject):
             self._mw.click_tag(self._css_path_button_snikers)
 
             # Ждем пока после клика прогрузится страница и появится элемент
-            Waitable(self._mw.doc).wait(self._css_path_button_fight)
+            Waitable(self._mw).wait(self._css_path_button_fight)
             return True
 
         return False
@@ -296,7 +296,10 @@ class Fight(QObject):
         url = urljoin(self._mw.moswar_url, a.attribute('href'))
 
         # Проверяем, что нападаем на горожанина и разница в уровнях небольшая
-        found = is_npc and level - 1 <= self._mw.level() <= level + 1
+        # found = is_npc and level - 1 <= self._mw.level() <= level + 1
+        # TODO: ищем нашего уровня или выше
+        found = is_npc and level >= self._mw.level() <= level + 1
+
         # TODO: диапазон уровней, на которые нападаем делать настраивыми
         # # TODO: Тупо ищем противника уровнем выше -- нужно получать максимальное количество искр
         # found = is_npc and self._mw.level() + 1 == level

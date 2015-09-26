@@ -82,6 +82,7 @@ class Shaurburgers:
                 # TODO: указывать точное время оставшееся до начала следующего дня
                 self._date_ready = datetime.today() + timedelta(hours=3)
                 logger.debug('На сегодня закончались часы работы в Шаурбургерсе.')
+                self._mw._used = False
                 return False
 
             job_time = work.findFirst('select[name=time]')

@@ -17,6 +17,7 @@ from thimblerig import Thimblerig
 from fight import Fight
 from restore_hp import RestoreHP
 from factory_petric import FactoryPetric
+from shaurburgers import Shaurburgers
 from common import *
 from waitable import Waitable
 
@@ -193,21 +194,6 @@ from waitable import Waitable
 # #         print(name, gift.findFirst('.button').attribute('id'))
 
 
-# TODO: выходить из подобной ситуации
-# [2015-09-21 17:54:29,517] fight.py[LINE:131] DEBUG    Нападаем на " larsson40" [8]: http://www.moswar.ru/player/413160/.
-# [2015-09-21 17:54:29,517] mainwindow.py[LINE:391] DEBUG    Выполняю клик по тегу: .button-fight a
-# [2015-09-21 17:54:31,085] waitable.py[LINE:75] DEBUG    Ищу элемент: .result. Количество попыток: 10.
-# [2015-09-21 17:54:34,506] waitable.py[LINE:67] WARNING  Закончилось количество попыток найти элемент: .result.
-# Traceback (most recent call last):
-#   File "C:\Users\ipetrash\Projects\moswar_bot\mainwindow.py", line 221, in _task_tick
-#
-#   File "C:\Users\ipetrash\Projects\moswar_bot\fight.py", line 137, in run
-#     self.handle_results()
-#   File "C:\Users\ipetrash\Projects\moswar_bot\fight.py", line 155, in handle_results
-#     tugriki = int(tugriki)
-# ValueError: invalid literal for int() with base 10: ''
-
-
 # TODO: патрулирование в закоулках
 
 
@@ -238,6 +224,7 @@ class MainWindow(QMainWindow, QObject):
         self.fight = Fight(self)
         self.restore_hp = RestoreHP(self)
         self.factory_petric = FactoryPetric(self)
+        self.shaurburgers = Shaurburgers(self)
 
         # Список действий бота
         self.name_action_dict = {
@@ -254,7 +241,8 @@ class MainWindow(QMainWindow, QObject):
             'Восстановление жизней': self.restore_hp.run,
             'Варка нано-петриков': self.factory_petric.run,
             'Убрать таймаут Тонусом': self.fight.use_tonus,
-            'Шаурбургерс': self.shaurburgers,
+            'Шаурбургерс': self.go_shaurburgers,
+            'Работать в Шаурбургерсе': self.shaurburgers.run,
         }
 
         # Добавляем команды
@@ -276,7 +264,7 @@ class MainWindow(QMainWindow, QObject):
         self._used_process = None
 
         # Минимальная сумма для игры в Наперстки
-        self.min_money_for_thimblerig = 500000
+        self.min_money_for_thimblerig = 350000
 
     def _task_tick(self):
         """Функция для запуска задач."""
@@ -288,6 +276,9 @@ class MainWindow(QMainWindow, QObject):
 
             if self.money() >= self.min_money_for_thimblerig:
                 self.thimblerig.run()
+
+            elif self.shaurburgers.is_ready():
+                self.shaurburgers.run()
 
             elif self.factory_petric.is_ready():
                 self.factory_petric.run()
@@ -411,29 +402,7 @@ class MainWindow(QMainWindow, QObject):
     def home(self):
         self.go('home')
 
-    def shaurburgers(self):
-# TODO: работа в Шаурбургерсе
-#
-# work = self.doc.findFirst('.shaurburgers-work')
-#
-# job_process = work.findFirst('.process .value')
-# if not job_process.isNull():
-#     logger.debug("Работа в Шаурбургерсе еще не закончена, осталось %s секунд.", job_process.attribute('timer'))
-#     return
-#
-# job_time = work.findFirst('select[name=time]')
-# hours = job_time.findAll('option').count()
-#
-# # По-умолчанию, 4 часа, если оставшееся время работы, меньше 4 часов,
-# # работаем сколько можно
-# select_hour = 4 if hours > 4 else hours
-#
-# job_time.evaluateJavaScript("this.selectedIndex = {}".format(select_hour - 1))
-#
-# logger.debug("Начинаю работать в Шаурбергерсе %s часов.", select_hour)
-#
-# self.click_tag('.shaurburgers-work .button')
-
+    def go_shaurburgers(self):
         self.go('shaurburgers')
 
     def money(self):

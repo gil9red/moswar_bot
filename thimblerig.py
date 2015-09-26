@@ -74,37 +74,43 @@ class Thimblerig(QObject):
 
         logger.debug('Начинаю игру в Наперстки.')
 
+        # TODO: наверное, уже не нужно
+        # # Эмулируем клик на кнопку "Начать играть"
+        # if 'thimble' not in self._mw.current_url():
+        #     self._mw.go('thimble/start')
+
+        if 'metro' not in self._mw.current_url():
+            self._mw.metro()
+
+        # TODO: временное решение проблемы с закончившимися билетами, лучше через окно сделать
+        holders = self._mw.doc.findFirst('.metro-thimble .holders')
+        holders = holders.toPlainText().replace('Встреч с Моней на сегодня: ', '')
+        if int(holders) == 0:
+            logger.warn('Закончились билеты для игры в Наперстки.')
+            # TODO: добавить is_ready
+            # TODO: is_ready указывает на следующий день
+            return
+
         self._mw._used = True
-        self._mw._used_process = "Игра в наперстки"
+        self._mw._used_process = "Игра в Наперстки"
 
         t = time.clock()
 
         # Эмулируем клик на кнопку "Начать играть"
-        if 'thimble' not in self._mw.current_url():
-            self._mw.go('thimble/start')
+        self._mw.click_tag('.metro-thimble .button .c')
 
-        # TODO: проверять на сообщение которое говорит, что билеты для игры закончились
-# <div class="alert infoalert alert-error alert1" rel="" style="display: block; top: 428px;" data-bind-move="1">
-# <div class="padding">
-# <h2 id="alert-title">Ошибка</h2>
-# <div class="data">
-# <div id="alert-text">
-# Вы сегодня уже играли в наперстки с Моней Шацом много раз, и его интерес к вам сильно поубавился. Но если же вы хотите во что бы то ни стало рискнуть еще разок, то
-# <a href="/berezka/" onclick="return AngryAjax.goToUrl(this, event);">купите билетик</a>
-# в Березке.
-# </div>
-# <div class="actions">
-# </div>
-# </div>
-# </div>
-
-        # TODO: проверить, что работает
-        for el in self._mw.doc.findAll('.alert'):
-            text = el.findFirst('#alert-text')
-            if not text.isNull() and 'Вы сегодня уже играли в наперстки с Моней Шацом' in text.toPlainText():
-                logger.warn('Закончились билеты для игры в наперстки.')
-                self._mw._used = False
-                return
+        # # TODO: не работает, т.к. окно не сразу появляется
+        # # TODO: проверить, что работает
+        # for el in self._mw.doc.findAll('.alert'):
+        #     text = el.findFirst('#alert-text')
+        #
+        #     print(el, text.toPlainText())
+        #     if not text.isNull() and 'Вы сегодня уже играли в наперстки с Моней Шацом' in text.toPlainText():
+        #         # TODO: добавить is_ready
+        #         # TODO: is_ready указывает на следующий день
+        #         logger.warn('Закончились билеты для игры в наперстки.')
+        #         self._mw._used = False
+        #         return
 
         self._ruda_count = 0
         self._thimble_round_count = 0

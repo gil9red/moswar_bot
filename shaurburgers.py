@@ -38,6 +38,15 @@ class Shaurburgers:
             if job_process.isNull():
                 return True
 
+            # TODO: повтор
+            error = work.findFirst('.time .error')
+            if not error.isNull() and 'На сегодня вы отработали свою максимальную смену' in error.toPlainText():
+                # TODO: повтор
+                # TODO: указывать точное время оставшееся до начала следующего дня
+                self._date_ready = datetime.today() + timedelta(hours=3)
+                logger.debug('На сегодня закончались часы работы в Шаурбургерсе.')
+                return False
+
             # Сколько осталось секунд
             timer = int(job_process.attribute('timer'))
 
@@ -65,6 +74,16 @@ class Shaurburgers:
 
         if self.is_ready():
             work = self._mw.doc.findFirst('.shaurburgers-work')
+
+            # TODO: повтор
+            error = work.findFirst('.time .error')
+            if not error.isNull() and 'На сегодня вы отработали свою максимальную смену' in error.toPlainText():
+                # TODO: повтор
+                # TODO: указывать точное время оставшееся до начала следующего дня
+                self._date_ready = datetime.today() + timedelta(hours=3)
+                logger.debug('На сегодня закончались часы работы в Шаурбургерсе.')
+                return False
+
             job_time = work.findFirst('select[name=time]')
             hours = job_time.findAll('option').count()
 

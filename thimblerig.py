@@ -22,7 +22,7 @@ class Thimblerig(QObject):
     def __init__(self, mw):
         super().__init__()
 
-        self.mw = mw
+        self._mw = mw
 
         # Таймер для отсчета раундов игры
         self._timer_round_thimble = QTimer()
@@ -68,16 +68,20 @@ class Thimblerig(QObject):
     def run(self):
         """Игра в наперстки."""
 
+        if self._mw._used:
+            logger.warn('Бот в данный момент занят процессом "%s". Выхожу из функции.', self._mw._used_process)
+            return
+
         logger.debug('Начинаю игру в Наперстки.')
 
-        self.mw._used = True
-        self.mw._used_process = "Игра в наперстки"
+        self._mw._used = True
+        self._mw._used_process = "Игра в наперстки"
 
         t = time.clock()
 
         # Эмулируем клик на кнопку "Начать играть"
-        if 'thimble' not in self.mw.current_url():
-            self.mw.go('thimble/start')
+        if 'thimble' not in self._mw.current_url():
+            self._mw.go('thimble/start')
 
         # TODO: проверять на сообщение которое говорит, что билеты для игры закончились
 # <div class="alert infoalert alert-error alert1" rel="" style="display: block; top: 428px;" data-bind-move="1">
@@ -93,16 +97,14 @@ class Thimblerig(QObject):
 # </div>
 # </div>
 # </div>
-#
-# for el in self.mw.doc.findAll('.alert'):
-#     text = el.findFirst('#alert-text')
-#     if not text.isNull() and 'Вы сегодня уже играли в наперстки с Моней Шацом' in text.toPlainText():
-#         logger.debug('Закончились билеты для игры в наперстки..')
-#
-#         self._window = el
-#         self._window_finded.emit()
-#         self._timer.stop()
-#         return
+
+        # TODO: проверить, что работает
+        for el in self._mw.doc.findAll('.alert'):
+            text = el.findFirst('#alert-text')
+            if not text.isNull() and 'Вы сегодня уже играли в наперстки с Моней Шацом' in text.toPlainText():
+                logger.warn('Закончились билеты для игры в наперстки.')
+                self._mw._used = False
+                return
 
         self._ruda_count = 0
         self._thimble_round_count = 0
@@ -121,14 +123,15 @@ class Thimblerig(QObject):
         logger.debug('Удача {:.2f}%'.format(self._ruda_count / (self._thimble_round_count * 3) * 100))
 
         # Эмулируем клик на кнопку "Я наигрался, хватит"
-        self.mw.go('thimble/leave')
+        self._mw.go('thimble/leave')
 
-        self.mw._used = False
+        self._mw._used = False
 
     def nine_thimble(self):
         """Функция для начала игры в девять наперстков."""
 
-        if self.mw.money() < 3000:
+        # TODO: нижний предел суммы сделать настраивым
+        if self._mw.money() < 3000:
             self._timer_thimble.stop()
             logger.debug("Заканчиваю игру.")
             self.finished_thimble_game.emit()
@@ -138,7 +141,7 @@ class Thimblerig(QObject):
 
         # Выбираем кнопку для игры в 9 наперстков
         css_path = "#thimble-controls-buttons div[data-count='9']"
-        self.mw.click_tag(css_path)
+        self._mw.click_tag(css_path)
 
         # Выбираем случайный ряд наперстков
         numbers_thimble = random.choice(self._variants)
@@ -157,7 +160,7 @@ class Thimblerig(QObject):
     def _check_click_thimble(self, css_path):
         """Функция, вернет True, если на Наперсток уже кликали."""
 
-        tag = self.mw.doc.findFirst(css_path)
+        tag = self._mw.doc.findFirst(css_path)
         attr = tag.attribute('class')
 
         # Проверяем, что на наперсток кликнули
@@ -169,7 +172,7 @@ class Thimblerig(QObject):
     def select_thimbles(self):
         """Функция для клика на наперстки."""
 
-        doc = self.mw.doc
+        doc = self._mw.doc
 
         # Количество оставшихся попыток. Для девяти наперсток их максимум будет 3
         left = doc.findFirst('#naperstki-left').toInnerXml()
@@ -189,8 +192,8 @@ class Thimblerig(QObject):
 
         # Проверяем, что на наперсток не кликали и кликаем
         if not self._check_click_thimble(self._thimble1):
-            self.mw.click_tag(self._thimble1)
+            self._mw.click_tag(self._thimble1)
         elif not self._check_click_thimble(self._thimble2):
-            self.mw.click_tag(self._thimble2)
+            self._mw.click_tag(self._thimble2)
         elif not self._check_click_thimble(self._thimble3):
-            self.mw.click_tag(self._thimble3)
+            self._mw.click_tag(self._thimble3)

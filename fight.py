@@ -83,7 +83,8 @@ class Fight(QObject):
         # TODO: для того, чтобы метод self.fight.is_ready() работал правильно, текущим адресом должны
         # быть Закоулки -- метод has_snikers, используемый в is_ready работает только в Закоулках
         # Идем в Закоулки
-        self._mw.alley()
+        if 'alley' not in self._mw.current_url():
+            self._mw.alley()
 
         # TODO: рефакторинг с self._timeout_fight()
         if self._timeout_fight() is not None:
@@ -113,9 +114,12 @@ class Fight(QObject):
         Уровень противника в пределах нашего +/- 1
         """
 
-        # TODO: этот метод уже вызывается в is_ready
-        # # Идем в Закоулки
-        # self._mw.alley()
+        if self._mw._used:
+            logger.warn('Бот в данный момент занят процессом "%s". Выхожу из функции.', self._mw._used_process)
+            return
+
+        if 'alley' not in self._mw.current_url():
+            self._mw.alley()
 
         # TODO: оптимиизровать использование сникерсов -- если они есть, сразу использовать и нападать и так,
         # пока не будут потрачены все

@@ -118,8 +118,9 @@ class Fight(QObject):
             logger.warn('Бот в данный момент занят процессом "%s". Выхожу из функции.', self._mw._used_process)
             return
 
-        if 'alley' not in self._mw.current_url():
-            self._mw.alley()
+        self._mw.alley()
+        # if 'alley' not in self._mw.current_url():
+        #     self._mw.alley()
 
         # TODO: оптимиизровать использование сникерсов -- если они есть, сразу использовать и нападать и так,
         # пока не будут потрачены все

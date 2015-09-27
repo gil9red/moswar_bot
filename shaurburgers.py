@@ -69,8 +69,9 @@ class Shaurburgers:
         self._mw._used = True
         self._mw._used_process = "Работа в Шаурбургерсе"
 
-        if 'shaurburgers' not in self._mw.current_url():
-            self._mw.go_shaurburgers()
+        self._mw.go_shaurburgers()
+        # if 'shaurburgers' not in self._mw.current_url():
+        #     self._mw.go_shaurburgers()
 
         if self.is_ready():
             work = self._mw.doc.findFirst('.shaurburgers-work')

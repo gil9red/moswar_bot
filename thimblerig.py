@@ -79,8 +79,9 @@ class Thimblerig(QObject):
         # if 'thimble' not in self._mw.current_url():
         #     self._mw.go('thimble/start')
 
-        if 'metro' not in self._mw.current_url():
-            self._mw.metro()
+        self._mw.metro()
+        # if 'metro' not in self._mw.current_url():
+        #     self._mw.metro()
 
         # TODO: временное решение проблемы с закончившимися билетами, лучше через окно сделать
         holders = self._mw.doc.findFirst('.metro-thimble .holders')

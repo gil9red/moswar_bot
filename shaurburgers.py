@@ -69,6 +69,30 @@ class Shaurburgers:
         self._mw._used = True
         self._mw._used_process = "Работа в Шаурбургерсе"
 
+# TODO: проверять шаурбургерс на захват комунистов
+#
+# <div class="alert infoalert alert-error alert1" rel="" style="display: block; top: 287.5px; " data-bind-move="1">
+#     <div class="padding">
+#         <h2 id="alert-title">Ошибка</h2>
+#         <div class="data">
+#             <div id="alert-text"><img src="/@/images/decor/lenin_ico.png" style="margin-left: 37px;"><p>Произошло невообразимое. Дух вождя победил в бою и оккупировал оплот капитализма - Шаурбургерс. <b>В ближайшие 1 час 44 минуты Шаурбургерс закрыт</b>. Чтобы не допускать этого, не позволяйте вождю побеждать.</p></div>
+#             <div class="actions">
+# 				<div class="button">
+# 											<a class="f" href="" onclick="$(this).parents('div.alert:first').hide(); return false;"><i class="rl"></i><i class="bl"></i><i class="brc"></i>
+# 												<div class="c">OK</div>
+# 											</a>
+# 										</div>
+#
+#             </div>
+#         </div>
+#     </div>
+# </div>
+#
+#
+#
+# TODO: или .shaurburgers/div[class="welcome red"] проверять на red, думаю, в нормалдьной ситуации welcome, будет
+# без red
+
         self._mw.go_shaurburgers()
         # if 'shaurburgers' not in self._mw.current_url():
         #     self._mw.go_shaurburgers()

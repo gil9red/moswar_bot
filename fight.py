@@ -39,6 +39,28 @@ logger = get_logger('fight')
 # [2015-09-22 23:48:25,574] mainwindow.py[LINE:498] DEBUG    Выполняю клик по тегу: div[class='button-big btn f1']
 
 
+# TODO: такое ощущение, что вместо клика на кнопку нападения перса, бот как-то кликает на имя противника, что
+# является ссылкой и после ждет результатов боя
+# [2015-09-29 21:42:12,927] fight.py[LINE:144] DEBUG    Нажимаю на кнопку "Отнять у слабого".
+# [2015-09-29 21:42:12,927] mainwindow.py[LINE:469] DEBUG    Выполняю клик по тегу: div[class='button-big btn f1']
+# [2015-09-29 21:42:13,794] fight.py[LINE:160] DEBUG    Нападаем на " seryvolk" [13]: http://www.moswar.ru/player/22038/.
+# [2015-09-29 21:42:13,794] mainwindow.py[LINE:469] DEBUG    Выполняю клик по тегу: .button-fight a
+# [2015-09-29 21:42:14,338] waitable.py[LINE:40] DEBUG    Текущий адрес: http://www.moswar.ru/alley/.
+# [2015-09-29 21:42:14,338] waitable.py[LINE:99] DEBUG    Ищу элемент: .result. Количество попыток: 30. Интервал: 1000.
+# [2015-09-29 21:42:44,744] waitable.py[LINE:80] WARNING  Закончилось количество попыток найти элемент: .result.
+# [2015-09-29 21:42:44,745] waitable.py[LINE:81] DEBUG    Текущий адрес: http://www.moswar.ru/alley/.
+# Traceback (most recent call last):
+#   File "C:\Users\ipetrash\Projects\moswar_bot\mainwindow.py", line 287, in _task_tick
+# [2015-09-29 21:42:44,749] waitable.py[LINE:82] DEBUG    Текущая страница сохранена в файл: 21.42.44.html.
+#     self.fight.run()
+#   File "C:\Users\ipetrash\Projects\moswar_bot\fight.py", line 166, in run
+#     self.handle_results()
+#   File "C:\Users\ipetrash\Projects\moswar_bot\fight.py", line 184, in handle_results
+#     tugriki = int(tugriki)
+# ValueError: invalid literal for int() with base 10: ''
+
+
+
 class Fight(QObject):
     def __init__(self, mw):
         super().__init__()

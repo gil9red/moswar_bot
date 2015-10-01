@@ -274,7 +274,8 @@ class MainWindow(QMainWindow, QObject):
         else:
             logger.debug('Запуск задач.')
 
-            if self.money() >= self.min_money_for_thimblerig:
+            # Если уже играем в Наперстки или набрали нужную сумму для игры в Наперстки
+            if 'thimble' in self.current_url() or self.money() >= self.min_money_for_thimblerig:
                 self.thimblerig.run()
 
             elif self.shaurburgers.is_ready():

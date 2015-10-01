@@ -68,7 +68,8 @@ class Thimblerig(QObject):
     def run(self):
         """Игра в наперстки."""
 
-        if self._mw._used:
+        # Если в текущий бот в текущий момент занят и это не игра в Наперстки
+        if self._mw._used and 'thimble' not in self._mw.current_url():
             logger.warn('Бот в данный момент занят процессом "%s". Выхожу из функции.', self._mw._used_process)
             return
 
@@ -83,22 +84,26 @@ class Thimblerig(QObject):
         # if 'metro' not in self._mw.current_url():
         #     self._mw.metro()
 
-        # TODO: временное решение проблемы с закончившимися билетами, лучше через окно сделать
-        holders = self._mw.doc.findFirst('.metro-thimble .holders')
-        holders = holders.toPlainText().replace('Встреч с Моней на сегодня: ', '')
-        if int(holders) == 0:
-            logger.warn('Закончились билеты для игры в Наперстки.')
-            # TODO: добавить is_ready
-            # TODO: is_ready указывает на следующий день
-            return
+        if 'metro' in self._mw.current_url():
+            # TODO: временное решение проблемы с закончившимися билетами, лучше через окно сделать
+            holders = self._mw.doc.findFirst('.metro-thimble .holders')
+            holders = holders.toPlainText().replace('Встреч с Моней на сегодня: ', '')
+            if int(holders) == 0:
+                logger.warn('Закончились билеты для игры в Наперстки.')
+                # TODO: добавить is_ready
+                # TODO: is_ready указывает на следующий день
+                return
 
         self._mw._used = True
         self._mw._used_process = "Игра в Наперстки"
 
         t = time.clock()
 
-        # Эмулируем клик на кнопку "Начать играть"
-        self._mw.click_tag('.metro-thimble .button .c')
+        if 'thimble' in self._mw.current_url():
+            logger.info('Игра в Наперстки уже была начала, продолжу играть.')
+        else:
+            # Эмулируем клик на кнопку "Начать играть"
+            self._mw.click_tag('.metro-thimble .button .c')
 
         # # TODO: не работает, т.к. окно не сразу появляется
         # # TODO: проверить, что работает

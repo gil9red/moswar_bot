@@ -60,6 +60,20 @@ logger = get_logger('fight')
 # ValueError: invalid literal for int() with base 10: ''
 
 
+# TODO: каким-то фигом имя и ссылка противника оказались неправильными, возможно не успели прогрузиться,
+# но при этом нападение прошло удачно
+# [2015-10-02 01:34:30,426] mainwindow.py[LINE:469] DEBUG    Выполняю клик по тегу: div[class='button-big btn f1']
+# [2015-10-02 01:34:31,157] fight.py[LINE:187] DEBUG    Нападаем на "" [10]: http://www.moswar.ru/clan/3658/.
+# [2015-10-02 01:34:31,157] mainwindow.py[LINE:469] DEBUG    Выполняю клик по тегу: .button-fight a
+# [2015-10-02 01:34:31,472] waitable.py[LINE:40] DEBUG    Текущий адрес: http://www.moswar.ru/alley/.
+# [2015-10-02 01:34:31,472] waitable.py[LINE:99] DEBUG    Ищу элемент: .result. Количество попыток: 30. Интервал: 1000.
+# [2015-10-02 01:34:32,481] waitable.py[LINE:72] DEBUG    Элемент найден.
+# [2015-10-02 01:34:32,482] fight.py[LINE:240] DEBUG    Результат боя:
+#   Монеты: 8768
+#   Опыт: 2
+#   Кирпич: 2
+
+
 class Fight(QObject):
     def __init__(self, mw):
         super().__init__()

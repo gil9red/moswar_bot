@@ -60,7 +60,6 @@ logger = get_logger('fight')
 # ValueError: invalid literal for int() with base 10: ''
 
 
-
 class Fight(QObject):
     def __init__(self, mw):
         super().__init__()
@@ -92,6 +91,12 @@ class Fight(QObject):
         self.enemy_level = None
         self.enemy_url = None
         self.enemy_received_money = None
+
+        # Минимальная разница в уровне с противником. Эта величина вычитается из текущего уровня персонажа.
+        self.min_diff_levels = 0
+
+        # Максимальная разница в уровне с противником. Эта величина добавляется к текущему уровню персонажа.
+        self.max_diff_levels = 99
 
     # Сигнал вызывается, когда противник на странице найден -- например, страница загрузилась
     _enemy_load_finished = Signal()
@@ -322,15 +327,25 @@ class Fight(QObject):
         # Адрес противника
         url = urljoin(self._mw.moswar_url, a.attribute('href'))
 
-        # Проверяем, что нападаем на горожанина и разница в уровнях небольшая
-        # found = is_npc and level - 1 <= self._mw.level() <= level + 1
-        # TODO: ищем нашего уровня или выше
-        # found = is_npc and (level == self._mw.level() or self._mw.level() + 1 == level)
-        found = is_npc and level >= self._mw.level()
+        my_level = self._mw.level()
 
-        # TODO: диапазон уровней, на которые нападаем делать настраивыми
-        # # TODO: Тупо ищем противника уровнем выше -- нужно получать максимальное количество искр
-        # found = is_npc and self._mw.level() + 1 == level
+        # TODO: добавить ограничение на количество попыток найти гражданина, перед тем как напасть на игрока
+
+        # Проверяем, что уровень противника находится в пределе диапазона
+        check_level = my_level - self.min_diff_levels <= level <= my_level + self.max_diff_levels
+
+        # TODO: проверить, что выборка уровней работает
+        found = is_npc and check_level
+
+        # # Проверяем, что нападаем на горожанина и разница в уровнях небольшая
+        # # found = is_npc and level - 1 <= self._mw.level() <= level + 1
+        # # TODO: ищем нашего уровня или выше
+        # # found = is_npc and (level == self._mw.level() or self._mw.level() + 1 == level)
+        # found = is_npc and level >= self._mw.level()
+        #
+        # # TODO: диапазон уровней, на которые нападаем делать настраивыми
+        # # # TODO: Тупо ищем противника уровнем выше -- нужно получать максимальное количество искр
+        # # found = is_npc and self._mw.level() + 1 == level
 
         if found:
             self.enemy_name = name

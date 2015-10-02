@@ -8,7 +8,7 @@ from urllib.parse import urljoin
 
 from PySide.QtCore import QObject, Signal, QTimer, QEventLoop
 
-from common import get_logger
+from common import get_logger, MoswarElementIsMissError
 from waitable import Waitable
 
 
@@ -208,10 +208,22 @@ class Fight(QObject):
 
         self._mw._used = False
 
+    # TODO: проверить
+    def name_winner(self):
+        """Функция возвращает имя победителя в драке."""
+
+        import re
+        pattern = re.compile(r'Победитель: (.+) \[[\d]+\]')
+
+        try:
+            result = self._mw.doc.findFirst('.result').toPlainText()
+            match = pattern.search(result)
+            return match.group(1)
+        except Exception as e:
+            raise MoswarElementIsMissError(e)
+
     def handle_results(self):
         """Обработка результата боя."""
-
-        # TODO: учитывать проигрыш
 
         result = '.result'
 
@@ -251,9 +263,11 @@ class Fight(QObject):
         for key in result_item_keys:
             result_list.append('  {}: {}'.format(key, result_dict[key]))
 
+        if self._mw.name() != self.name_winner():
+            logger.debug('Бой проигран!')
+
         logger.debug('Результат боя:\n' + '\n'.join(result_list))
 
-    # TODO: проверить
     # TODO: работает только в Закоулках
     def has_tonus(self):
         """Функция возвратит True, если можно использовать Тонус для сброса таймера, иначе False."""
@@ -261,7 +275,6 @@ class Fight(QObject):
         button = self._mw.doc.findFirst(self._css_path_button_use_tonus)
         return not button.isNull()
 
-    # TODO: проверить работу
     def use_tonus(self):
         """Функция для использования Тонуса, для сброса таймаута между драками.
         Возвращает True, если получилось, иначе False."""
@@ -348,19 +361,7 @@ class Fight(QObject):
         # Проверяем, что уровень противника находится в пределе диапазона
         check_level = my_level - self.min_diff_levels <= level <= my_level + self.max_diff_levels
 
-        # TODO: проверить, что выборка уровней работает
         found = is_npc and check_level
-
-        # # Проверяем, что нападаем на горожанина и разница в уровнях небольшая
-        # # found = is_npc and level - 1 <= self._mw.level() <= level + 1
-        # # TODO: ищем нашего уровня или выше
-        # # found = is_npc and (level == self._mw.level() or self._mw.level() + 1 == level)
-        # found = is_npc and level >= self._mw.level()
-        #
-        # # TODO: диапазон уровней, на которые нападаем делать настраивыми
-        # # # TODO: Тупо ищем противника уровнем выше -- нужно получать максимальное количество искр
-        # # found = is_npc and self._mw.level() + 1 == level
-
         if found:
             self.enemy_name = name
             self.enemy_level = level

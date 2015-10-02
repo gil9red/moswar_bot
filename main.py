@@ -41,25 +41,3 @@ if __name__ == '__main__':
     #
     # doc = view.page().mainFrame().documentElement()
     #
-    #
-    # import re
-    # pattern = re.compile(r'Победитель: (.+) \[[\d]+\]')
-    # pattern2 = re.compile(r'(.+) \[[\d]+\]')
-    #
-    # css_path = '#personal .name'
-    # name = doc.findFirst(css_path)
-    # match = pattern2.search(name.toPlainText())
-    # print('"{}"'.format(match.group(1)))
-    #
-    # # print('"{}"'.format(doc.findFirst('.fighter2 a').toPlainText()))
-    # # result = doc.findFirst('.result')
-    # # if result.isNone():
-    # #     raise Exception('Не найден result')
-    # # result_text = result.toPlainText()
-    # # match = pattern.search(result_text)
-    # # if match is None:
-    # #     raise Exception('Не удалось найти победителя драки')
-    # # print('Победитель: "{}"'.format(match.group(1)))
-    # #
-    # # view.show()
-    # # app.exec_()

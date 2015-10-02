@@ -406,6 +406,21 @@ class MainWindow(QMainWindow, QObject):
     def go_shaurburgers(self):
         self.go('shaurburgers')
 
+    # TODO: проверить
+    def name(self):
+        """Функция возвращает имя текущего персонажа."""
+
+        import re
+        pattern = re.compile(r'(.+) \[[\d]+\]')
+
+        try:
+            css_path = '#personal .name'
+            name = self.doc.findFirst(css_path)
+            match = pattern.search(name.toPlainText())
+            return match.group(1)
+        except Exception as e:
+            raise MoswarElementIsMissError(e)
+
     def money(self):
         """Функция возвращает количество денег персонажа."""
 

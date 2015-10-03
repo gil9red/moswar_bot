@@ -100,11 +100,16 @@ class Fight(QObject):
         self._timer_next_enemy.setSingleShot(True)
         self._timer_next_enemy.timeout.connect(self._next_enemy)
 
-        # Информация о противнике: имя, уровень, url, выигрыш
+        # Информация о противнике: имя, уровень, url
         self.enemy_name = None
         self.enemy_level = None
         self.enemy_url = None
-        self.enemy_received_money = None
+
+        # Выигрыш / проигрыш. Если проигрыш, self.is_winner будет равен False
+        self.received_money = None
+
+        # True если победили мы, False если противник и None если ничья
+        self.is_winner = None
 
         # Минимальная разница в уровне с противником. Эта величина вычитается из текущего уровня персонажа.
         self.min_diff_levels = 0
@@ -124,8 +129,7 @@ class Fight(QObject):
         # TODO: для того, чтобы метод self.fight.is_ready() работал правильно, текущим адресом должны
         # быть Закоулки -- метод has_snikers, используемый в is_ready работает только в Закоулках
         # Идем в Закоулки
-        if 'alley' not in self._mw.current_url():
-            self._mw.alley()
+        self._mw.alley()
 
         # TODO: рефакторинг с self._timeout_fight()
         if self._timeout_fight() is not None:
@@ -160,8 +164,6 @@ class Fight(QObject):
             return
 
         self._mw.alley()
-        # if 'alley' not in self._mw.current_url():
-        #     self._mw.alley()
 
         # TODO: оптимиизровать использование сникерсов -- если они есть, сразу использовать и нападать и так,
         # пока не будут потрачены все
@@ -208,17 +210,14 @@ class Fight(QObject):
 
         self._mw._used = False
 
-    # TODO: проверить
     def name_winner(self):
         """Функция возвращает имя победителя в драке."""
 
-        import re
-        pattern = re.compile(r'Победитель: (.+) \[[\d]+\]')
-
         try:
-            result = self._mw.doc.findFirst('.result').toPlainText()
-            match = pattern.search(result)
-            return match.group(1)
+            name = self._mw.doc.findFirst('.result div').toPlainText()
+            name = name.replace('Победитель:', '')
+            name = name[:name.rindex('[')]
+            return name.strip()
         except Exception as e:
             raise MoswarElementIsMissError(e)
 
@@ -233,9 +232,18 @@ class Fight(QObject):
         # Найдем элемент, в котором будут все результаты боя
         result = self._mw.doc.findFirst(result)
 
+        if 'Ничья!' in result.toPlainText():
+            self.is_winner = None
+            self.received_money = 0
+            logger.debug('Результат боя: Ничья.')
+            return
+
+        # Проверим по именам кто победил
+        self.is_winner = self._mw.name() == self.name_winner()
+
         tugriki = result.findFirst('.tugriki').toPlainText().replace(',', '')
         tugriki = int(tugriki)
-        self.enemy_received_money = tugriki
+        self.received_money = tugriki
 
         # Сначала покажем выигранные монет и опыт, потом все остальное. Список используется для того, чтобы
         # порядок вывода результата боя был в порядке добавления элементов в этот список
@@ -263,10 +271,14 @@ class Fight(QObject):
         for key in result_item_keys:
             result_list.append('  {}: {}'.format(key, result_dict[key]))
 
-        if self._mw.name() != self.name_winner():
-            logger.debug('Бой проигран!')
+        result_str = 'Результат боя:'
+        if not self.is_winner:
+            result_str += ' Бой проигран. Вся награда достается противнику.'
 
-        logger.debug('Результат боя:\n' + '\n'.join(result_list))
+        result_str += '\n'
+        result_str += '\n'.join(result_list)
+
+        logger.debug(result_str)
 
     # TODO: работает только в Закоулках
     def has_tonus(self):

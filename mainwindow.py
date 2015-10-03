@@ -242,7 +242,9 @@ class MainWindow(QMainWindow, QObject):
             'Варка нано-петриков': self.factory_petric.run,
             'Убрать таймаут Тонусом': self.fight.use_tonus,
             'Шаурбургерс': self.go_shaurburgers,
+            # 'Шаурбургерс': self.shaurburgers.go,
             'Работать в Шаурбургерсе': self.shaurburgers.run,
+            'Патрулировать': self.patrol,
         }
 
         # Добавляем команды
@@ -406,18 +408,18 @@ class MainWindow(QMainWindow, QObject):
     def go_shaurburgers(self):
         self.go('shaurburgers')
 
-    # TODO: проверить
+    # TODO: сделать
+    def patrol(self):
+        self.alley()
+
     def name(self):
         """Функция возвращает имя текущего персонажа."""
 
-        import re
-        pattern = re.compile(r'(.+) \[[\d]+\]')
-
         try:
             css_path = '#personal .name'
-            name = self.doc.findFirst(css_path)
-            match = pattern.search(name.toPlainText())
-            return match.group(1)
+            name = self.doc.findFirst(css_path).toPlainText()
+            name = name[:name.rindex('[')]
+            return name.strip()
         except Exception as e:
             raise MoswarElementIsMissError(e)
 

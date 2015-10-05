@@ -410,7 +410,62 @@ class MainWindow(QMainWindow, QObject):
 
     # TODO: сделать
     def patrol(self):
+
+# patrol = self.doc.findFirst('.patrol')
+# job_time = patrol.findFirst('select[name=time]')
+# #hours = job_time.findAll('option').count()
+# #print('Доступно %s.', hours)
+# job_time.evaluateJavaScript("this.selectedIndex = {}".format(0))
+
         self.alley()
+
+        # # TODO: проверять: print(self.doc.findFirst('.patrol .timeleft').toOuterXml())
+        # # <p class="timeleft">Осталось времени на сегодня: 120 минут</p>
+        #
+        # if self.is_ready():
+        #     patrol = self._mw.doc.findFirst('.patrol')
+        #
+        #     # TODO: сделать для патрулирования
+        #     # # TODO: повтор
+        #     # error = patrol.findFirst('.time .error')
+        #     # if not error.isNull() and 'На сегодня вы отработали свою максимальную смену' in error.toPlainText():
+        #     #     # TODO: повтор
+        #     #     # TODO: указывать точное время оставшееся до начала следующего дня
+        #     #     self._date_ready = datetime.today() + timedelta(hours=3)
+        #     #     logger.debug('На сегодня закончались часы работы в Шаурбургерсе.')
+        #     #     self._mw._used = False
+        #     #     return False
+        #
+        #     job_time = patrol.findFirst('select[name=time]')
+        #     times = job_time.findAll('option').count()
+        #
+        #     logger.info('Доступно %s минут патрулирования.', times * 10)
+        #
+        #     # По-умолчанию, работаем self._job_times, если оставшееся время работы, меньше self._job_times,
+        #     # работаем сколько можно
+        #     select_times = self._job_hours if times > self._job_hours else times
+        #
+        #     job_time.evaluateJavaScript("this.selectedIndex = {}".format(select_times - 1))
+        #     logger.debug("Начинаю патрулировать %s минут.", select_times * 10)
+        #
+        #     # TODO: повтор
+        #     # Указываем время до окончания работы, плюс 5 секунд -- на всякий
+        #     self._date_ready = datetime.today() + timedelta(minutes=select_times * 10, seconds=5)
+        #
+        #     # TODO: сделать для патрулирования
+        #     # self._mw.click_tag('.shaurburgers-work .button')
+        #     #
+        #     # self._mw.click_tag('.patrol #alley-patrol-button')
+        #     # <button id="alley-patrol-button" class="button" type="button" onclick="$('#patrolForm').trigger('submit');"><span class="f"><i class="rl"></i><i class="bl"></i><i class="brc"></i><div class="c">Патрулировать — <span class="tugriki">10<i></i></span>
+        #     # </div></span></button>
+        #     # print(self.doc.findFirst('.patrol #alley-patrol-button').toOuterXml())
+        #     #
+        #     # TODO: Для тестирования клика на кнопку запуск патрулирования
+        #     # self.doc.findFirst('.patrol').evaluateJavaScript("""
+        #     # this.onclick = function() {
+        #     #     alert('test');
+        #     # };
+        #     # """)
 
     def name(self):
         """Функция возвращает имя текущего персонажа."""
@@ -499,3 +554,8 @@ class MainWindow(QMainWindow, QObject):
         """Функция показывает окно сообщений в браузере, используя javascript функцию alert."""
 
         self.doc.evaluateJavaScript('alert("{}")'.format(text))
+
+    def slog(self, text):
+        """Функция для добавления текста в виджет-лог, находящегося на форме."""
+
+        self.ui.simple_log.appendPlainText(text)

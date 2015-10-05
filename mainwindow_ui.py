@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Thu Sep 10 17:43:50 2015
+# Created: Mon Oct  5 14:18:37 2015
 #      by: pyside-uic 0.2.15 running on PySide 1.2.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -69,6 +69,17 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.addWidget(self.code)
         self.dock_widget_exec.setWidget(self.dockWidgetContents_2)
         MainWindow.addDockWidget(QtCore.Qt.DockWidgetArea(2), self.dock_widget_exec)
+        self.dock_widget_simple_log = QtGui.QDockWidget(MainWindow)
+        self.dock_widget_simple_log.setObjectName("dock_widget_simple_log")
+        self.dockWidgetContents = QtGui.QWidget()
+        self.dockWidgetContents.setObjectName("dockWidgetContents")
+        self.verticalLayout_3 = QtGui.QVBoxLayout(self.dockWidgetContents)
+        self.verticalLayout_3.setObjectName("verticalLayout_3")
+        self.simple_log = QtGui.QPlainTextEdit(self.dockWidgetContents)
+        self.simple_log.setObjectName("simple_log")
+        self.verticalLayout_3.addWidget(self.simple_log)
+        self.dock_widget_simple_log.setWidget(self.dockWidgetContents)
+        MainWindow.addDockWidget(QtCore.Qt.DockWidgetArea(2), self.dock_widget_simple_log)
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -78,5 +89,6 @@ class Ui_MainWindow(object):
         self.run_pb.setText(QtGui.QApplication.translate("MainWindow", "run", None, QtGui.QApplication.UnicodeUTF8))
         self.dock_widget_exec.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Выполнение скрипта", None, QtGui.QApplication.UnicodeUTF8))
         self.button_exec.setText(QtGui.QApplication.translate("MainWindow", "Выполнить", None, QtGui.QApplication.UnicodeUTF8))
+        self.dock_widget_simple_log.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Простой лог", None, QtGui.QApplication.UnicodeUTF8))
 
 from PySide import QtWebKit

@@ -58,7 +58,6 @@ class Shaurburgers:
 
         return datetime.today() >= self._date_ready
 
-    # TODO: проверить, что работает: работа в Шаурбургерсе
     def run(self):
         """Функция используется для работы в Шаурбургерсе."""
 
@@ -94,8 +93,6 @@ class Shaurburgers:
 # без red
 
         self._mw.go_shaurburgers()
-        # if 'shaurburgers' not in self._mw.current_url():
-        #     self._mw.go_shaurburgers()
 
         if self.is_ready():
             work = self._mw.doc.findFirst('.shaurburgers-work')

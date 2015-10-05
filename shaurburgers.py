@@ -30,8 +30,7 @@ class Shaurburgers:
 
         # TODO: довести до ума
         if self._date_ready is None:
-            if 'shaurburgers' not in self._mw.current_url():
-                self._mw.go_shaurburgers()
+            self.go()
 
             work = self._mw.doc.findFirst('.shaurburgers-work')
             job_process = work.findFirst('.process .value')
@@ -92,7 +91,7 @@ class Shaurburgers:
 # TODO: или .shaurburgers/div[class="welcome red"] проверять на red, думаю, в нормалдьной ситуации welcome, будет
 # без red
 
-        self._mw.go_shaurburgers()
+        self.go()
 
         if self.is_ready():
             work = self._mw.doc.findFirst('.shaurburgers-work')
@@ -126,3 +125,8 @@ class Shaurburgers:
             self._mw.click_tag('.shaurburgers-work .button')
 
         self._mw._used = False
+
+    def go(self):
+        """Функция для перехода на страницу Шаурбургерса."""
+
+        self._mw.go('shaurburgers')

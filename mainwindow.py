@@ -247,8 +247,7 @@ class MainWindow(QMainWindow, QObject):
             'Восстановление жизней': self.restore_hp.run,
             'Варка нано-петриков': self.factory_petric.run,
             'Убрать таймаут Тонусом': self.fight.use_tonus,
-            'Шаурбургерс': self.go_shaurburgers,
-            # 'Шаурбургерс': self.shaurburgers.go,
+            'Шаурбургерс': self.shaurburgers.go,
             'Работать в Шаурбургерсе': self.shaurburgers.run,
             'Патрулировать': self.patrol,
         }
@@ -410,9 +409,6 @@ class MainWindow(QMainWindow, QObject):
 
     def home(self):
         self.go('home')
-
-    def go_shaurburgers(self):
-        self.go('shaurburgers')
 
     # TODO: сделать
     def patrol(self):

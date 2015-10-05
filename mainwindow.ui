@@ -73,6 +73,12 @@
      <height>21</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuDockWindow">
+    <property name="title">
+     <string>Окна</string>
+    </property>
+   </widget>
+   <addaction name="menuDockWindow"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QDockWidget" name="dock_widget_exec">
@@ -107,6 +113,19 @@
    <widget class="QWidget" name="dockWidgetContents">
     <layout class="QVBoxLayout" name="verticalLayout_3">
      <item>
+      <widget class="QToolButton" name="clear_slog">
+       <property name="toolTip">
+        <string>Очистить лог</string>
+       </property>
+       <property name="statusTip">
+        <string>Очистить лог</string>
+       </property>
+       <property name="text">
+        <string>Очистить лог</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPlainTextEdit" name="simple_log"/>
      </item>
     </layout>
@@ -121,5 +140,22 @@
   </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>clear_slog</sender>
+   <signal>clicked()</signal>
+   <receiver>simple_log</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>612</x>
+     <y>345</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>709</x>
+     <y>452</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

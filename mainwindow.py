@@ -207,6 +207,12 @@ class MainWindow(QMainWindow, QObject):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
+        # Все действия к прикрепляемым окнам поместим в меню
+        for dock in self.findChildren(QDockWidget):
+            self.ui.menuDockWindow.addAction(dock.toggleViewAction())
+
+        # TODO: сохранять/загружать состояние главного окна в конфиг
+
         self.moswar_url = 'http://www.moswar.ru/'
 
         # Чтобы не было проблем запуска компов с прокси:

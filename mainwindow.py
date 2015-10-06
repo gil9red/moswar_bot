@@ -194,12 +194,6 @@ from common import *
 # #         print(name, gift.findFirst('.button').attribute('id'))
 
 
-# TODO: патрулирование в закоулках
-
-
-# TODO: добавить на форму кнопку старт/стоп для таймера self._task_timer
-
-
 logger = get_logger('moswar_bot')
 
 
@@ -213,6 +207,10 @@ class MainWindow(QMainWindow, QObject):
         # Все действия к прикрепляемым окнам поместим в меню
         for dock in self.findChildren(QDockWidget):
             self.ui.menuDockWindow.addAction(dock.toggleViewAction())
+
+        # Все действия к toolbar'ам окнам поместим в меню
+        for tool in self.findChildren(QToolBar):
+            self.ui.menuTools.addAction(tool.toggleViewAction())
 
         # TODO: сохранять/загружать состояние главного окна в конфиг
 
@@ -267,6 +265,9 @@ class MainWindow(QMainWindow, QObject):
         self._task_timer = QTimer()
         self._task_timer.setSingleShot(True)
         self._task_timer.timeout.connect(self._task_tick)
+
+        self.ui.actionStartTimer.triggered.connect(self._task_tick)
+        self.ui.actionStopTimer.triggered.connect(self._task_timer.stop)
 
         # Если стоит True -- происходит выполнение задачи и функция _task_tick прерывается
         self._used = False

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Mon Oct  5 14:49:36 2015
+# Created: Tue Oct  6 20:22:33 2015
 #      by: pyside-uic 0.2.15 running on PySide 1.2.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -53,6 +53,8 @@ class Ui_MainWindow(object):
         self.menubar.setObjectName("menubar")
         self.menuDockWindow = QtGui.QMenu(self.menubar)
         self.menuDockWindow.setObjectName("menuDockWindow")
+        self.menuTools = QtGui.QMenu(self.menubar)
+        self.menuTools.setObjectName("menuTools")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtGui.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
@@ -76,6 +78,8 @@ class Ui_MainWindow(object):
         self.dockWidgetContents = QtGui.QWidget()
         self.dockWidgetContents.setObjectName("dockWidgetContents")
         self.verticalLayout_3 = QtGui.QVBoxLayout(self.dockWidgetContents)
+        self.verticalLayout_3.setSpacing(3)
+        self.verticalLayout_3.setContentsMargins(-1, 3, -1, -1)
         self.verticalLayout_3.setObjectName("verticalLayout_3")
         self.clear_slog = QtGui.QToolButton(self.dockWidgetContents)
         self.clear_slog.setObjectName("clear_slog")
@@ -85,7 +89,17 @@ class Ui_MainWindow(object):
         self.verticalLayout_3.addWidget(self.simple_log)
         self.dock_widget_simple_log.setWidget(self.dockWidgetContents)
         MainWindow.addDockWidget(QtCore.Qt.DockWidgetArea(2), self.dock_widget_simple_log)
+        self.toolBarGeneral = QtGui.QToolBar(MainWindow)
+        self.toolBarGeneral.setObjectName("toolBarGeneral")
+        MainWindow.addToolBar(QtCore.Qt.TopToolBarArea, self.toolBarGeneral)
+        self.actionStartTimer = QtGui.QAction(MainWindow)
+        self.actionStartTimer.setObjectName("actionStartTimer")
+        self.actionStopTimer = QtGui.QAction(MainWindow)
+        self.actionStopTimer.setObjectName("actionStopTimer")
         self.menubar.addAction(self.menuDockWindow.menuAction())
+        self.menubar.addAction(self.menuTools.menuAction())
+        self.toolBarGeneral.addAction(self.actionStartTimer)
+        self.toolBarGeneral.addAction(self.actionStopTimer)
 
         self.retranslateUi(MainWindow)
         QtCore.QObject.connect(self.clear_slog, QtCore.SIGNAL("clicked()"), self.simple_log.clear)
@@ -95,11 +109,17 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Бот moswar\'а", None, QtGui.QApplication.UnicodeUTF8))
         self.run_pb.setText(QtGui.QApplication.translate("MainWindow", "run", None, QtGui.QApplication.UnicodeUTF8))
         self.menuDockWindow.setTitle(QtGui.QApplication.translate("MainWindow", "Окна", None, QtGui.QApplication.UnicodeUTF8))
+        self.menuTools.setTitle(QtGui.QApplication.translate("MainWindow", "Tools", None, QtGui.QApplication.UnicodeUTF8))
         self.dock_widget_exec.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Выполнение скрипта", None, QtGui.QApplication.UnicodeUTF8))
         self.button_exec.setText(QtGui.QApplication.translate("MainWindow", "Выполнить", None, QtGui.QApplication.UnicodeUTF8))
         self.dock_widget_simple_log.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Простой лог", None, QtGui.QApplication.UnicodeUTF8))
         self.clear_slog.setToolTip(QtGui.QApplication.translate("MainWindow", "Очистить лог", None, QtGui.QApplication.UnicodeUTF8))
         self.clear_slog.setStatusTip(QtGui.QApplication.translate("MainWindow", "Очистить лог", None, QtGui.QApplication.UnicodeUTF8))
         self.clear_slog.setText(QtGui.QApplication.translate("MainWindow", "Очистить лог", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolBarGeneral.setWindowTitle(QtGui.QApplication.translate("MainWindow", "General", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionStartTimer.setText(QtGui.QApplication.translate("MainWindow", "Start Timer", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionStartTimer.setToolTip(QtGui.QApplication.translate("MainWindow", "Start Timer", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionStopTimer.setText(QtGui.QApplication.translate("MainWindow", "Stop Timer", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionStopTimer.setToolTip(QtGui.QApplication.translate("MainWindow", "Stop Timer", None, QtGui.QApplication.UnicodeUTF8))
 
 from PySide import QtWebKit

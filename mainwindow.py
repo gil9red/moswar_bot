@@ -212,6 +212,13 @@ class MainWindow(QMainWindow, QObject):
         for tool in self.findChildren(QToolBar):
             self.ui.menuTools.addAction(tool.toggleViewAction())
 
+        self.progress_bar = QProgressBar()
+        self.progress_bar_timer = QTimer()
+        self.progress_bar_timer.setInterval(1000)
+        self.progress_bar_timer.timeout.connect(lambda x=None: self.progress_bar.setValue(self.progress_bar.value() - 1))
+        self.progress_bar.valueChanged.connect(lambda value: self.progress_bar_timer.stop() if self.progress_bar.value() <= 0 else None)
+        self.ui.statusbar.addWidget(self.progress_bar)
+
         # TODO: сохранять/загружать состояние главного окна в конфиг
 
         self.moswar_url = 'http://www.moswar.ru/'
@@ -268,6 +275,7 @@ class MainWindow(QMainWindow, QObject):
 
         self.ui.actionStartTimer.triggered.connect(self._task_tick)
         self.ui.actionStopTimer.triggered.connect(self._task_timer.stop)
+        self.ui.actionStopTimer.triggered.connect(self.progress_bar_timer.stop)
 
         # Если стоит True -- происходит выполнение задачи и функция _task_tick прерывается
         self._used = False
@@ -310,8 +318,13 @@ class MainWindow(QMainWindow, QObject):
         # Следующий вызов будет случайным от 3 до 10 минут + немного случайных секунд
         interval = (randint(3, 10) + random()) * 60 * 1000
         interval = int(interval)
-        logger.debug('Повторный запуск задач через %s секунд.', interval / 1000)
+        secs = interval / 1000
+        logger.debug('Повторный запуск задач через %s секунд.', secs)
         self._task_timer.start(interval)
+
+        self.progress_bar.setRange(0, secs)
+        self.progress_bar.setValue(secs)
+        self.progress_bar_timer.start()
 
     def _get_doc(self):
         return self.ui.view.page().mainFrame().documentElement()

@@ -11,14 +11,45 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Бот moswar'а</string>
+   <string>Бот moswar</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
+       <widget class="QPushButton" name="pushButtonBackWebPage">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>25</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Back</string>
+        </property>
+        <property name="statusTip">
+         <string>Back</string>
+        </property>
+        <property name="text">
+         <string>&lt;-</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QLineEdit" name="url_le">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="readOnly">
          <bool>true</bool>
         </property>
@@ -38,6 +69,12 @@
         </item>
         <item>
          <widget class="QPushButton" name="run_pb">
+          <property name="maximumSize">
+           <size>
+            <width>35</width>
+            <height>16777215</height>
+           </size>
+          </property>
           <property name="text">
            <string>run</string>
           </property>

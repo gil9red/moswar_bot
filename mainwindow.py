@@ -220,6 +220,7 @@ class MainWindow(QMainWindow, QObject):
         self.ui.statusbar.addWidget(self.progress_bar)
 
         # TODO: сохранять/загружать состояние главного окна в конфиг
+        # TODO: показывать историю бота: self.view.history()
 
         self.moswar_url = 'http://www.moswar.ru/'
 
@@ -230,6 +231,7 @@ class MainWindow(QMainWindow, QObject):
 
         self.ui.view.urlChanged.connect(lambda x: self.ui.url_le.setText(x.toString()))
         self.ui.view.linkClicked.connect(lambda x: self.ui.url_le.setText(x.toString()))
+        self.ui.pushButtonBackWebPage.clicked.connect(self.ui.view.back)
 
         # При клике на кнопку, мы получаем значение data текущего элемента и вызываем функцию, хранящуюся там
         self.ui.run_pb.clicked.connect(lambda: self.ui.commands_cb.itemData(self.ui.commands_cb.currentIndex())())

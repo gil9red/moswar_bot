@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Tue Oct  6 20:22:33 2015
+# Created: Wed Oct  7 03:21:38 2015
 #      by: pyside-uic 0.2.15 running on PySide 1.2.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -19,7 +19,21 @@ class Ui_MainWindow(object):
         self.verticalLayout.setObjectName("verticalLayout")
         self.horizontalLayout_2 = QtGui.QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+        self.pushButtonBackWebPage = QtGui.QPushButton(self.centralwidget)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.pushButtonBackWebPage.sizePolicy().hasHeightForWidth())
+        self.pushButtonBackWebPage.setSizePolicy(sizePolicy)
+        self.pushButtonBackWebPage.setMaximumSize(QtCore.QSize(25, 16777215))
+        self.pushButtonBackWebPage.setObjectName("pushButtonBackWebPage")
+        self.horizontalLayout_2.addWidget(self.pushButtonBackWebPage)
         self.url_le = QtGui.QLineEdit(self.centralwidget)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.url_le.sizePolicy().hasHeightForWidth())
+        self.url_le.setSizePolicy(sizePolicy)
         self.url_le.setReadOnly(True)
         self.url_le.setObjectName("url_le")
         self.horizontalLayout_2.addWidget(self.url_le)
@@ -34,6 +48,7 @@ class Ui_MainWindow(object):
         self.commands_cb.setObjectName("commands_cb")
         self.horizontalLayout.addWidget(self.commands_cb)
         self.run_pb = QtGui.QPushButton(self.centralwidget)
+        self.run_pb.setMaximumSize(QtCore.QSize(35, 16777215))
         self.run_pb.setObjectName("run_pb")
         self.horizontalLayout.addWidget(self.run_pb)
         self.horizontalLayout_2.addLayout(self.horizontalLayout)
@@ -106,7 +121,10 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Бот moswar\'а", None, QtGui.QApplication.UnicodeUTF8))
+        MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Бот moswar", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButtonBackWebPage.setToolTip(QtGui.QApplication.translate("MainWindow", "Back", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButtonBackWebPage.setStatusTip(QtGui.QApplication.translate("MainWindow", "Back", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButtonBackWebPage.setText(QtGui.QApplication.translate("MainWindow", "<-", None, QtGui.QApplication.UnicodeUTF8))
         self.run_pb.setText(QtGui.QApplication.translate("MainWindow", "run", None, QtGui.QApplication.UnicodeUTF8))
         self.menuDockWindow.setTitle(QtGui.QApplication.translate("MainWindow", "Окна", None, QtGui.QApplication.UnicodeUTF8))
         self.menuTools.setTitle(QtGui.QApplication.translate("MainWindow", "Tools", None, QtGui.QApplication.UnicodeUTF8))

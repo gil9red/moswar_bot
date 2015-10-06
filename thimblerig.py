@@ -73,7 +73,8 @@ class Thimblerig(QObject):
             logger.warn('Бот в данный момент занят процессом "%s". Выхожу из функции.', self._mw._used_process)
             return
 
-        logger.debug('Начинаю игру в Наперстки.')
+        self._mw._used_process = "Игра в Наперстки"
+        logger.debug('Выполняю задание "%s".', self._mw._used_process)
 
         # TODO: наверное, уже не нужно
         # # Эмулируем клик на кнопку "Начать играть"
@@ -95,7 +96,6 @@ class Thimblerig(QObject):
                 return
 
         self._mw._used = True
-        self._mw._used_process = "Игра в Наперстки"
 
         t = time.clock()
 

@@ -163,6 +163,9 @@ class Fight(QObject):
             logger.warn('Бот в данный момент занят процессом "%s". Выхожу из функции.', self._mw._used_process)
             return
 
+        self._mw._used_process = "Нападение на игроков"
+        logger.debug('Выполняю задание "%s".', self._mw._used_process)
+
         self._mw.alley()
 
         # TODO: оптимиизровать использование сникерсов -- если они есть, сразу использовать и нападать и так,
@@ -173,7 +176,6 @@ class Fight(QObject):
             return
 
         self._mw._used = True
-        self._mw._used_process = "Нападение на игроков"
 
         # TODO: если есть тонус, использовать, чтобы сразу напасть
         # TODO: флаг на разрешение использования тонуса, чтобы сразу напасть

@@ -91,6 +91,8 @@ class Shaurburgers:
 # TODO: или .shaurburgers/div[class="welcome red"] проверять на red, думаю, в нормалдьной ситуации welcome, будет
 # без red
 
+        logger.debug('Выполняю задание "%s".', self._mw._used_process)
+
         self.go()
 
         if self.is_ready():

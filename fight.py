@@ -8,7 +8,7 @@ from urllib.parse import urljoin
 
 from PySide.QtCore import QObject, Signal, QTimer, QEventLoop
 
-from common import get_logger
+from common import get_logger, MoswarElementIsMissError
 from waitable import Waitable
 
 
@@ -39,6 +39,41 @@ logger = get_logger('fight')
 # [2015-09-22 23:48:25,574] mainwindow.py[LINE:498] DEBUG    Выполняю клик по тегу: div[class='button-big btn f1']
 
 
+# TODO: такое ощущение, что вместо клика на кнопку нападения перса, бот как-то кликает на имя противника, что
+# является ссылкой и после ждет результатов боя
+# [2015-09-29 21:42:12,927] fight.py[LINE:144] DEBUG    Нажимаю на кнопку "Отнять у слабого".
+# [2015-09-29 21:42:12,927] mainwindow.py[LINE:469] DEBUG    Выполняю клик по тегу: div[class='button-big btn f1']
+# [2015-09-29 21:42:13,794] fight.py[LINE:160] DEBUG    Нападаем на " seryvolk" [13]: http://www.moswar.ru/player/22038/.
+# [2015-09-29 21:42:13,794] mainwindow.py[LINE:469] DEBUG    Выполняю клик по тегу: .button-fight a
+# [2015-09-29 21:42:14,338] waitable.py[LINE:40] DEBUG    Текущий адрес: http://www.moswar.ru/alley/.
+# [2015-09-29 21:42:14,338] waitable.py[LINE:99] DEBUG    Ищу элемент: .result. Количество попыток: 30. Интервал: 1000.
+# [2015-09-29 21:42:44,744] waitable.py[LINE:80] WARNING  Закончилось количество попыток найти элемент: .result.
+# [2015-09-29 21:42:44,745] waitable.py[LINE:81] DEBUG    Текущий адрес: http://www.moswar.ru/alley/.
+# Traceback (most recent call last):
+#   File "C:\Users\ipetrash\Projects\moswar_bot\mainwindow.py", line 287, in _task_tick
+# [2015-09-29 21:42:44,749] waitable.py[LINE:82] DEBUG    Текущая страница сохранена в файл: 21.42.44.html.
+#     self.fight.run()
+#   File "C:\Users\ipetrash\Projects\moswar_bot\fight.py", line 166, in run
+#     self.handle_results()
+#   File "C:\Users\ipetrash\Projects\moswar_bot\fight.py", line 184, in handle_results
+#     tugriki = int(tugriki)
+# ValueError: invalid literal for int() with base 10: ''
+
+
+# TODO: каким-то фигом имя и ссылка противника оказались неправильными, возможно не успели прогрузиться,
+# но при этом нападение прошло удачно
+# [2015-10-02 01:34:30,426] mainwindow.py[LINE:469] DEBUG    Выполняю клик по тегу: div[class='button-big btn f1']
+# [2015-10-02 01:34:31,157] fight.py[LINE:187] DEBUG    Нападаем на "" [10]: http://www.moswar.ru/clan/3658/.
+# [2015-10-02 01:34:31,157] mainwindow.py[LINE:469] DEBUG    Выполняю клик по тегу: .button-fight a
+# [2015-10-02 01:34:31,472] waitable.py[LINE:40] DEBUG    Текущий адрес: http://www.moswar.ru/alley/.
+# [2015-10-02 01:34:31,472] waitable.py[LINE:99] DEBUG    Ищу элемент: .result. Количество попыток: 30. Интервал: 1000.
+# [2015-10-02 01:34:32,481] waitable.py[LINE:72] DEBUG    Элемент найден.
+# [2015-10-02 01:34:32,482] fight.py[LINE:240] DEBUG    Результат боя:
+#   Монеты: 8768
+#   Опыт: 2
+#   Кирпич: 2
+
+
 class Fight(QObject):
     def __init__(self, mw):
         super().__init__()
@@ -65,11 +100,22 @@ class Fight(QObject):
         self._timer_next_enemy.setSingleShot(True)
         self._timer_next_enemy.timeout.connect(self._next_enemy)
 
-        # Информация о противнике: имя, уровень, url, выигрыш
+        # Информация о противнике: имя, уровень, url
         self.enemy_name = None
         self.enemy_level = None
         self.enemy_url = None
-        self.enemy_received_money = None
+
+        # Выигрыш / проигрыш. Если проигрыш, self.is_winner будет равен False
+        self.received_money = None
+
+        # True если победили мы, False если противник и None если ничья
+        self.is_winner = None
+
+        # Минимальная разница в уровне с противником. Эта величина вычитается из текущего уровня персонажа.
+        self.min_diff_levels = 0
+
+        # Максимальная разница в уровне с противником. Эта величина добавляется к текущему уровню персонажа.
+        self.max_diff_levels = 99
 
     # Сигнал вызывается, когда противник на странице найден -- например, страница загрузилась
     _enemy_load_finished = Signal()
@@ -113,9 +159,14 @@ class Fight(QObject):
         Уровень противника в пределах нашего +/- 1
         """
 
-        # TODO: этот метод уже вызывается в is_ready
-        # # Идем в Закоулки
-        # self._mw.alley()
+        if self._mw._used:
+            logger.warn('Бот в данный момент занят процессом "%s". Выхожу из функции.', self._mw._used_process)
+            return
+
+        self._mw._used_process = "Нападение на игроков"
+        logger.debug('Выполняю задание "%s".', self._mw._used_process)
+
+        self._mw.alley()
 
         # TODO: оптимиизровать использование сникерсов -- если они есть, сразу использовать и нападать и так,
         # пока не будут потрачены все
@@ -125,7 +176,6 @@ class Fight(QObject):
             return
 
         self._mw._used = True
-        self._mw._used_process = "Нападение на игроков"
 
         # TODO: если есть тонус, использовать, чтобы сразу напасть
         # TODO: флаг на разрешение использования тонуса, чтобы сразу напасть
@@ -162,10 +212,19 @@ class Fight(QObject):
 
         self._mw._used = False
 
+    def name_winner(self):
+        """Функция возвращает имя победителя в драке."""
+
+        try:
+            name = self._mw.doc.findFirst('.result div').toPlainText()
+            name = name.replace('Победитель:', '')
+            name = name[:name.rindex('[')]
+            return name.strip()
+        except Exception as e:
+            raise MoswarElementIsMissError(e)
+
     def handle_results(self):
         """Обработка результата боя."""
-
-        # TODO: учитывать проигрыш
 
         result = '.result'
 
@@ -175,9 +234,18 @@ class Fight(QObject):
         # Найдем элемент, в котором будут все результаты боя
         result = self._mw.doc.findFirst(result)
 
+        if 'Ничья!' in result.toPlainText():
+            self.is_winner = None
+            self.received_money = 0
+            logger.debug('Результат боя: Ничья.')
+            return
+
+        # Проверим по именам кто победил
+        self.is_winner = self._mw.name() == self.name_winner()
+
         tugriki = result.findFirst('.tugriki').toPlainText().replace(',', '')
         tugriki = int(tugriki)
-        self.enemy_received_money = tugriki
+        self.received_money = tugriki
 
         # Сначала покажем выигранные монет и опыт, потом все остальное. Список используется для того, чтобы
         # порядок вывода результата боя был в порядке добавления элементов в этот список
@@ -205,9 +273,15 @@ class Fight(QObject):
         for key in result_item_keys:
             result_list.append('  {}: {}'.format(key, result_dict[key]))
 
-        logger.debug('Результат боя:\n' + '\n'.join(result_list))
+        result_str = 'Результат боя:'
+        if not self.is_winner:
+            result_str += ' Бой проигран. Вся награда достается противнику.'
 
-    # TODO: проверить
+        result_str += '\n'
+        result_str += '\n'.join(result_list)
+
+        logger.debug(result_str)
+
     # TODO: работает только в Закоулках
     def has_tonus(self):
         """Функция возвратит True, если можно использовать Тонус для сброса таймера, иначе False."""
@@ -215,7 +289,6 @@ class Fight(QObject):
         button = self._mw.doc.findFirst(self._css_path_button_use_tonus)
         return not button.isNull()
 
-    # TODO: проверить работу
     def use_tonus(self):
         """Функция для использования Тонуса, для сброса таймаута между драками.
         Возвращает True, если получилось, иначе False."""
@@ -295,15 +368,14 @@ class Fight(QObject):
         # Адрес противника
         url = urljoin(self._mw.moswar_url, a.attribute('href'))
 
-        # Проверяем, что нападаем на горожанина и разница в уровнях небольшая
-        # found = is_npc and level - 1 <= self._mw.level() <= level + 1
-        # TODO: ищем нашего уровня или выше
-        found = is_npc and level >= self._mw.level() <= level + 1
+        my_level = self._mw.level()
 
-        # TODO: диапазон уровней, на которые нападаем делать настраивыми
-        # # TODO: Тупо ищем противника уровнем выше -- нужно получать максимальное количество искр
-        # found = is_npc and self._mw.level() + 1 == level
+        # TODO: добавить ограничение на количество попыток найти гражданина, перед тем как напасть на игрока
 
+        # Проверяем, что уровень противника находится в пределе диапазона
+        check_level = my_level - self.min_diff_levels <= level <= my_level + self.max_diff_levels
+
+        found = is_npc and check_level
         if found:
             self.enemy_name = name
             self.enemy_level = level

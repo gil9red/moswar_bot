@@ -17,8 +17,9 @@ from thimblerig import Thimblerig
 from fight import Fight
 from restore_hp import RestoreHP
 from factory_petric import FactoryPetric
+from shaurburgers import Shaurburgers
+from patrol import Patrol
 from common import *
-from waitable import Waitable
 
 
 # TODO: обработка ситуации: Задержка за бои
@@ -193,24 +194,6 @@ from waitable import Waitable
 # #         print(name, gift.findFirst('.button').attribute('id'))
 
 
-# TODO: выходить из подобной ситуации
-# [2015-09-21 17:54:29,517] fight.py[LINE:131] DEBUG    Нападаем на " larsson40" [8]: http://www.moswar.ru/player/413160/.
-# [2015-09-21 17:54:29,517] mainwindow.py[LINE:391] DEBUG    Выполняю клик по тегу: .button-fight a
-# [2015-09-21 17:54:31,085] waitable.py[LINE:75] DEBUG    Ищу элемент: .result. Количество попыток: 10.
-# [2015-09-21 17:54:34,506] waitable.py[LINE:67] WARNING  Закончилось количество попыток найти элемент: .result.
-# Traceback (most recent call last):
-#   File "C:\Users\ipetrash\Projects\moswar_bot\mainwindow.py", line 221, in _task_tick
-#
-#   File "C:\Users\ipetrash\Projects\moswar_bot\fight.py", line 137, in run
-#     self.handle_results()
-#   File "C:\Users\ipetrash\Projects\moswar_bot\fight.py", line 155, in handle_results
-#     tugriki = int(tugriki)
-# ValueError: invalid literal for int() with base 10: ''
-
-
-# TODO: патрулирование в закоулках
-
-
 logger = get_logger('moswar_bot')
 
 
@@ -221,6 +204,24 @@ class MainWindow(QMainWindow, QObject):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
+        # Все действия к прикрепляемым окнам поместим в меню
+        for dock in self.findChildren(QDockWidget):
+            self.ui.menuDockWindow.addAction(dock.toggleViewAction())
+
+        # Все действия к toolbar'ам окнам поместим в меню
+        for tool in self.findChildren(QToolBar):
+            self.ui.menuTools.addAction(tool.toggleViewAction())
+
+        self.progress_bar = QProgressBar()
+        self.progress_bar_timer = QTimer()
+        self.progress_bar_timer.setInterval(1000)
+        self.progress_bar_timer.timeout.connect(lambda x=None: self.progress_bar.setValue(self.progress_bar.value() - 1))
+        self.progress_bar.valueChanged.connect(lambda value: self.progress_bar_timer.stop() if self.progress_bar.value() <= 0 else None)
+        self.ui.statusbar.addWidget(self.progress_bar)
+
+        # TODO: сохранять/загружать состояние главного окна в конфиг
+        # TODO: показывать историю бота: self.view.history()
+
         self.moswar_url = 'http://www.moswar.ru/'
 
         # Чтобы не было проблем запуска компов с прокси:
@@ -230,6 +231,7 @@ class MainWindow(QMainWindow, QObject):
 
         self.ui.view.urlChanged.connect(lambda x: self.ui.url_le.setText(x.toString()))
         self.ui.view.linkClicked.connect(lambda x: self.ui.url_le.setText(x.toString()))
+        self.ui.pushButtonBackWebPage.clicked.connect(self.ui.view.back)
 
         # При клике на кнопку, мы получаем значение data текущего элемента и вызываем функцию, хранящуюся там
         self.ui.run_pb.clicked.connect(lambda: self.ui.commands_cb.itemData(self.ui.commands_cb.currentIndex())())
@@ -238,6 +240,8 @@ class MainWindow(QMainWindow, QObject):
         self.fight = Fight(self)
         self.restore_hp = RestoreHP(self)
         self.factory_petric = FactoryPetric(self)
+        self.shaurburgers = Shaurburgers(self)
+        self.patrol = Patrol(self)
 
         # Список действий бота
         self.name_action_dict = {
@@ -254,7 +258,9 @@ class MainWindow(QMainWindow, QObject):
             'Восстановление жизней': self.restore_hp.run,
             'Варка нано-петриков': self.factory_petric.run,
             'Убрать таймаут Тонусом': self.fight.use_tonus,
-            'Шаурбургерс': self.shaurburgers,
+            'Шаурбургерс': self.shaurburgers.go,
+            'Работать в Шаурбургерсе': self.shaurburgers.run,
+            'Патрулировать': self.patrol.run,
         }
 
         # Добавляем команды
@@ -269,6 +275,10 @@ class MainWindow(QMainWindow, QObject):
         self._task_timer.setSingleShot(True)
         self._task_timer.timeout.connect(self._task_tick)
 
+        self.ui.actionStartTimer.triggered.connect(self._task_tick)
+        self.ui.actionStopTimer.triggered.connect(self._task_timer.stop)
+        self.ui.actionStopTimer.triggered.connect(self.progress_bar_timer.stop)
+
         # Если стоит True -- происходит выполнение задачи и функция _task_tick прерывается
         self._used = False
 
@@ -276,7 +286,7 @@ class MainWindow(QMainWindow, QObject):
         self._used_process = None
 
         # Минимальная сумма для игры в Наперстки
-        self.min_money_for_thimblerig = 500000
+        self.min_money_for_thimblerig = 350000
 
     def _task_tick(self):
         """Функция для запуска задач."""
@@ -286,8 +296,15 @@ class MainWindow(QMainWindow, QObject):
         else:
             logger.debug('Запуск задач.')
 
-            if self.money() >= self.min_money_for_thimblerig:
+            # Если уже играем в Наперстки или набрали нужную сумму для игры в Наперстки
+            if 'thimble' in self.current_url() or self.money() >= self.min_money_for_thimblerig:
                 self.thimblerig.run()
+
+            elif self.shaurburgers.is_ready():
+                self.shaurburgers.run()
+
+            elif self.patrol.is_ready():
+                self.patrol.run()
 
             elif self.factory_petric.is_ready():
                 self.factory_petric.run()
@@ -303,8 +320,13 @@ class MainWindow(QMainWindow, QObject):
         # Следующий вызов будет случайным от 3 до 10 минут + немного случайных секунд
         interval = (randint(3, 10) + random()) * 60 * 1000
         interval = int(interval)
-        logger.debug('Повторный запуск задач через %s секунд.', interval / 1000)
+        secs = interval / 1000
+        logger.debug('Повторный запуск задач через %s секунд.', secs)
         self._task_timer.start(interval)
+
+        self.progress_bar.setRange(0, secs)
+        self.progress_bar.setValue(secs)
+        self.progress_bar_timer.start()
 
     def _get_doc(self):
         return self.ui.view.page().mainFrame().documentElement()
@@ -411,30 +433,16 @@ class MainWindow(QMainWindow, QObject):
     def home(self):
         self.go('home')
 
-    def shaurburgers(self):
-# TODO: работа в Шаурбургерсе
-#
-# work = self.doc.findFirst('.shaurburgers-work')
-#
-# job_process = work.findFirst('.process .value')
-# if not job_process.isNull():
-#     logger.debug("Работа в Шаурбургерсе еще не закончена, осталось %s секунд.", job_process.attribute('timer'))
-#     return
-#
-# job_time = work.findFirst('select[name=time]')
-# hours = job_time.findAll('option').count()
-#
-# # По-умолчанию, 4 часа, если оставшееся время работы, меньше 4 часов,
-# # работаем сколько можно
-# select_hour = 4 if hours > 4 else hours
-#
-# job_time.evaluateJavaScript("this.selectedIndex = {}".format(select_hour - 1))
-#
-# logger.debug("Начинаю работать в Шаурбергерсе %s часов.", select_hour)
-#
-# self.click_tag('.shaurburgers-work .button')
+    def name(self):
+        """Функция возвращает имя текущего персонажа."""
 
-        self.go('shaurburgers')
+        try:
+            css_path = '#personal .name'
+            name = self.doc.findFirst(css_path).toPlainText()
+            name = name[:name.rindex('[')]
+            return name.strip()
+        except Exception as e:
+            raise MoswarElementIsMissError(e)
 
     def money(self):
         """Функция возвращает количество денег персонажа."""
@@ -512,3 +520,8 @@ class MainWindow(QMainWindow, QObject):
         """Функция показывает окно сообщений в браузере, используя javascript функцию alert."""
 
         self.doc.evaluateJavaScript('alert("{}")'.format(text))
+
+    def slog(self, text):
+        """Функция для добавления текста в виджет-лог, находящегося на форме."""
+
+        self.ui.simple_log.appendPlainText(text)

@@ -23,7 +23,7 @@ class FactoryPetric:
         self._date_ready = None
 
     def is_ready(self):
-        """Возвращает True, если вызов метода run будет иметь смысл -- можем напасть, иначе False."""
+        """Возвращает True, если вызов метода run будет иметь смысл, иначе False."""
 
         if self._date_ready is None:
             # return True
@@ -58,20 +58,20 @@ class FactoryPetric:
             logger.warn('Бот в данный момент занят процессом "%s". Выхожу из функции.', self._mw._used_process)
             return
 
-        self._mw._used = True
         self._mw._used_process = "Производство нано-петриков"
 
         # TODO: учеть моментальное проивзодство -- если есть 2 кнопки -- можем готовить
         # TODO: вызывать себя же в таймере, пока не появится полоса загрузки производства
-        logger.debug('Выполняю переработку петриков.')
+        logger.debug('Выполняю задание "%s".', self._mw._used_process)
 
         self._mw.factory()
 
         # Проверяем перенаправление адресов
         if 'factory' not in self._mw.current_url():
             logger.warn('Перенаправление адреса на "%s". Выхожу из функции.', self._mw.current_url())
-            self._mw._used = False
             return
+
+        self._mw._used = True
 
         # TODO: путь %button% кликает лаборатна за 3 меда, что не очень хорошо -- нужно различать их и
         # кликать только переработку
@@ -93,8 +93,6 @@ class FactoryPetric:
 
             logger.debug('До окончания переработки осталось %s секунд.', timer)
 
-            self._mw._used = False
-
         # Иначе кликаем на кнопку "Начать переработку"
         elif not button.isNull():
             logger.debug('Нажимаю на кнопку "Начать переработку".')
@@ -104,8 +102,9 @@ class FactoryPetric:
             # Указываем время готовности -- 1 час, плюс на всякий минуту добавим
             self._date_ready = datetime.today() + timedelta(hours=1, minutes=1)
 
-            self._mw._used = False
-
         else:
+            self._mw._used = False
             raise MoswarElementIsMissError('Не найдена кнопка "Начать переработку" и полоса '
                                            'прогресса переработки в нано-петрики')
+
+        self._mw._used = False

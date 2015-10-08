@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+# !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 __author__ = 'ipetrash'
@@ -21,16 +21,18 @@ if __name__ == '__main__':
 
     sys.exit(app.exec_())
 
-    # from PySide.QtWebKit import *
-    # view = QWebView()
-    # # view.setHtml(open('Ограбление корованов. Пустыня.htm', encoding='utf-8').read())
-    # view.setHtml("""        <div class="fighter2">
-    #       <span class="user ">
-    #            <i class="npc" title="Горожанин"></i>
-    #            <a onclick="return AngryAjax.goToUrl(this, event);" href="http://www.moswar.ru/player/38325/"> savteam</a>
-    #            <span class="level">[7]</span>
-    #        </span>
-    #      </div>""")
+    # mw.ui.view.setHtml(open('Закоулки.htm', encoding='utf-8').read())
+    #
+    # # from PySide.QtWebKit import *
+    # # view = QWebView()
+    # # view.setHtml(open('Закоулки.htm', encoding='utf-8').read())
+    # # # view.setHtml("""        <div class="fighter2">
+    # # #       <span class="user ">
+    # # #            <i class="npc" title="Горожанин"></i>
+    # # #            <a onclick="return AngryAjax.goToUrl(this, event);" href="http://www.moswar.ru/player/38325/"> savteam</a>
+    # # #            <span class="level">[7]</span>
+    # # #        </span>
+    # # #      </div>""")
     # # from PySide.QtCore import *
     # # timer = QTimer()
     # # timer.setSingleShot(True)
@@ -38,9 +40,8 @@ if __name__ == '__main__':
     # # loop = QEventLoop()
     # # timer.timeout.connect(loop.quit)
     # # loop.exec_()
+    # #
+    # # doc = view.page().mainFrame().documentElement()
+    # # print(doc.findFirst('.patrol').toInnerXml())
     #
-    # doc = view.page().mainFrame().documentElement()
-    # print(doc.findFirst('.fighter2 a').attribute('href'))
-    #
-    # # view.show()
-    # # app.exec_()
+    # sys.exit(app.exec_())

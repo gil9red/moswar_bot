@@ -22,9 +22,6 @@ from patrol import Patrol
 from common import *
 
 
-# TODO: обработка ситуации: Задержка за бои
-
-
 # TODO: свой обработчик логов:
 # http://python-lab.blogspot.ru/2013/03/blog-post.html
 # http://stackoverflow.com/questions/2819791/how-can-i-redirect-the-logger-to-a-wxpython-textctrl-using-a-custom-logging-hand
@@ -370,6 +367,39 @@ class MainWindow(QMainWindow, QObject):
 
         self.wait_loading()
 
+        # Проверяем, что не случилось переадресации. Она возможна, например, при игре
+        # в наперстки или попадании в милицию
+        if relative_url is not None:
+            current_url = self.current_url()
+
+            # Сравниваем url'ы между собой. Такая проверка для обхода ситуации, когда QWebView отдает url
+            # со слешем на конце. Если сравнить их обычной проверкой (== или !=), то это будет неправильно.
+            # http://www.moswar.ru/shaurburgers/
+            #
+            # А сравниваем с:
+            # http://www.moswar.ru/shaurburgers
+            equal = url in current_url or current_url in url
+
+            # Если адреса не равны
+            if not equal:
+                self.slog(url + " -> " + current_url)
+                self.slog('Текущий заголовок: "{}"'.format(self.title()))
+                logger.warn('Похоже, случилась переадресация: шли на %s, а попали на %s.', url, current_url)
+
+                # TODO: обработка ситуации: Задержка за бои
+                # if self.title() == 'Милиция':
+                #     # TODO: если менты взяли за жопу, отправить запрос, чтобы дать взятку рудой
+                #     # на кнопку можно и не жать
+                #     # <div class="button" onclick="AngryAjax.goToUrl('/police/relations/');
+                #     #
+                #     # url полиции police, но url'ы иногда неправильно отображаются надежнее смотреть
+                #     # на заголовок страницы
+                #     # button = self.doc.findFirst('.police-relations .button')
+                #     # if not button.isNull():
+                #     #     # TODO: Нажать на кнопку что-то не получается, поэтому просто шлем запрос,
+                #     #     # который и так бы отослался при клике на кнопку
+                #     #     self.go('/police/relations/')
+
     def auth(self):
         """Функция загружает страницу мосвара, заполняет поля логина и пароля и нажимает на кнопку Войти.
         После нажатия на Войти происходит ожидание загрузки страницы.
@@ -492,6 +522,15 @@ class MainWindow(QMainWindow, QObject):
         except Exception as e:
             raise MoswarElementIsMissError(e)
 
+    def title(self):
+        """Функция возвращает заголовок текущей страницы."""
+
+        title = self.doc.findFirst('head title')
+        if title.isNull():
+            logger.warn('Не найден заголовок текущей страницы (%s).', self.current_url())
+
+        return title.toPlainText()
+
     # TODO: добавить возможность выбрать область поиска элемента для клика, а то она все время вся страница -- self.doc
     def click_tag(self, css_path):
         """Функция находит html тег по указанному пути и эмулирует клик на него.
@@ -524,4 +563,4 @@ class MainWindow(QMainWindow, QObject):
     def slog(self, text):
         """Функция для добавления текста в виджет-лог, находящегося на форме."""
 
-        self.ui.simple_log.appendPlainText(text)
+        self.ui.simple_log.appendPlainText('{}'.format(text))

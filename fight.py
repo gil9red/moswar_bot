@@ -207,6 +207,15 @@ class Fight(QObject):
         # Кликаем на кнопку "Напасть"
         self._mw.click_tag('.button-fight a')
 
+        # Перемотка битвы
+        forward = '#controls-forward'
+
+        # Ждем пока после клика прогрузится страница и появится элемент
+        Waitable(self._mw).wait(forward)
+
+        # Перематываем бой
+        self._mw.click_tag(forward)
+
         # Обрабатываем результаты боя
         self.handle_results()
 

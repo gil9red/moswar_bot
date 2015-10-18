@@ -73,7 +73,6 @@ class RestoreHP(QObject):
         button = self._restore_hp_window.findFirst('button')
         button.evaluateJavaScript('this.click()')
 
-        # TODO: проверить
         # Ждем пока жизни полностью восстановятся -- иначе может случится так, что
         # бот нападет в тот момент, когда жизни еще регенятся, и тогда не получится напасть и
         # бот дальше фазы выбора противника не продвинется

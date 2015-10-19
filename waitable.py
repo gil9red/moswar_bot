@@ -57,7 +57,7 @@ class Waitable(QObject):
             self._timer.stop()
             return
 
-        # TODO: ВОЗМОЖНО, пригодится. Поиск и проверка определены в лямбде _wait_check_func
+        # ВОЗМОЖНО, пригодится. Поиск и проверка определены в лямбде _wait_check_func
         # if self._wait_check_func(self._doc, self._element):
         #     logger.debug('Элемент найден.')
         #

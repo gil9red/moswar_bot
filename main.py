@@ -16,32 +16,30 @@ if __name__ == '__main__':
     mw.resize(1300, 800)
     mw.show()
 
+    # mw.ui.view.setHtml(open('[02 58 54] Задержан за бои - Милиция.htm', encoding='utf-8').read())
+
     # Загрузка страницы мосвара и авторизация
     mw.auth()
 
     sys.exit(app.exec_())
 
-    # mw.ui.view.setHtml(open('Закоулки.htm', encoding='utf-8').read())
+    # from PySide.QtWebKit import *
+    # view = QWebView()
+    # view.setHtml(open('[02 58 54] Задержан за бои - Милиция.htm', encoding='utf-8').read())
+    # # view.setHtml("""        <div class="fighter2">
+    # #       <span class="user ">
+    # #            <i class="npc" title="Горожанин"></i>
+    # #            <a onclick="return AngryAjax.goToUrl(this, event);" href="http://www.moswar.ru/player/38325/"> savteam</a>
+    # #            <span class="level">[7]</span>
+    # #        </span>
+    # #      </div>""")
+    # from PySide.QtCore import *
+    # timer = QTimer()
+    # timer.setSingleShot(True)
+    # timer.start(3000)
+    # loop = QEventLoop()
+    # timer.timeout.connect(loop.quit)
+    # loop.exec_()
     #
-    # # from PySide.QtWebKit import *
-    # # view = QWebView()
-    # # view.setHtml(open('Закоулки.htm', encoding='utf-8').read())
-    # # # view.setHtml("""        <div class="fighter2">
-    # # #       <span class="user ">
-    # # #            <i class="npc" title="Горожанин"></i>
-    # # #            <a onclick="return AngryAjax.goToUrl(this, event);" href="http://www.moswar.ru/player/38325/"> savteam</a>
-    # # #            <span class="level">[7]</span>
-    # # #        </span>
-    # # #      </div>""")
-    # # from PySide.QtCore import *
-    # # timer = QTimer()
-    # # timer.setSingleShot(True)
-    # # timer.start(3000)
-    # # loop = QEventLoop()
-    # # timer.timeout.connect(loop.quit)
-    # # loop.exec_()
-    # #
-    # # doc = view.page().mainFrame().documentElement()
-    # # print(doc.findFirst('.patrol').toInnerXml())
-    #
-    # sys.exit(app.exec_())
+    # doc = view.page().mainFrame().documentElement()
+    # print(doc.findFirst('head title').toPlainText())

@@ -13,9 +13,6 @@ from common import get_logger
 logger = get_logger('thimblerig')
 
 
-# TODO: Уменьшить время выбора наперстков
-
-
 class Thimblerig(QObject):
     """Класс для игры в наперстки в мосваре."""
 
@@ -53,6 +50,9 @@ class Thimblerig(QObject):
         self._ruda_count = 0
         self._thimble_round_count = 0
 
+        # Сумма ниже которой играть не будем
+        self.min_money = 3000
+
     finished_thimble_game = Signal()
 
     def _get_ruda_count(self):
@@ -76,14 +76,7 @@ class Thimblerig(QObject):
         self._mw._used_process = "Игра в Наперстки"
         logger.debug('Выполняю задание "%s".', self._mw._used_process)
 
-        # TODO: наверное, уже не нужно
-        # # Эмулируем клик на кнопку "Начать играть"
-        # if 'thimble' not in self._mw.current_url():
-        #     self._mw.go('thimble/start')
-
         self._mw.metro()
-        # if 'metro' not in self._mw.current_url():
-        #     self._mw.metro()
 
         if 'metro' in self._mw.current_url():
             # TODO: временное решение проблемы с закончившимися билетами, лучше через окно сделать
@@ -106,7 +99,6 @@ class Thimblerig(QObject):
             self._mw.click_tag('.metro-thimble .button .c')
 
         # # TODO: не работает, т.к. окно не сразу появляется
-        # # TODO: проверить, что работает
         # for el in self._mw.doc.findAll('.alert'):
         #     text = el.findFirst('#alert-text')
         #
@@ -142,8 +134,7 @@ class Thimblerig(QObject):
     def nine_thimble(self):
         """Функция для начала игры в девять наперстков."""
 
-        # TODO: нижний предел суммы сделать настраивым
-        if self._mw.money() < 3000:
+        if self._mw.money() < self.min_money:
             self._timer_thimble.stop()
             logger.debug("Заканчиваю игру.")
             self.finished_thimble_game.emit()

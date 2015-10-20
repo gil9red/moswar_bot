@@ -11,6 +11,13 @@ from common import get_logger
 logger = get_logger('shaurburgers')
 
 
+# TODO: странно выглядит...
+# [2015-10-21 00:31:54,304] shaurburgers.py[LINE:114] INFO     Доступно 0 часов работы в Шаурбургерсе.
+# [2015-10-21 00:31:54,305] shaurburgers.py[LINE:121] DEBUG    Начинаю работать в Шаурбургерсе 0 часов.
+# [2015-10-21 00:31:54,305] mainwindow.py[LINE:543] DEBUG    Выполняю клик по тегу: .shaurburgers-work .button
+# [2015-10-21 00:31:54,602] mainwindow.py[LINE:303] DEBUG    Повторный запуск задач через 501.677 секунд.
+
+
 class Shaurburgers:
     """Класс для работы в Шаурбургерсе."""
 

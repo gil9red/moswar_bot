@@ -28,24 +28,6 @@ from common import *
 # http://stackoverflow.com/questions/3118059/how-to-write-custom-python-logging-handler
 
 
-# TODO: level up:
-# <div id="content" class="levelup">
-# После левел апа нужно кликнуть на: <button class="button" type="submit">
-#
-# level_up = self.doc.findFirst('.levelup')
-# if not level_up.isNull():
-#     # Показать столько побед / награблено
-#     for td in level_up.findAll('td'):
-#         print(' '.join(td.toPlainText().split()))
-#
-#     # Ищем кнопку 'Вперед, к новым победам!' и кликаем на нее
-#     button = self.doc.findFirst('.levelup .button')
-#     if button.isNull():
-#         raise MoswarButtonIsMissError('Вперед, к новым победам!')
-#
-#     button.evaluateJavaScript('this.click()')
-
-
 # TODO: спорт-лото выигрыш, но без кнопки забирания выигрыша -- по ошибки тыкнул
 # <div class="center clear">
 # <h3>
@@ -398,6 +380,29 @@ class MainWindow(QMainWindow, QObject):
                         # Нажать на кнопку что-то не получается, поэтому просто шлем запрос,
                         # который и так бы отослался при клике на кнопку
                         self.go('/police/relations/')
+
+                # TODO: если новый уровень выпал в момент выполнения задания, то возможна такая неприятная
+                # ситуация: попадаем на is_ready таски, делается переход к локации такси, перенапрявляет нас
+                # на страницу поздравления, мы это определяем, кликаем на кнопку, в этот момент is_ready
+                # возвращает True, и мы попадаем в функцию выполнения, которая снова переходит на страницу локации
+                # и снова нас перенапрявляет, мы это определяем, кликаем и это так может случится несколько раз
+                # TODO: возвращать признак перенаправления и по нему таска сама решает -- отменить или нет свое
+                # выполнение
+                #
+                # Проверка на новый уровень
+                if 'quest' in current_url:
+                    level_up = self.doc.findFirst('.levelup')
+                    if not level_up.isNull():
+                        # Показать столько побед / награблено
+                        for td in level_up.findAll('td'):
+                            logger.debug('Получен новый уровень! Результат:\n' + ' '.join(td.toPlainText().split()))
+
+                        # Ищем кнопку 'Вперед, к новым победам!' и кликаем на нее
+                        button = self.doc.findFirst('.levelup .button')
+                        if button.isNull():
+                            raise MoswarButtonIsMissError('Вперед, к новым победам!')
+
+                        button.evaluateJavaScript('this.click()')
 
     def auth(self):
         """Функция загружает страницу мосвара, заполняет поля логина и пароля и нажимает на кнопку Войти.

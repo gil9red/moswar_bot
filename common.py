@@ -62,3 +62,5 @@ class MoswarAuthError(MoswarBotError):
 
 LOGIN = 'ilya.petrash@inbox.ru'
 PASSWORD = '0JHQu9GPRnVjazop'
+
+CONFIG_FILE = 'config'

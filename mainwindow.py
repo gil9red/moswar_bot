@@ -198,7 +198,6 @@ class MainWindow(QMainWindow, QObject):
         self.progress_bar.valueChanged.connect(lambda value: self.progress_bar_timer.stop() if self.progress_bar.value() <= 0 else None)
         self.ui.statusbar.addWidget(self.progress_bar)
 
-        # TODO: сохранять/загружать состояние главного окна в конфиг
         # TODO: показывать историю бота: self.view.history()
 
         self.moswar_url = 'http://www.moswar.ru/'
@@ -568,3 +567,18 @@ class MainWindow(QMainWindow, QObject):
         """Функция для добавления текста в виджет-лог, находящегося на форме."""
 
         self.ui.simple_log.appendPlainText('{}'.format(text))
+
+    def read_settings(self):
+        # TODO: при сложных настройках, лучше перейти на json или yaml
+        config = QSettings(CONFIG_FILE, QSettings.IniFormat)
+        self.restoreState(config.value('MainWindow_State'))
+        self.restoreGeometry(config.value('MainWindow_Geometry'))
+
+    def write_settings(self):
+        config = QSettings(CONFIG_FILE, QSettings.IniFormat)
+        config.setValue('MainWindow_State', self.saveState())
+        config.setValue('MainWindow_Geometry', self.saveGeometry())
+
+    def closeEvent(self, *args, **kwargs):
+        self.write_settings()
+        super().closeEvent(*args, **kwargs)

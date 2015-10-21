@@ -14,12 +14,13 @@ if __name__ == '__main__':
 
     mw = MainWindow()
     mw.resize(1300, 800)
+    mw.read_settings()
     mw.show()
 
     # mw.ui.view.setHtml(open('[02 58 54] Задержан за бои - Милиция.htm', encoding='utf-8').read())
 
-    # Загрузка страницы мосвара и авторизация
-    mw.auth()
+    # # Загрузка страницы мосвара и авторизация
+    # mw.auth()
 
     sys.exit(app.exec_())
 

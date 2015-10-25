@@ -375,9 +375,13 @@ class MainWindow(QMainWindow, QObject):
                 # url полиции police, но url'ы иногда неправильно возвращаются, поэтому надежнее смотреть
                 # на заголовок страницы
                 if self.title() == 'Милиция':
+                    logger.debug('Задержаны в милиции.')
+
                     # Ищем кнопку для налаживания связей рудой
                     button = self.doc.findFirst('.police-relations .button')
                     if not button.isNull():
+                        logger.debug('Плачу взятку рудой.')
+
                         # Нажать на кнопку что-то не получается, поэтому просто шлем запрос,
                         # который и так бы отослался при клике на кнопку
                         self.go('/police/relations/')

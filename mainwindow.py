@@ -292,7 +292,7 @@ class MainWindow(QMainWindow, QObject):
                     self.fight.run()
 
             except MoswarClosedError as e:
-                logger.error(e)
+                logger.warn(e)
 
                 # В случаи закрытия сайт, каждый час проверяем
                 interval = 60 * 60 * 1000

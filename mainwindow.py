@@ -291,18 +291,23 @@ class MainWindow(QMainWindow, QObject):
                 elif self.fight.is_ready():
                     self.fight.run()
 
-            except MoswarClosedError:
+            except MoswarClosedError as e:
+                logger.error(e)
+
                 # В случаи закрытия сайт, каждый час проверяем
                 interval = 60 * 60 * 1000
 
-            except MoswarBotError:
+            except MoswarBotError as e:
+                logger.error(e)
+
                 # Возможно, в следующий раз ошибки не будет
                 interval = 1 * 1000
 
             except Exception as e:
+                logger.error(e)
+
                 # Возможно, в следующий раз ошибки не будет
                 interval = 1 * 1000
-                logger.error(e)
 
                 import traceback
                 traceback.print_exc()

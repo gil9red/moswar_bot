@@ -266,6 +266,10 @@ class Fight(QObject):
             'Опыт': result.findFirst('.expa').toPlainText(),
         }
 
+        neft = result.findFirst('.neft')
+        if not neft.isNull():
+            result_dict['Нефть'] = int(neft.toPlainText())
+
         # Искры не всегда будут -- обычно перед праздниками они появляются
         sparkles = result.findFirst('.sparkles')
         if not sparkles.isNull():

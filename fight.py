@@ -268,6 +268,7 @@ class Fight(QObject):
 
         neft = result.findFirst('.neft')
         if not neft.isNull():
+            result_item_keys.append('Нефть')
             result_dict['Нефть'] = int(neft.toPlainText())
 
         # Искры не всегда будут -- обычно перед праздниками они появляются

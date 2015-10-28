@@ -277,9 +277,7 @@ class MainWindow(QMainWindow, QObject):
             try:
                 # Если уже играем в Наперстки или набрали нужную сумму для игры в Наперстки
                 if 'thimble' in self.current_url() or self.money() >= self.min_money_for_thimblerig:
-                    logger.debug('self.thimblerig.run() -> ')
                     self.thimblerig.run()
-                    logger.debug(' <- self.thimblerig.run()')
 
                 elif self.shaurburgers.is_ready():
                     self.shaurburgers.run()
@@ -322,8 +320,6 @@ class MainWindow(QMainWindow, QObject):
                 # Запускаем таймер выполнение задач
                 # Следующий вызов будет случайным от 3 до 10 минут + немного случайных секунд
                 interval = int((randint(3, 10) + random()) * 60 * 1000)
-
-        logger.debug(' interval = %s', interval)
 
         self._start_task_timer(interval)
 

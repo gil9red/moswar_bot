@@ -130,8 +130,6 @@ class Thimblerig(QObject):
             # Эмулируем клик на кнопку "Я наигрался, хватит"
             self._mw.go('thimble/leave')
 
-            logger.debug('end game')
-
         except MoswarClosedError:
             raise
 
@@ -140,8 +138,6 @@ class Thimblerig(QObject):
 
         finally:
             self._mw._used = False
-
-        logger.debug('close func')
 
     def nine_thimble(self):
         """Функция для начала игры в девять наперстков."""

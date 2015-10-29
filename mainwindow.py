@@ -274,30 +274,56 @@ class MainWindow(QMainWindow, QObject):
         else:
             logger.debug('Запуск задач.')
 
-            # Если уже играем в Наперстки или набрали нужную сумму для игры в Наперстки
-            if 'thimble' in self.current_url() or self.money() >= self.min_money_for_thimblerig:
-                self.thimblerig.run()
+            try:
+                # Если уже играем в Наперстки или набрали нужную сумму для игры в Наперстки
+                if 'thimble' in self.current_url() or self.money() >= self.min_money_for_thimblerig:
+                    self.thimblerig.run()
 
-            elif self.shaurburgers.is_ready():
-                self.shaurburgers.run()
+                elif self.shaurburgers.is_ready():
+                    self.shaurburgers.run()
 
-            elif self.patrol.is_ready():
-                self.patrol.run()
+                elif self.patrol.is_ready():
+                    self.patrol.run()
 
-            elif self.factory_petric.is_ready():
-                self.factory_petric.run()
+                elif self.factory_petric.is_ready():
+                    self.factory_petric.run()
 
-            elif self.fight.is_ready():
-                self.fight.run()
+                elif self.fight.is_ready():
+                    self.fight.run()
 
-        # TODO: настраивать interval: спрашивать у другиз модулей их таймауты (если есть) и выбирать
-        # наименьший, он и будет interval. Если же interval не был изменен, то задавать рандомное время
-        # Это позволит увеличить эффективность бота
+            except MoswarClosedError as e:
+                logger.warn(e)
 
-        # Запускаем таймер выполнение задач
-        # Следующий вызов будет случайным от 3 до 10 минут + немного случайных секунд
-        interval = (randint(3, 10) + random()) * 60 * 1000
-        interval = int(interval)
+                # В случаи закрытия сайт, каждый час проверяем
+                interval = 60 * 60 * 1000
+
+            except MoswarBotError as e:
+                logger.error(e)
+
+                # Возможно, в следующий раз ошибки не будет
+                interval = 1 * 1000
+
+            except Exception as e:
+                logger.error(e)
+
+                # Возможно, в следующий раз ошибки не будет
+                interval = 1 * 1000
+
+                import traceback
+                traceback.print_exc()
+
+            else:
+                # TODO: настраивать interval: спрашивать у другиз модулей их таймауты (если есть) и выбирать
+                # наименьший, он и будет interval. Если же interval не был изменен, то задавать рандомное время
+                # Это позволит увеличить эффективность бота
+
+                # Запускаем таймер выполнение задач
+                # Следующий вызов будет случайным от 3 до 10 минут + немного случайных секунд
+                interval = int((randint(3, 10) + random()) * 60 * 1000)
+
+        self._start_task_timer(interval)
+
+    def _start_task_timer(self, interval):
         secs = interval / 1000
         logger.debug('Повторный запуск задач через %s секунд.', secs)
         self._task_timer.start(interval)
@@ -328,86 +354,88 @@ class MainWindow(QMainWindow, QObject):
 
         logger.debug('Закончено ожидание загрузки страницы.')
 
-    def go(self, relative_url=None):
+    def go(self, relative_url):
         """Функция для загрузки страниц.
 
         Если вызывать без параметров, то загрузит основную страницу.
         Если указывать relative_url, то он будет присоединен к адресу мосвара.
         Функция ожидание окончания загрузки страницы.
 
+        Выбрасывает исключение MoswarClosedError, когда сайта закрыт (closed.html)
+
         """
 
-        if relative_url is None:
-            url = self.moswar_url
-        else:
-            url = urljoin(self.moswar_url, relative_url)
-
+        url = urljoin(self.moswar_url, relative_url)
         logger.debug('Перехожу по адресу "%s"', url)
 
         self.ui.view.load(url)
-
         self.wait_loading()
 
         # TODO: вынести обработку переадресаций в отдельную функцию
         # Проверяем, что не случилось переадресации. Она возможна, например, при игре
         # в наперстки или попадании в милицию
-        if relative_url is not None:
-            current_url = self.current_url()
+        current_url = self.current_url()
 
-            # Сравниваем url'ы между собой. Такая проверка для обхода ситуации, когда QWebView отдает url
-            # со слешем на конце. Если сравнить их обычной проверкой (== или !=), то это будет неправильно.
-            # http://www.moswar.ru/shaurburgers/
+        # Сравниваем url'ы между собой. Такая проверка для обхода ситуации, когда QWebView отдает url
+        # со слешем на конце. Если сравнить их обычной проверкой (== или !=), то это будет неправильно.
+        # http://www.moswar.ru/shaurburgers/
+        #
+        # А сравниваем с:
+        # http://www.moswar.ru/shaurburgers
+        equal = url in current_url or current_url in url
+
+        # Если адреса не равны
+        if not equal:
+            self.slog(url + " -> " + current_url)
+            self.slog('Текущий заголовок: "{}"'.format(self.title()))
+            logger.warn('Похоже, случилась переадресация: шли на %s, а попали на %s.', url, current_url)
+
+            # TODO: Для http://www.moswar.ru/closed.html описывать причину -- брать из auth()
+            # Проверка на временное отсутствие доступа к сайту
+            if 'closed.html' in current_url:
+                reason = self.doc.toPlainText().strip()
+                logger.warn('Закрыто, причина:\n%s', reason)
+
+                raise MoswarClosedError(reason)
+
+            # TODO: руды может не хватать, поэтому предусмотреть ситуацию, когда придется платить деньгами
+            # Обработка ситуации: Задержка за бои
+            # url полиции police, но url'ы иногда неправильно возвращаются, поэтому надежнее смотреть
+            # на заголовок страницы
+            if self.title() == 'Милиция':
+                logger.debug('Задержаны в милиции.')
+
+                # Ищем кнопку для налаживания связей рудой
+                button = self.doc.findFirst('.police-relations .button')
+                if not button.isNull():
+                    logger.debug('Плачу взятку рудой.')
+
+                    # Нажать на кнопку что-то не получается, поэтому просто шлем запрос,
+                    # который и так бы отослался при клике на кнопку
+                    self.go('police/relations')
+
+            # TODO: если новый уровень выпал в момент выполнения задания, то возможна такая неприятная
+            # ситуация: попадаем на is_ready таски, делается переход к локации такси, перенапрявляет нас
+            # на страницу поздравления, мы это определяем, кликаем на кнопку, в этот момент is_ready
+            # возвращает True, и мы попадаем в функцию выполнения, которая снова переходит на страницу локации
+            # и снова нас перенапрявляет, мы это определяем, кликаем и это так может случится несколько раз
+            # TODO: возвращать признак перенаправления и по нему таска сама решает -- отменить или нет свое
+            # выполнение
             #
-            # А сравниваем с:
-            # http://www.moswar.ru/shaurburgers
-            equal = url in current_url or current_url in url
+            # Проверка на новый уровень
+            if 'quest' in current_url:
+                level_up = self.doc.findFirst('.levelup')
+                if not level_up.isNull():
+                    # Показать столько побед / награблено
+                    for td in level_up.findAll('td'):
+                        logger.debug('Получен новый уровень! Результат:\n' + ' '.join(td.toPlainText().split()))
 
-            # Если адреса не равны
-            if not equal:
-                self.slog(url + " -> " + current_url)
-                self.slog('Текущий заголовок: "{}"'.format(self.title()))
-                logger.warn('Похоже, случилась переадресация: шли на %s, а попали на %s.', url, current_url)
+                    # Ищем кнопку 'Вперед, к новым победам!' и кликаем на нее
+                    button = self.doc.findFirst('.levelup .button')
+                    if button.isNull():
+                        raise MoswarButtonIsMissError('Вперед, к новым победам!')
 
-                # TODO: Для http://www.moswar.ru/closed.html описывать причину -- брать из auth()
-
-                # TODO: руды может не хватать, поэтому предусмотреть ситуацию, когда придется платить деньгами
-                # Обработка ситуации: Задержка за бои
-                # url полиции police, но url'ы иногда неправильно возвращаются, поэтому надежнее смотреть
-                # на заголовок страницы
-                if self.title() == 'Милиция':
-                    logger.debug('Задержаны в милиции.')
-
-                    # Ищем кнопку для налаживания связей рудой
-                    button = self.doc.findFirst('.police-relations .button')
-                    if not button.isNull():
-                        logger.debug('Плачу взятку рудой.')
-
-                        # Нажать на кнопку что-то не получается, поэтому просто шлем запрос,
-                        # который и так бы отослался при клике на кнопку
-                        self.go('/police/relations/')
-
-                # TODO: если новый уровень выпал в момент выполнения задания, то возможна такая неприятная
-                # ситуация: попадаем на is_ready таски, делается переход к локации такси, перенапрявляет нас
-                # на страницу поздравления, мы это определяем, кликаем на кнопку, в этот момент is_ready
-                # возвращает True, и мы попадаем в функцию выполнения, которая снова переходит на страницу локации
-                # и снова нас перенапрявляет, мы это определяем, кликаем и это так может случится несколько раз
-                # TODO: возвращать признак перенаправления и по нему таска сама решает -- отменить или нет свое
-                # выполнение
-                #
-                # Проверка на новый уровень
-                if 'quest' in current_url:
-                    level_up = self.doc.findFirst('.levelup')
-                    if not level_up.isNull():
-                        # Показать столько побед / награблено
-                        for td in level_up.findAll('td'):
-                            logger.debug('Получен новый уровень! Результат:\n' + ' '.join(td.toPlainText().split()))
-
-                        # Ищем кнопку 'Вперед, к новым победам!' и кликаем на нее
-                        button = self.doc.findFirst('.levelup .button')
-                        if button.isNull():
-                            raise MoswarButtonIsMissError('Вперед, к новым победам!')
-
-                        button.evaluateJavaScript('this.click()')
+                    button.evaluateJavaScript('this.click()')
 
     def auth(self):
         """Функция загружает страницу мосвара, заполняет поля логина и пароля и нажимает на кнопку Войти.
@@ -418,7 +446,11 @@ class MainWindow(QMainWindow, QObject):
         logger.debug('Авторизуюсь.')
 
         # Открываем страницу мосвара
-        self.go()
+        url = self.moswar_url
+        logger.debug('Перехожу по адресу "%s"', url)
+
+        self.ui.view.load(url)
+        self.wait_loading()
 
         # Если закрыт доступ к сайту
         if 'closed.html' in self.current_url():

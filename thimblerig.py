@@ -7,7 +7,7 @@ __author__ = 'ipetrash'
 import random
 import time
 from PySide.QtCore import QObject, QTimer, Signal, QEventLoop
-from common import get_logger
+from common import get_logger, MoswarBotError, MoswarClosedError
 
 
 logger = get_logger('thimblerig')
@@ -68,68 +68,76 @@ class Thimblerig(QObject):
     def run(self):
         """Игра в наперстки."""
 
-        # Если в текущий бот в текущий момент занят и это не игра в Наперстки
-        if self._mw._used and 'thimble' not in self._mw.current_url():
-            logger.warn('Бот в данный момент занят процессом "%s". Выхожу из функции.', self._mw._used_process)
-            return
-
-        self._mw._used_process = "Игра в Наперстки"
-        logger.debug('Выполняю задание "%s".', self._mw._used_process)
-
-        self._mw.metro()
-
-        if 'metro' in self._mw.current_url():
-            # TODO: временное решение проблемы с закончившимися билетами, лучше через окно сделать
-            holders = self._mw.doc.findFirst('.metro-thimble .holders')
-            holders = holders.toPlainText().replace('Встреч с Моней на сегодня: ', '')
-            if int(holders) == 0:
-                logger.warn('Закончились билеты для игры в Наперстки.')
-                # TODO: добавить is_ready
-                # TODO: is_ready указывает на следующий день
+        try:
+            # Если в текущий бот в текущий момент занят и это не игра в Наперстки
+            if self._mw._used and 'thimble' not in self._mw.current_url():
+                logger.warn('Бот в данный момент занят процессом "%s". Выхожу из функции.', self._mw._used_process)
                 return
 
-        self._mw._used = True
+            self._mw._used_process = "Игра в Наперстки"
+            logger.debug('Выполняю задание "%s".', self._mw._used_process)
 
-        t = time.clock()
+            self._mw.metro()
 
-        if 'thimble' in self._mw.current_url():
-            logger.info('Игра в Наперстки уже была начала, продолжу играть.')
-        else:
-            # Эмулируем клик на кнопку "Начать играть"
-            self._mw.click_tag('.metro-thimble .button .c')
+            if 'metro' in self._mw.current_url():
+                # TODO: временное решение проблемы с закончившимися билетами, лучше через окно сделать
+                holders = self._mw.doc.findFirst('.metro-thimble .holders')
+                holders = holders.toPlainText().replace('Встреч с Моней на сегодня: ', '')
+                if int(holders) == 0:
+                    logger.warn('Закончились билеты для игры в Наперстки.')
+                    # TODO: добавить is_ready
+                    # TODO: is_ready указывает на следующий день
+                    return
 
-        # # TODO: не работает, т.к. окно не сразу появляется
-        # for el in self._mw.doc.findAll('.alert'):
-        #     text = el.findFirst('#alert-text')
-        #
-        #     print(el, text.toPlainText())
-        #     if not text.isNull() and 'Вы сегодня уже играли в наперстки с Моней Шацом' in text.toPlainText():
-        #         # TODO: добавить is_ready
-        #         # TODO: is_ready указывает на следующий день
-        #         logger.warn('Закончились билеты для игры в наперстки.')
-        #         self._mw._used = False
-        #         return
+            self._mw._used = True
 
-        self._ruda_count = 0
-        self._thimble_round_count = 0
+            t = time.clock()
 
-        self._timer_round_thimble.start()
+            if 'thimble' in self._mw.current_url():
+                logger.info('Игра в Наперстки уже была начала, продолжу играть.')
+            else:
+                # Эмулируем клик на кнопку "Начать играть"
+                self._mw.click_tag('.metro-thimble .button .c')
 
-        # Ждем пока закончится игра
-        loop = QEventLoop()
-        self.finished_thimble_game.connect(loop.quit)
-        loop.exec_()
+            # # TODO: не работает, т.к. окно не сразу появляется
+            # for el in self._mw.doc.findAll('.alert'):
+            #     text = el.findFirst('#alert-text')
+            #
+            #     print(el, text.toPlainText())
+            #     if not text.isNull() and 'Вы сегодня уже играли в наперстки с Моней Шацом' in text.toPlainText():
+            #         # TODO: добавить is_ready
+            #         # TODO: is_ready указывает на следующий день
+            #         logger.warn('Закончились билеты для игры в наперстки.')
+            #         self._mw._used = False
+            #         return
 
-        logger.debug('Длительность игры {:.1f} секунд'.format(time.clock() - t))
-        logger.debug('Игра в наперстки закончилась за {} раундов'.format(self._thimble_round_count))
-        logger.debug('Угадано {} руды. Потрачено {} тугриков.'.format(self._ruda_count,
-                                                                      self._thimble_round_count * 1500))
-        logger.debug('Удача {:.2f}%'.format(self._ruda_count / (self._thimble_round_count * 3) * 100))
+            self._ruda_count = 0
+            self._thimble_round_count = 0
 
-        # Эмулируем клик на кнопку "Я наигрался, хватит"
-        self._mw.go('thimble/leave')
+            self._timer_round_thimble.start()
 
-        self._mw._used = False
+            # Ждем пока закончится игра
+            loop = QEventLoop()
+            self.finished_thimble_game.connect(loop.quit)
+            loop.exec_()
+
+            logger.debug('Длительность игры {:.1f} секунд'.format(time.clock() - t))
+            logger.debug('Игра в наперстки закончилась за {} раундов'.format(self._thimble_round_count))
+            logger.debug('Угадано {} руды. Потрачено {} тугриков.'.format(self._ruda_count,
+                                                                          self._thimble_round_count * 1500))
+            logger.debug('Удача {:.2f}%'.format(self._ruda_count / (self._thimble_round_count * 3) * 100))
+
+            # Эмулируем клик на кнопку "Я наигрался, хватит"
+            self._mw.go('thimble/leave')
+
+        except MoswarClosedError:
+            raise
+
+        except Exception as e:
+            raise MoswarBotError(e)
+
+        finally:
+            self._mw._used = False
 
     def nine_thimble(self):
         """Функция для начала игры в девять наперстков."""

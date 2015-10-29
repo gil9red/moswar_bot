@@ -31,7 +31,6 @@ def get_logger(name, file='log.txt', encoding='utf8'):
     fh.setLevel(logging.DEBUG)
 
     ch = logging.StreamHandler(stream=sys.stdout)
-    # ch = logging.StreamHandler()
     ch.setLevel(logging.DEBUG)
 
     fh.setFormatter(formatter)
@@ -49,6 +48,11 @@ class MoswarBotError(Exception):
 
 class MoswarElementIsMissError(MoswarBotError):
     pass
+
+
+class MoswarClosedError(MoswarBotError):
+    def __init__(self, reason):
+        super().__init__('Сайт закрыт. Причина:\n"{}".'.format(reason))
 
 
 class MoswarButtonIsMissError(MoswarElementIsMissError):

@@ -264,7 +264,7 @@ class MainWindow(QMainWindow, QObject):
         self._used_process = None
 
         # Минимальная сумма для игры в Наперстки
-        self.min_money_for_thimblerig = 350000
+        self.min_money_for_thimblerig = 200000
 
     def _task_tick(self):
         """Функция для запуска задач."""

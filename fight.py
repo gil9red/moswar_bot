@@ -8,7 +8,7 @@ from urllib.parse import urljoin
 
 from PySide.QtCore import QObject, Signal, QTimer, QEventLoop
 
-from common import get_logger, MoswarElementIsMissError
+from common import get_logger, MoswarBotError, MoswarClosedError, MoswarElementIsMissError
 from waitable import Waitable
 
 
@@ -115,7 +115,8 @@ class Fight(QObject):
         self.min_diff_levels = 0
 
         # Максимальная разница в уровне с противником. Эта величина добавляется к текущему уровню персонажа.
-        self.max_diff_levels = 99
+        # Нельзя нападать на противника, у которого уровень больше трех от нашего
+        self.max_diff_levels = 3
 
     # Сигнал вызывается, когда противник на странице найден -- например, страница загрузилась
     _enemy_load_finished = Signal()
@@ -126,21 +127,30 @@ class Fight(QObject):
     def is_ready(self):
         """Возвращает True, если вызов метода run будет иметь смысл -- можем напасть, иначе False."""
 
-        # TODO: для того, чтобы метод self.fight.is_ready() работал правильно, текущим адресом должны
-        # быть Закоулки -- метод has_snikers, используемый в is_ready работает только в Закоулках
-        # Идем в Закоулки
-        self._mw.alley()
+        try:
+            # TODO: для того, чтобы метод self.fight.is_ready() работал правильно, текущим адресом должны
+            # быть Закоулки -- метод has_snikers, используемый в is_ready работает только в Закоулках
+            # Идем в Закоулки
+            self._mw.alley()
 
-        # TODO: рефакторинг с self._timeout_fight()
-        if self._timeout_fight() is not None:
-            logger.info('Напасть можно будет через %s секунд.', self._timeout_fight())
+            # TODO: рефакторинг с self._timeout_fight()
+            if self._timeout_fight() is not None:
+                logger.info('Напасть можно будет через %s секунд.', self._timeout_fight())
 
-        logger.info('self._timeout_fight() = %s.', self._timeout_fight())
-        logger.info('self.has_snickers() = %s.', self.has_snickers())
-        logger.info('self.is_ready() = %s.', self._timeout_fight() is None or self.has_snickers())
+            logger.info('self._timeout_fight() = %s.', self._timeout_fight())
+            logger.info('self.has_snickers() = %s.', self.has_snickers())
+            logger.info('self.is_ready() = %s.', self._timeout_fight() is None or self.has_snickers())
 
-        # True, если таймер закончился или есть Сникерс
-        return self._timeout_fight() is None or self.has_snickers()
+            # True, если таймер закончился или есть Сникерс
+            return self._timeout_fight() is None or self.has_snickers()
+
+        except MoswarClosedError:
+            raise
+
+        except Exception as e:
+            raise MoswarBotError(e)
+
+        return False
 
     def _timeout_fight(self):
         """Функция возвращает количество оставшихся секунд до возможности напасть.
@@ -159,67 +169,75 @@ class Fight(QObject):
         Уровень противника в пределах нашего +/- 1
         """
 
-        if self._mw._used:
-            logger.warn('Бот в данный момент занят процессом "%s". Выхожу из функции.', self._mw._used_process)
-            return
+        try:
+            if self._mw._used:
+                logger.warn('Бот в данный момент занят процессом "%s". Выхожу из функции.', self._mw._used_process)
+                return
 
-        self._mw._used_process = "Нападение на игроков"
-        logger.debug('Выполняю задание "%s".', self._mw._used_process)
+            self._mw._used_process = "Нападение на игроков"
+            logger.debug('Выполняю задание "%s".', self._mw._used_process)
 
-        self._mw.alley()
+            self._mw.alley()
 
-        # TODO: оптимиизровать использование сникерсов -- если они есть, сразу использовать и нападать и так,
-        # пока не будут потрачены все
+            # TODO: оптимиизровать использование сникерсов -- если они есть, сразу использовать и нападать и так,
+            # пока не будут потрачены все
 
-        if not self.is_ready():
-            logger.debug('Нападать еще нельзя.')
-            return
+            if not self.is_ready():
+                logger.debug('Нападать еще нельзя.')
+                return
 
-        self._mw._used = True
+            self._mw._used = True
 
-        # TODO: если есть тонус, использовать, чтобы сразу напасть
-        # TODO: флаг на разрешение использования тонуса, чтобы сразу напасть
-        # self.use_tonus()
+            # TODO: если есть тонус, использовать, чтобы сразу напасть
+            # TODO: флаг на разрешение использования тонуса, чтобы сразу напасть
+            # self.use_tonus()
 
-        # Если не получилось съесть Сникерс, восстанавливаем по старинке
-        if not self.eat_snickers():
-            if self._mw.current_hp() < self._mw.max_hp():
-                self._mw.restore_hp.run()
+            # Если не получилось съесть Сникерс, восстанавливаем по старинке
+            if not self.eat_snickers():
+                if self._mw.current_hp() < self._mw.max_hp():
+                    self._mw.restore_hp.run()
 
-        logger.debug('Нажимаю на кнопку "Отнять у слабого".')
-        # TODO: в одном из запусков дальше этой строки, похоже дело не пошло, возможно, страница с кнопкой
-        # не прогрузилась
+            logger.debug('Нажимаю на кнопку "Отнять у слабого".')
+            # TODO: в одном из запусков дальше этой строки, похоже дело не пошло, возможно, страница с кнопкой
+            # не прогрузилась
 
-        # Кликаем на кнопку "Отнять у слабого"
-        self._mw.click_tag(self._css_path_button_fight)
+            # Кликаем на кнопку "Отнять у слабого"
+            self._mw.click_tag(self._css_path_button_fight)
 
-        # Если не нашли подходящего противника, смотрим следующего
-        if not self._check_enemy():
-            self._timer_next_enemy.start()
+            # Если не нашли подходящего противника, смотрим следующего
+            if not self._check_enemy():
+                self._timer_next_enemy.start()
 
-            # Ожидаем пока противник не будет найден
-            loop = QEventLoop()
-            self._enemy_found.connect(loop.quit)
-            loop.exec_()
+                # Ожидаем пока противник не будет найден
+                loop = QEventLoop()
+                self._enemy_found.connect(loop.quit)
+                loop.exec_()
 
-        logger.debug('Нападаем на "%s" [%s]: %s.', self.enemy_name, self.enemy_level, self.enemy_url)
+            logger.debug('Нападаем на "%s" [%s]: %s.', self.enemy_name, self.enemy_level, self.enemy_url)
 
-        # Кликаем на кнопку "Напасть"
-        self._mw.click_tag('.button-fight a')
+            # Кликаем на кнопку "Напасть"
+            self._mw.click_tag('.button-fight a')
 
-        # Перемотка битвы
-        forward = '#controls-forward'
+            # Перемотка битвы
+            forward = '#controls-forward'
 
-        # Ждем пока после клика прогрузится страница и появится элемент
-        Waitable(self._mw).wait(forward)
+            # Ждем пока после клика прогрузится страница и появится элемент
+            Waitable(self._mw).wait(forward)
 
-        # Перематываем бой
-        self._mw.click_tag(forward)
+            # Перематываем бой
+            self._mw.click_tag(forward)
 
-        # Обрабатываем результаты боя
-        self.handle_results()
+            # Обрабатываем результаты боя
+            self.handle_results()
 
-        self._mw._used = False
+        except MoswarClosedError:
+            raise
+
+        except Exception as e:
+            raise MoswarBotError(e)
+
+        finally:
+            self._mw._used = False
 
     def name_winner(self):
         """Функция возвращает имя победителя в драке."""
@@ -264,6 +282,11 @@ class Fight(QObject):
             'Монеты': tugriki,
             'Опыт': result.findFirst('.expa').toPlainText(),
         }
+
+        neft = result.findFirst('.neft')
+        if not neft.isNull():
+            result_item_keys.append('Нефть')
+            result_dict['Нефть'] = int(neft.toPlainText())
 
         # Искры не всегда будут -- обычно перед праздниками они появляются
         sparkles = result.findFirst('.sparkles')

@@ -31,7 +31,6 @@ def get_logger(name, file='log.txt', encoding='utf8'):
     fh.setLevel(logging.DEBUG)
 
     ch = logging.StreamHandler(stream=sys.stdout)
-    # ch = logging.StreamHandler()
     ch.setLevel(logging.DEBUG)
 
     fh.setFormatter(formatter)
@@ -51,6 +50,11 @@ class MoswarElementIsMissError(MoswarBotError):
     pass
 
 
+class MoswarClosedError(MoswarBotError):
+    def __init__(self, reason):
+        super().__init__('Сайт закрыт. Причина:\n"{}".'.format(reason))
+
+
 class MoswarButtonIsMissError(MoswarElementIsMissError):
     def __init__(self, title_button):
         super().__init__('Не найдена кнопка "{}".'.format(title_button))
@@ -62,3 +66,5 @@ class MoswarAuthError(MoswarBotError):
 
 LOGIN = 'ilya.petrash@inbox.ru'
 PASSWORD = '0JHQu9GPRnVjazop'
+
+CONFIG_FILE = 'config'

@@ -173,6 +173,9 @@ from common import *
 # #         print(name, gift.findFirst('.button').attribute('id'))
 
 
+# TODO: прокачка вещей
+
+
 logger = get_logger('moswar_bot')
 
 

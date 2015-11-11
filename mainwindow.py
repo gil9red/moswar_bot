@@ -3,6 +3,7 @@
 
 __author__ = 'ipetrash'
 
+import io
 from urllib.parse import urljoin
 from random import random, randint
 
@@ -604,10 +605,18 @@ class MainWindow(QMainWindow, QObject):
 
         self.doc.evaluateJavaScript('alert("{}")'.format(text))
 
-    def slog(self, text):
+    def slog(self, *args, **kwargs):
         """Функция для добавления текста в виджет-лог, находящегося на форме."""
 
-        self.ui.simple_log.appendPlainText('{}'.format(text))
+        # Используем стандартный print для печати в строку
+        str_io = io.StringIO()
+        kwargs['file'] = str_io
+        kwargs['end'] = ''
+
+        print(*args, **kwargs)
+
+        text = str_io.getvalue()
+        self.ui.simple_log.appendPlainText(text)
 
     def read_settings(self):
         # TODO: при сложных настройках, лучше перейти на json или yaml

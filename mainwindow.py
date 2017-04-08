@@ -296,25 +296,22 @@ class MainWindow(QMainWindow, QObject):
                     self.fight.run()
 
             except MoswarClosedError as e:
-                logger.warn(e)
+                logger.exception("Error:")
 
                 # В случаи закрытия сайт, каждый час проверяем
                 interval = 60 * 60 * 1000
 
             except MoswarBotError as e:
-                logger.error(e)
+                logger.exception("Error:")
 
                 # Возможно, в следующий раз ошибки не будет
                 interval = 1 * 1000
 
             except Exception as e:
-                logger.error(e)
+                logger.exception("Error:")
 
                 # Возможно, в следующий раз ошибки не будет
                 interval = 1 * 1000
-
-                import traceback
-                traceback.print_exc()
 
             else:
                 # TODO: настраивать interval: спрашивать у другиз модулей их таймауты (если есть) и выбирать
